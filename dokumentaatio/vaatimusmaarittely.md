@@ -41,7 +41,7 @@ Tähän ei ole kuvaa, mutta pääasiallinen käyttöliittymä tulee olemaan yksi
 
 * Tarjota toiminnot UCPU-16-suoritinarkkitehtuurin symbolisesta konekielestä varsinaiselle konekielelle kääntämiseksi ja toisinpäin
 * Tarjota debug-konsoli, jolla voi tutkia ohjelman suoritusta käsky kerrallaan, katsoen samalla rekistereiden ja muistin tilaa
-** Konsolista voi suorittaa myös käskyjä, muokata ohjelmaa, tutkia ohjelman koodia (kääntäminen symboliseksi lennossa...)
+    * Konsolista voi suorittaa myös käskyjä, muokata ohjelmaa, tutkia ohjelman koodia (kääntäminen symboliseksi lennossa...)
 
 # Jatkokehitysideoita
 

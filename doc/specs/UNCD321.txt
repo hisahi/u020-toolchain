@@ -1,0 +1,160 @@
+UNCD321
+256x192 Planar Color Display
+
+HID = 0xdb7b373e
+VER = 0x321a
+MNF = 0x2590a31c (UNIVTEK_CORP)
+
+HWI:
+    A = 0 (MEM_MAP_SCREEN)
+        Maps screen memory to start at DCPU-16 memory at B.
+        If B is 0, screen is disconnected.
+        The amount of space needed depends on the video mode (see A = 6)
+
+    A = 1 (MEM_MAP_FONT)
+        Copies the font from RAM at address B. (1280 words)
+        If B is 0, the default font is restored.
+        Halts CPU for 1280 cycles.
+
+        Font format: 256 characters in 256 words, 5 words.
+            For example, character 0x41 (uppercase A by default)
+            (assuming font memory starts at 0x0000) will have the words at
+            0x0041 0x0141 0x0241 0x0341 0x0441
+                Layout: 
+                    aaaaaaaabbbbbbbb
+
+                    aaaaaaaa = top line
+                    bbbbbbbb = bottom line
+
+                    First word for character contains top 2 lines,
+                    and so on until bottom 2 lines.
+
+        If LEM1802 compatibility mode is enabled, it uses the LEM1802 font
+            layout instead, which is converted to a UNCD321 font.
+
+    A = 2 (MEM_MAP_PALETTE)
+        Copies the palette from RAM at address B. (16 words)
+        If B is 0, the default palette is restored.
+        Halts CPU for 16 cycles.
+
+        The default palette is:
+            0       Black               8       Dark Gray
+            1       Blue                9       Light Blue
+            2       Green               A       Light Green
+            3       Cyan                B       Light Cyan
+            4       Red                 C       Light Red
+            5       Purple              D       Light Purple
+            6       Orange              E       Light Yellow
+            7       Light Gray          F       White
+
+        Palette format: 4 bits per channel RGB 
+                Layout:
+                    ----rrrrggggbbbb
+                        ---- = No effect
+                        rrrr = Red component (0-15)
+                        gggg = Green component (0-15)
+                        bbbb = Blue component (0-15)
+
+    A = 3 
+        No effect, SET_BORDER_COLOR on LEM1802, but no border color here.
+
+    A = 4 (MEM_DUMP_FONT)
+        Copies the builtin font to DCPU-16 memory, starting at address B.
+        CPU halted for 1280 cycles (1280 words copied)
+
+        If LEM1802 compatibility mode is enabled, it copies the LEM1802 font
+            which halts CPU for 128 cycles (128 words copied)
+
+    A = 5 (MEM_DUMP_PALETTE)
+        Copies the builtin palette to DCPU-16 memory, starting at address B.
+        CPU halted for 16 cycles (16 words copied)
+
+    A = 6 (SET_VIDEO_MODE)
+        Sets the video mode based on the value of B (mod 4).
+
+        0   Text mode, 32 columns, 19 rows, 16 colors.
+                Layout (608 words):
+                    ffffbbbbcccccccc
+                        ffff = Foreground color (0-15)
+                        bbbb = Background color (0-15)
+                        cccccccc = Character (0-255), 8x8 font in ROM.
+                On LEM1802 compatibility mode:
+                    ffffbbbbBccccccc
+                        ffff = Foreground color (0-15)
+                        bbbb = Background color (0-15)
+                        B = whether to blink
+                        ccccccc = Character (0-127), 8x8 font in ROM.
+
+        1   Graphics mode, 256x192 (1 plane), 2 colors, 3072 words total.
+                One plane is 3072 words, each word contains 16 pixels
+                in a horizontal line (so one line is 16 words).
+
+        2   Graphics mode, 256x192 (2 planes), 4 colors, 6144 words total.
+                Planes are consecutively after each other in memory.
+
+        3   Graphics mode, 256x192 (4 planes), 16 colors, 12288 words total.
+
+        If the high bit is set (bit 15), the monitor enters LEM1802
+        compatibility mode, in which the text memory works a bit differently.
+        If it is not set, the monitor does not use LEM1802 compatibility.
+
+    A = 7 (GET_VIDEO_MODE)
+        Gets the video mode and stores it to C.
+
+    A = 8 (SET_TEXT_CURSOR)
+        Sets the text cursor at position B. 0x0000 represents the first row
+        and the first column. Since there are 32 columns and 19 rows,
+        0x0020 represents the first column in the second row, while the last
+        visible position is 0x025F. 0xFFFF disables the cursor, while any value
+        0x025F - 0xFFFE are considered to be 0xFFFF.
+
+        The cursor position will blink on and off, switching between BG and
+        FG colors. The cursor will only work in mode 0.
+
+    A = 9 (GET_TEXT_CURSOR)
+        C register will contain the current location of the cursor (0xFFFF if disabled)
+
+    A = A (SET_SPRITE_MEMORY)
+        Sets the offset to sprite memory at address B, total 256 words.
+        If B is 0, all sprites are disabled.
+
+        (16 words for 16 sprites in total)
+            Layout for one sprite:
+                Offset | Size | Data
+                  0000 | 0001 | 0x0000 disables sprite, other values enable
+                  0001 | 0001 | Location to sprite graphics.
+                       |      | Should have at most 3 planes of sprite data.
+                       |      | 16 words per plane, each word has 16 pixels
+                       |      | Therefore, sprites are 16x16 by default.
+                       |      | 16, 32, 48 words for 1, 2, 3 planes.
+                  0004 | 0001 | X coordinate
+                       |      | 0x0000 is left side of the screen
+                       |      | 0x0001 is one pixel from the left side
+                       |      | 0xFFFF is one pixel beyond the left side
+                  0005 | 0001 | Y coordinate
+                       |      | 0x0000 is top side of the screen
+                       |      | 0x0001 is one pixel from the top side
+                       |      | 0xFFFF is one pixel beyond the top side
+                  0006 | 0001 | Control flags --------ppP-xywh
+                       |      | pp: whether 1, 1, 2 or 3 planes are used
+                       |      | P: sprite priority (if 1, drawn behind BG)
+                       |      | x: Flip horizontally
+                       |      | y: Flip vertically
+                       |      | w: Double size horizontally (stretched)
+                       |      | h: Double size vertically (stretched)
+                  0007 | 0001 | Status flags --------------bs
+                       |      | b: collision with BG on last frame
+                       |      | (BG pixel over sprite pixel or
+                       |      |  sprite pixel over BG pixel)
+                       |      | s: collision with sprite on last frame
+                       |      | (sprite pixel over another sprite pixel or
+                       |      |  sprite pixel under another sprite pixel)
+                  0008 | 0008 | Palette (8 * ----rrrrggggbbbb)
+
+    A = B (GET_SPRITE_MEMORY)
+        C register will contain the current location for sprite memory (0 if disabled)
+
+    A = C (INTERRUPT_VSYNC)
+        If B is 0, disable interrupt (default). If B is non-zero, use it as
+        the interrupt message, with interrupts every frame (depends on settings)
+

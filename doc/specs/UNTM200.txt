@@ -1,0 +1,52 @@
+Univtek Timer (UNTM200)
+;
+;
+;        ID:             0x8f1705a6
+;        Version:         0xc801
+;        Manufacturer:    0x2590a31c (UNIVTEK_CORP)
+;
+;            This timer allows creating counters that increase every
+;            N cycles as well as interrupts every cycle.
+;
+;        A = 0:            SET INTERVAL
+;            The B and C registers are read. The timer will tick
+;            every C*65536 + B cycles, or if B and C are 0, the timer
+;            is disabled. The internal counter is reset to 0.
+;
+;            Since Univtek 020 runs at 2 MHz, a single cycle is roughly
+;            every 0.5 microseconds. However, the precision can only
+;            be guaranteed above 20 cycle intervals (>= 10 µs).
+;
+;            Returns:
+;                Nothing
+;
+;        A = 1:            GET COUNTER
+;            Polls the internal counter and returns the value in the
+;            C register: the number of ticks since the last call to
+;            A = 0 or A = 1.
+;            THE COUNTER IS RESET AFTER THIS CALL.
+;
+;            Returns:
+;                C = internal counter
+;
+;        A = 2:            SET INTERRUPT MESSAGES
+;            If B = 0, interrupts are disabled.
+;
+;            If B is nonzero, it is set as the interrupt message and
+;            interrupts will be triggered when ticks occur.
+;
+;            Usually, a tick will occur every interrupt, but
+;            it is still advised to check with A = 1 for the
+;            amount of ticks since last interrupt.
+;
+;            Returns:
+;                Nothing
+;
+;        A = 3:            GET INTERVAL
+;            Returns the last interval set to A = 0 in B and C.
+;
+;            Returns:
+;                B, C = timer interval
+;
+;       
+; Implementation detail: Interrupts will only happen every so often.

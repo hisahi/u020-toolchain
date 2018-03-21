@@ -9,7 +9,7 @@ See the "doc" folder for a full documentation.
 
 # Ohjelmistotekniikan menetelmät
 
-Tämä repositorio ja sen alla oleva ohjelma on tehty kevätlukukauden 2018 (2017-2018 periodi IV) Ohjelmistotekniikan menetelmät -kurssin harjoitustyönä. Ohjeiden mukaiset [alustava määrittelydokumentti](https://github.com/hisahi/u020-toolchain/blob/master/otm/vaatimusmaarittely.md) sekä [työaikakirjanpito](https://github.com/hisahi/u020-toolchain/blob/master/otm/tuntikirjanpito.md) löytyy myös tästä repositoriosta. Kaikki suoraan OTM-kirjanpitoon liittyvät asiakirjat löytyykin otm-kansion alta.
+Tämä repositorio ja sen alla oleva ohjelma on tehty kevätlukukauden 2018 (2017-2018 periodi IV) Ohjelmistotekniikan menetelmät -kurssin harjoitustyönä. Ohjeiden mukaiset [alustava määrittelydokumentti](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/vaatimusmaarittely.md) sekä [työaikakirjanpito](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/tuntikirjanpito.md) löytyy myös tästä repositoriosta. Kaikki suoraan OTM-kirjanpitoon liittyvät asiakirjat löytyykin dokumentaatio-kansion alta.
 
 
 

@@ -1,0 +1,70 @@
+;
+; Univtek Magnetic Hard Drive (UMHD210)
+;
+;        ID:              0xBEECD14A         
+;        Version:         0x00C2
+;        Manufacturer:    0x2590a31c (UNIVTEK_CORP)
+;
+;            This peripheral allows non-volatile magnetic storage of
+;            data. It has 512 words per sector, 17 sectors per track,
+;            12 heads and 300 cylinders, making the total storage size
+;            ~31.3 MW (31 334 400 words).
+;
+;            Average speed of reading:    18.3 kw/s
+;            Average speed of writing:    14.7 kw/s
+;
+;            Track seeking time:               1.5 ms / track.
+;            
+;
+;        A = 0:            POLL
+;            Requests the last status from the hard drive controller            
+;
+;            Returns:
+;                B: Status
+;                C: Last error
+;
+;        A = 1:            SECTOR READ
+;            Reads a sector into memory.
+;            
+;            Takes:
+;                C: Sector (0 - 61199, 0x0000 - 0xEF0F)
+;                X: Target RAM address to start reading to
+;                   (with at least 512 words of space)
+;            
+;            Returns:
+;                B: Last error, 0 if success (read starting).
+;                
+;        A = 2:            SECTOR WRITE
+;            Writes a sector into the hard drive.
+;        
+;            Takes:
+;                C: Sector (0 - 61199, 0x0000 - 0xEF0F)
+;                X: Target RAM address to start writing from
+;                   (with at least 512 words of data)
+;            
+;            Returns:
+;                B: Last error, 0 if success (write starting).
+;
+;        A = 3:            INTERRUPT
+;            Enables or disables interrupts. If B is 0, disables:
+;            else enables with message B. Interrupt is triggered when
+;            status or error changes.
+;            
+;            Takes:
+;                B: 0 if disabling, anything else if enabling.
+;
+;        Status codes:
+;            0x00000000 = HDD_READY
+;            0x00000001 = HDD_BUSY_READING
+;            0x00000002 = HDD_BUSY_WRITING
+;            0xFFFFFFFF = HDD_SEE_ERROR
+;
+;        Error codes:
+;            0x00000000 = HDD_ERROR_NONE
+;            0x00000001 = HDD_ERROR_BUSY
+;            0x00000002 = HDD_ERROR_BAD_SECTOR
+;            0x00000003 = HDD_ERROR_CONTROLLER_NO_DISK
+;            0x00000004 = HDD_ERROR_UNKNOWN_SECTOR
+;            0xFFFFFFFF = HDD_ERROR_CATASTROPHIC
+;
+;

@@ -1,0 +1,35 @@
+Univtek Digital to Analog Converter (UNAC810)
+;
+;
+;       ID:             0x2feaccd6
+;       Version:         0x2810
+;       Manufacturer:    0x2590a31c (UNIVTEK_CORP)
+;
+;           This system allows playback of 8-bit 10000 Hz mono
+;           PCM audio. The code on the CPU must time the sent samples
+;           properly by sending a sample every 0.1 milliseconds
+;           (Univtek 020 runs at 2 MHz, so every 200 cycles).
+;
+;       A = 0:            ENABLE OR DISABLE
+;           The DAC Is disabled if B = 0, or enabled otherwise.
+;           By default, it is disabled.
+;
+;       A = 1:            SET SAMPLE
+;           Sets the current sample. The samples must be timed
+;           properly, sent every 0.1 milliseconds. The sample rate,
+,           depth or number of channels cannot be changed.
+;           There is no buffer, so the samples must be timed exactly.
+;           Only the low 8 bits of the register B are read.
+;
+;           Returns:
+;                Nothing
+
+IMPORTANT NOTE!!!
+IMPORTANT NOTE!!!
+IMPORTANT NOTE!!!
+
+while this emulator may have a buffer,
+    it is an implementation detail.
+DO NOT PROGRAM YOUR SOFTWARE AROUND THIS!
+MAKE IT PROPERLY!!!
+

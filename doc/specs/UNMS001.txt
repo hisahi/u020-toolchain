@@ -1,0 +1,17 @@
+Name: UNMS001 Standard Mouse
+HID = 0xab212484
+VER = 0x0001
+MNF = 0x2590a31c (UNIVTEK_CORP)
+
+Interrupts do different things depending on contents of the A register:
+
+ A | BEHAVIOR
+---+----------------------------------------------------------------------------
+ 0 | Return mouse position on screen in registers X and Y
+ 1 | Return clicked mouse buttons (C = 0, add 1 if left click, 2 if right click)
+ 2 | If register B is non-zero, turn on interrupts with message B. If B is zero,
+   | disable interrupts
+---+----------------------------------------------------------------------------
+
+When interrupts are enabled, an interrupt will trigger every time the mouse is
+moved, or a mouse button is pressed or released.

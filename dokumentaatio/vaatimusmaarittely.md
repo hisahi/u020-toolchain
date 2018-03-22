@@ -46,6 +46,7 @@ Tähän ei ole kuvaa, mutta pääasiallinen käyttöliittymä tulee olemaan yksi
 # Jatkokehitysideoita
 
 * Paranna konekielikääntäjää (molempiin suuntiin). Suorita optimointeja? Tue lisää esikääntäjätoimintoja?
+* Lisätä tuki koko näytön tilalle
 * Lisätä tuki valinnaiselle [K8581-äänikortille](https://github.com/hisahi/u020-toolchain/blob/master/doc/specs/K8581.txt)
 * Lisätä valinnaiselle [UNHD210-kovalevyasemalle](https://github.com/hisahi/u020-toolchain/blob/master/doc/specs/UNHD210.txt)
 * Lisätä tuki mahdollisille muille lisälaitteille

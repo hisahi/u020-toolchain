@@ -47,7 +47,12 @@ public class EmuMenuFile extends EmuMenu {
     }
 
     private void addActions() {
-        
+        debugger.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                main.showDebugger("");
+            }
+        });
         exit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {

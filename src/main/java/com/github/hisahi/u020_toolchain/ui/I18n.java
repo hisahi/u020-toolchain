@@ -2,18 +2,9 @@
 package com.github.hisahi.u020_toolchain.ui; 
 
 import com.github.hisahi.u020_toolchain.file.LangJsonFileLoader;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.json.JSONObject;
 
 public class I18n {
     private static Map<String, String> keys = new HashMap<>();

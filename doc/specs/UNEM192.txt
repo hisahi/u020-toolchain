@@ -1,0 +1,34 @@
+// UNEM192
+// 192 kw extra memory module
+//
+// HID = 0xCA1C4B47
+// VER = 0x01c0
+// MNF = 0x2590a31c (UNIVTEK_CORP)
+//
+// HWI:
+//     A = 0 (QUERY_GET_BANK_LO)
+//         Returns B, which contains 16 bits.
+//             Bit N controls memory area N*0x1000 - (N+1)*0x1000-1
+//						(0: 0x0000 - 0x0FFF, 6: 0x6000 - 0x6FFF...)
+//             If bit is on, plane 1 instead of plane 0 (conventional)
+//                        or plane 3 instead of plane 2 (see A = 2)
+//			   Bits: FEDCBA9876543210 (note the order!)
+//
+//     A = 1 (QUERY_SET_BANK_LO)
+//         Adjusts banks based on the value of B. See A = 0
+//
+//     A = 2 (QUERY_GET_BANK_HI)
+//         Returns B, which contains 16 bits.
+//             Bit N controls memory area N*0x1000 - (N+1)*0x1000-1
+//						(0: 0x0000 - 0x0FFF, 6: 0x6000 - 0x6FFF...)
+//             If bit is on, plane 2 instead of plane 0 (conventional)
+//                        or plane 3 instead of plane 1 (see A = 0)
+//
+//     A = 3 (QUERY_SET_BANK_HI)
+//         Adjusts banks based on the value of B. See A = 2
+//
+//     A = 4 (QUERY_READ_WORD)
+//         Read one word to X from plane (B mod 4) at address I.
+//
+//     A = 5 (QUERY_WRITE_WORD)
+//         Write one word from X to plane (B mod 4) at address J.

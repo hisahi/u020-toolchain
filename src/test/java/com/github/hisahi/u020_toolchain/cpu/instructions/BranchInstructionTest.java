@@ -1,14 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.github.hisahi.u020_toolchain.cpu.instructions;
 
 import com.github.hisahi.u020_toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020_toolchain.cpu.UCPU16;
 import com.github.hisahi.u020_toolchain.cpu.addressing.AddressingMode;
-import static com.github.hisahi.u020_toolchain.cpu.instructions.BinaryInstructionTest.cpu;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -16,10 +11,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author hopea
- */
 public class BranchInstructionTest {
     public static UCPU16 cpu;
     public BranchInstructionTest() {

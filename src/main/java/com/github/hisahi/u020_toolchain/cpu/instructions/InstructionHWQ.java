@@ -1,7 +1,7 @@
 
 package com.github.hisahi.u020_toolchain.cpu.instructions; 
 
-import com.github.hisahi.u020_toolchain.cpu.Hardware;
+import com.github.hisahi.u020_toolchain.hardware.Hardware;
 import com.github.hisahi.u020_toolchain.cpu.UCPU16;
 import com.github.hisahi.u020_toolchain.cpu.addressing.IAddressingMode;
 

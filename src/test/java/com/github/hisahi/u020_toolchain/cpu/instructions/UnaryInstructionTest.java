@@ -1,15 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.github.hisahi.u020_toolchain.cpu.instructions;
 
-import com.github.hisahi.u020_toolchain.cpu.Hardware;
+import com.github.hisahi.u020_toolchain.hardware.Hardware;
 import com.github.hisahi.u020_toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020_toolchain.cpu.UCPU16;
 import com.github.hisahi.u020_toolchain.cpu.addressing.AddressingMode;
-import static com.github.hisahi.u020_toolchain.cpu.instructions.BinaryInstructionTest.cpu;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -17,10 +14,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author hopea
- */
 public class UnaryInstructionTest {
     
     public static UCPU16 cpu;
@@ -166,17 +159,17 @@ public class UnaryInstructionTest {
         }
         
         @Override
-        protected long hardwareId() {
+        public long hardwareId() {
             return 0x11110000;
         }
 
         @Override
-        protected int hardwareVersion() {
+        public int hardwareVersion() {
             return 0x2222;
         }
 
         @Override
-        protected long hardwareManufacturer() {
+        public long hardwareManufacturer() {
             return 0x44443333;
         }
 
@@ -187,6 +180,18 @@ public class UnaryInstructionTest {
 
         @Override
         public void tick() {
+        }
+
+        @Override
+        public void reset() {
+        }
+
+        @Override
+        public void saveState(DataOutputStream buf) {
+        }
+
+        @Override
+        public void restoreState(DataInputStream buf) {
         }
         
     }

@@ -2,6 +2,8 @@
 package com.github.hisahi.u020_toolchain.logic; 
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HighResolutionTimer {
     private long interval;
@@ -14,6 +16,13 @@ public class HighResolutionTimer {
         this.tickable = tickable;
         this.lastTick = this.leftover = 0L;
         this.stopped = new AtomicBoolean(true);
+    }
+    public void setSpeed(int hz) {
+        this.interval = 1000000000L / hz;
+        if (!stopped.get()) {
+            this.stop(); 
+            this.start();
+        }
     }
     public void start() {
         this.leftover = 0L;
@@ -40,10 +49,18 @@ public class HighResolutionTimer {
                             tickable.tick();
                         }
                     } else {
-                        Thread.yield();
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException ex) {
+                            Thread.yield();
+                        }
                     }
                 }
             }
         }.start();
+    }
+
+    public boolean isRunning() {
+        return !stopped.get();
     }
 }

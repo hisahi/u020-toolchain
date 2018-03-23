@@ -1,8 +1,13 @@
 
-package com.github.hisahi.u020_toolchain.cpu; 
+package com.github.hisahi.u020_toolchain.hardware; 
+
+import com.github.hisahi.u020_toolchain.cpu.UCPU16;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public abstract class Hardware {
-    private UCPU16 cpu;
+    protected UCPU16 cpu;
     public Hardware(UCPU16 cpu) {
         this.cpu = cpu;
     }
@@ -21,9 +26,11 @@ public abstract class Hardware {
     public int getManufacturerHigh() {
         return (int) ((hardwareManufacturer() >> 16) & 0xFFFF);
     }
-    protected abstract long hardwareId();
-    protected abstract int hardwareVersion();
-    protected abstract long hardwareManufacturer();
+    public abstract long hardwareId();
+    public abstract int hardwareVersion();
+    public abstract long hardwareManufacturer();
     public abstract void hwi(UCPU16 cpu);
-    public abstract void tick();
+    public abstract void reset();
+    public abstract void saveState(DataOutputStream stream) throws IOException;
+    public abstract void restoreState(DataInputStream stream) throws IOException;
 }

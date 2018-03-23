@@ -11,10 +11,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author hopea
- */
 public class BinaryInstructionTest {
     
     public static UCPU16 cpu;

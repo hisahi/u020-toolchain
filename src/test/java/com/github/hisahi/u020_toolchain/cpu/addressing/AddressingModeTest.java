@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.github.hisahi.u020_toolchain.cpu.addressing;
 
 import com.github.hisahi.u020_toolchain.cpu.StandardMemory;
@@ -14,10 +10,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author hopea
- */
 public class AddressingModeTest {
     
     private static UCPU16 cpu;

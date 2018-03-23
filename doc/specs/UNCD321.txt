@@ -106,7 +106,7 @@ HWI:
         and the first column. Since there are 32 columns and 19 rows,
         0x0020 represents the first column in the second row, while the last
         visible position is 0x025F. 0xFFFF disables the cursor, while any value
-        0x025F - 0xFFFE are considered to be 0xFFFF.
+        between 0x0260 - 0xFFFE is considered to be 0xFFFF.
 
         The cursor position will blink on and off, switching between BG and
         FG colors. The cursor will only work in mode 0.

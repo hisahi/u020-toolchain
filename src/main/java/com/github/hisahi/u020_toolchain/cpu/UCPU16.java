@@ -106,7 +106,7 @@ public class UCPU16 implements ITickable {
     public void addDevice(Hardware hw) {
         assert hw != null;
         if (hw instanceof ITickable) {
-            this.tickables.add(hw);
+            this.tickables.add((ITickable) hw);
         }
         this.devices.add(hw);
     }
@@ -122,50 +122,48 @@ public class UCPU16 implements ITickable {
             hw.tick();
         }
         if (cyclesLeft == 0) {
-            nextInstruction();
+            if (!this.queueInterrupts && !interruptQueue.isEmpty()) {
+                interrupt(interruptQueue.poll());
+                --cyclesLeft;
+                return;
+            }
+            int ibin = readMemoryAtPC();
+            int a = (ibin >> 10) & 0b111111;
+            int b = (ibin >> 5) & 0b11111;
+            int o = (ibin) & 0b11111;
+            int am = 0;
+            int bm = 0;
+            IAddressingMode ia = AddressingMode.decode(a);
+            IAddressingMode ib = null;
+            if (o != 0) {
+                ib = AddressingMode.decode(b);
+            }
+            IInstruction instr = Instruction.decode(a, b, o);
+            if (instr == null) {
+                debugger(I18n.format("error.illegalinstruction"));
+                --cyclesLeft;
+                return;
+            }
+            if (ia.takesNextWord()) {
+                am = readMemoryAtPC();
+            }
+            if (ib != null) {
+                this.cyclesLeft += ib.getCycles();
+                if (ib.takesNextWord()) {
+                    bm = readMemoryAtPC();
+                }
+            }
+            if (this.skipBranches) {
+                // skip multiple branch instructions if consecutive
+                this.skipBranches = instr instanceof InstructionBranch;
+                return;
+            }
+            this.cyclesLeft += ia.getCycles() + instr.getCycles();
+            instr.execute(this, ia, ib, am, bm);
         }
         --cyclesLeft;
     }
-
-    private void nextInstruction() {
-        if (!this.queueInterrupts && !interruptQueue.isEmpty()) {
-            interrupt(interruptQueue.poll());
-            return;
-        }
-        int ibin = readMemoryAtPC();
-        int a = (ibin >> 10) & 0b111111;
-        int b = (ibin >> 5) & 0b11111;
-        int o = (ibin) & 0b11111;
-        int am = 0;
-        int bm = 0;
-        IAddressingMode ia = AddressingMode.decode(a);
-        if (ia.takesNextWord()) {
-            am = readMemoryAtPC();
-        }
-        IAddressingMode ib = null;
-        if (o != 0) {
-            ib = AddressingMode.decode(b);
-            if (ib.takesNextWord()) {
-                bm = readMemoryAtPC();
-            }
-        }
-        IInstruction instr = Instruction.decode(a, b, o);
-        if (instr == null) {
-            debugger(I18n.format("error.illegalinstruction"));
-            return;
-        }
-        if (this.skipBranches) {
-            // skip multiple branch instructions if consecutive
-            this.skipBranches = instr instanceof InstructionBranch;
-            ++this.cyclesLeft;
-            return;
-        }
-        if (ib != null) 
-            this.cyclesLeft += ib.getCycles();
-        this.cyclesLeft += ia.getCycles() + instr.getCycles();
-        instr.execute(this, ia, ib, am, bm);
-    }
-
+    
     private void interrupt(Interrupt i) {
         this.cyclesLeft += 4;
         if (this.ia == 0)

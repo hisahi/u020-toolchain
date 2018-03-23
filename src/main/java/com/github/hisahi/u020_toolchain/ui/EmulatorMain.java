@@ -10,6 +10,7 @@ import com.github.hisahi.u020_toolchain.logic.HighResolutionTimer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -96,7 +97,12 @@ public class EmulatorMain extends Application {
     }
     
     public void showDebugger(String reason) {
-        debugger.showDebugger(reason);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                debugger.showDebugger(reason);
+            }
+        });
     }
 
     private MenuBar initializeMenu() {

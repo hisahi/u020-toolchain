@@ -39,18 +39,16 @@ public class HighResolutionTimer {
             @Override
             public void run() {
                 while (!stopped.get()) {
-                    long now = System.nanoTime();
-                    leftover += now - lastTick;
-                    lastTick = now;
-                    long cycles = leftover / interval;
-                    leftover %= interval;
-                    if (cycles > 0) {
-                        for (int i = 0; i < cycles; ++i) {
-                            tickable.tick();
-                        }
-                    } else {
+                    long n = System.nanoTime();
+                    leftover += n - lastTick;
+                    lastTick = n;
+                    for (n = 0; n < leftover; n += interval) {
+                        tickable.tick();
+                    }
+                    leftover -= n;
+                    if (n < 1) {
                         try {
-                            Thread.sleep(1);
+                            Thread.sleep(5);
                         } catch (InterruptedException ex) {
                             Thread.yield();
                         }

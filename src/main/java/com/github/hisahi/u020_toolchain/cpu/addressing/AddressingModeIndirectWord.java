@@ -28,4 +28,9 @@ public class AddressingModeIndirectWord implements IAddressingMode {
         cpu.getMemory().write(addr, val);
     }
 
+    @Override
+    public String format(boolean is_B, int val) {
+        return String.format("[0x%04x]", val);
+    }
+
 }

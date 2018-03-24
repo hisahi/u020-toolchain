@@ -22,4 +22,9 @@ public class InstructionMUL implements IInstruction {
         b.write(cpu, bm, (ib * ia) & 0xFFFF);
     }
 
+    @Override
+    public String getName() {
+        return "MUL";
+    }
+
 }

@@ -20,4 +20,9 @@ public class InstructionSTI implements IInstruction {
         cpu.increaseIJ();
     }
 
+    @Override
+    public String getName() {
+        return "STI";
+    }
+
 }

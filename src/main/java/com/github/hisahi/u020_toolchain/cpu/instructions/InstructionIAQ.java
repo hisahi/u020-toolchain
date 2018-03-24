@@ -19,4 +19,9 @@ public class InstructionIAQ implements IInstruction {
         cpu.setInterruptQueueingEnabled(a.read(cpu, am) != 0);
     }
 
+    @Override
+    public String getName() {
+        return "IAQ";
+    }
+
 }

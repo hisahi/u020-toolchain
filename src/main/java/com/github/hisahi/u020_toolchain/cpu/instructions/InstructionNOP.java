@@ -18,4 +18,9 @@ public class InstructionNOP implements IInstruction {
     public void execute(UCPU16 cpu, IAddressingMode a, IAddressingMode b, int am, int bm) {
     }
 
+    @Override
+    public String getName() {
+        return "NOP";
+    }
+
 }

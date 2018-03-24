@@ -19,4 +19,9 @@ public class InstructionSET implements IInstruction {
         b.write(cpu, bm, a.read(cpu, am));
     }
 
+    @Override
+    public String getName() {
+        return "SET";
+    }
+
 }

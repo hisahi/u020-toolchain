@@ -179,10 +179,6 @@ public class UnaryInstructionTest {
         }
 
         @Override
-        public void tick() {
-        }
-
-        @Override
         public void reset() {
         }
 

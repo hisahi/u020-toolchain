@@ -28,4 +28,9 @@ public class AddressingModeRegisterSP implements IAddressingMode {
         cpu.setSP(val);
     }
 
+    @Override
+    public String format(boolean is_B, int val) {
+        return "SP";
+    }
+
 }

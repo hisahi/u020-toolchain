@@ -19,4 +19,9 @@ public class InstructionIAS implements IInstruction {
         cpu.setIA(a.read(cpu, am));
     }
 
+    @Override
+    public String getName() {
+        return "IAS";
+    }
+
 }

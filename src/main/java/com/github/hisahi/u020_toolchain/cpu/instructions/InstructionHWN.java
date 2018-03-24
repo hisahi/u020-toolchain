@@ -19,4 +19,9 @@ public class InstructionHWN implements IInstruction {
         a.write(cpu, am, cpu.getDevices().size());
     }
 
+    @Override
+    public String getName() {
+        return "HWN";
+    }
+
 }

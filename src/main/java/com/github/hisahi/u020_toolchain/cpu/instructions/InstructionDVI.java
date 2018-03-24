@@ -27,4 +27,9 @@ public class InstructionDVI implements IInstruction {
         b.write(cpu, bm, (ib / ia) & 0xFFFF);
     }
 
+    @Override
+    public String getName() {
+        return "DVI";
+    }
+
 }

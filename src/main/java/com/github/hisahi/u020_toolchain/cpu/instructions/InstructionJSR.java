@@ -21,4 +21,9 @@ public class InstructionJSR implements IInstruction {
         cpu.setPC(ia);
     }
 
+    @Override
+    public String getName() {
+        return "JSR";
+    }
+
 }

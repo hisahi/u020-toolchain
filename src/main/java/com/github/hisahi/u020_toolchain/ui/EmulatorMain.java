@@ -3,9 +3,11 @@ package com.github.hisahi.u020_toolchain.ui;
 
 import com.github.hisahi.u020_toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020_toolchain.cpu.UCPU16;
+import com.github.hisahi.u020_toolchain.hardware.Clock;
 import com.github.hisahi.u020_toolchain.hardware.Keyboard;
 import com.github.hisahi.u020_toolchain.hardware.UNCD321;
 import com.github.hisahi.u020_toolchain.hardware.UNEM192;
+import com.github.hisahi.u020_toolchain.hardware.UNTM200;
 import com.github.hisahi.u020_toolchain.logic.HighResolutionTimer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -41,6 +43,8 @@ public class EmulatorMain extends Application {
     UNCD321 uncd321;
     Keyboard keyboard;
     UNEM192 unem192;
+    Clock clock;
+    UNTM200 untm200;
     Canvas screen;
     GraphicsContext ctx;
     PixelWriter pw;
@@ -85,8 +89,8 @@ public class EmulatorMain extends Application {
         });
         
         initCPU();
+        //initDevices(); called via CPU reset now
         initDisplay();
-        initDevices();
         
         debugger = new Debugger(this);
         
@@ -138,10 +142,12 @@ public class EmulatorMain extends Application {
         System.exit(0);
     }
     
-    public void changeDevices(UNCD321 monitor, Keyboard keyboard, UNEM192 memory) {
+    public void changeDevices(UNCD321 monitor, Keyboard keyboard, UNEM192 memory, Clock clock, UNTM200 untm200) {
         this.uncd321 = monitor;
         this.keyboard = keyboard;
         this.unem192 = memory;
+        this.clock = clock;
+        this.untm200 = untm200;
     }
 
     private void addKeyEvents() {
@@ -175,6 +181,8 @@ public class EmulatorMain extends Application {
         this.cpu.addDevice(this.uncd321 = new UNCD321(this.cpu, this));
         this.cpu.addDevice(this.keyboard = new Keyboard(this.cpu));
         this.cpu.addDevice(this.unem192 = new UNEM192(this.cpu));
+        this.cpu.addDevice(this.clock = new Clock(this.cpu));
+        this.cpu.addDevice(this.untm200 = new UNTM200(this.cpu));
     }
 
     private void initDisplay() {

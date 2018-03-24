@@ -23,4 +23,9 @@ public class InstructionADX implements IInstruction {
         b.write(cpu, bm, (ib + ia + ex) & 0xFFFF);
     }
 
+    @Override
+    public String getName() {
+        return "ADX";
+    }
+
 }

@@ -19,5 +19,6 @@ public abstract class InstructionBranch implements IInstruction {
     }
     
     public abstract boolean take(UCPU16 cpu, IAddressingMode a, IAddressingMode b, int am, int bm);
+    public abstract String getName();
 
 }

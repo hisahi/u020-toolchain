@@ -13,4 +13,9 @@ public class InstructionIFB extends InstructionBranch {
         return (ia & ib) != 0;
     }
 
+    @Override
+    public String getName() {
+        return "IFB";
+    }
+
 }

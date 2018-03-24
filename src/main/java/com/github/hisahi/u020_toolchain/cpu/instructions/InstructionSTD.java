@@ -20,4 +20,9 @@ public class InstructionSTD implements IInstruction {
         cpu.decreaseIJ();
     }
 
+    @Override
+    public String getName() {
+        return "STD";
+    }
+
 }

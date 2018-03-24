@@ -20,4 +20,9 @@ public class InstructionSXB implements IInstruction {
         a.write(cpu, am, Operations.signExtend8_16(ia & 0xFF));
     }
 
+    @Override
+    public String getName() {
+        return "SXB";
+    }
+
 }

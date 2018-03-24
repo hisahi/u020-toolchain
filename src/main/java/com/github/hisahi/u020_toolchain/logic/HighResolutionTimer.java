@@ -11,11 +11,13 @@ public class HighResolutionTimer {
     private AtomicBoolean stopped;
     private long lastTick;
     private long leftover;
+    private Thread currentThread;
     public HighResolutionTimer(int hz, ITickable tickable) {
         this.interval = 1000000000L / hz;
         this.tickable = tickable;
         this.lastTick = this.leftover = 0L;
         this.stopped = new AtomicBoolean(true);
+        this.currentThread = null;
     }
     public void setSpeed(int hz) {
         this.interval = 1000000000L / hz;
@@ -33,29 +35,35 @@ public class HighResolutionTimer {
     }
     public void stop() {
         stopped.set(true);
+        if (this.currentThread != null) {
+            this.currentThread.interrupt();
+            this.currentThread = null;
+        }
     }
     private void startThread() {
-        new Thread() {
+        this.currentThread = new Thread() {
             @Override
             public void run() {
-                while (!stopped.get()) {
+                while (!Thread.interrupted()) {
                     long n = System.nanoTime();
                     leftover += n - lastTick;
                     lastTick = n;
                     for (n = 0; n < leftover; n += interval) {
                         tickable.tick();
+                        if (Thread.interrupted()) return;
                     }
                     leftover -= n;
                     if (n < 1) {
                         try {
                             Thread.sleep(5);
                         } catch (InterruptedException ex) {
-                            Thread.yield();
+                            return;
                         }
                     }
                 }
             }
-        }.start();
+        };
+        this.currentThread.start();
     }
 
     public boolean isRunning() {

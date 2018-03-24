@@ -30,4 +30,9 @@ public class AddressingModeLiteral implements IAddressingMode {
     public void write(UCPU16 cpu, int addr, int val) {
     }
 
+    @Override
+    public String format(boolean is_B, int val) {
+        return String.valueOf(this.val);
+    }
+
 }

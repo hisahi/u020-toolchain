@@ -21,4 +21,9 @@ public class InstructionAND implements IInstruction {
         b.write(cpu, bm, ib & ia);
     }
 
+    @Override
+    public String getName() {
+        return "AND";
+    }
+
 }

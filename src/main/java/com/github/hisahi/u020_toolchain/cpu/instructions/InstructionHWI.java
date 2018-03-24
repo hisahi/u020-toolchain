@@ -23,4 +23,9 @@ public class InstructionHWI implements IInstruction {
         cpu.getDevices().get(ia).hwi(cpu);
     }
 
+    @Override
+    public String getName() {
+        return "HWI";
+    }
+
 }

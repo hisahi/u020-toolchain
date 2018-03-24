@@ -19,4 +19,9 @@ public class InstructionDBG implements IInstruction {
         cpu.debugger("DBG instruction");
     }
 
+    @Override
+    public String getName() {
+        return "DBG!";
+    }
+
 }

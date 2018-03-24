@@ -21,4 +21,9 @@ public class InstructionRFI implements IInstruction {
         cpu.setPC(cpu.stackPop());
     }
 
+    @Override
+    public String getName() {
+        return "RFI";
+    }
+
 }

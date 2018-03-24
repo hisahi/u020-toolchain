@@ -8,4 +8,5 @@ public interface IAddressingMode {
     public int getCycles();
     public int read(UCPU16 cpu, int addr);
     public void write(UCPU16 cpu, int addr, int val);
+    public String format(boolean is_B, int val);
 }

@@ -28,4 +28,9 @@ public class AddressingModeStackPick implements IAddressingMode {
         cpu.getMemory().write((cpu.getSP() + addr) & 0xFFFF, val);
     }
 
+    @Override
+    public String format(boolean is_B, int val) {
+        return "[SP+" + String.format("0x%04x",val) + "]";
+    }
+
 }

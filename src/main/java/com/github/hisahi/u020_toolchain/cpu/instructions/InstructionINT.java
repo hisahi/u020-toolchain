@@ -19,4 +19,9 @@ public class InstructionINT implements IInstruction {
         cpu.queueInterrupt(a.read(cpu, am));
     }
 
+    @Override
+    public String getName() {
+        return "INT";
+    }
+
 }

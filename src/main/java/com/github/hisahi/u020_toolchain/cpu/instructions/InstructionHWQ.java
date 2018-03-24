@@ -29,4 +29,9 @@ public class InstructionHWQ implements IInstruction {
         cpu.writeRegister(4, device.getManufacturerHigh());
     }
 
+    @Override
+    public String getName() {
+        return "HWQ";
+    }
+
 }

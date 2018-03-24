@@ -28,4 +28,9 @@ public class AddressingModeRegisterPC implements IAddressingMode {
         cpu.setPC(val);
     }
 
+    @Override
+    public String format(boolean is_B, int val) {
+        return "PC";
+    }
+
 }

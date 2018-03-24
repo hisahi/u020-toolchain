@@ -20,4 +20,9 @@ public class InstructionSWP implements IInstruction {
         a.write(cpu, am, (((ia << 8) & 0xFF00) | (ia >> 8)) & 0xFFFF);
     }
 
+    @Override
+    public String getName() {
+        return "SWP";
+    }
+
 }

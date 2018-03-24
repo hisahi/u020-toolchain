@@ -28,4 +28,9 @@ public class AddressingModeStackPushPop implements IAddressingMode {
         cpu.stackPush(val);
     }
 
+    @Override
+    public String format(boolean is_B, int val) {
+        return is_B ? "PUSH" : "POP";
+    }
+
 }

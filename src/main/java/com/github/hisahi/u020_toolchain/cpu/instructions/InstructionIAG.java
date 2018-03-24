@@ -19,4 +19,9 @@ public class InstructionIAG implements IInstruction {
         a.write(cpu, am, cpu.getIA());
     }
 
+    @Override
+    public String getName() {
+        return "IAG";
+    }
+
 }

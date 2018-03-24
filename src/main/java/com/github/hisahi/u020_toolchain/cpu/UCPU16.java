@@ -7,9 +7,11 @@ import com.github.hisahi.u020_toolchain.cpu.addressing.IAddressingMode;
 import com.github.hisahi.u020_toolchain.cpu.instructions.IInstruction;
 import com.github.hisahi.u020_toolchain.cpu.instructions.Instruction;
 import com.github.hisahi.u020_toolchain.cpu.instructions.InstructionBranch;
+import com.github.hisahi.u020_toolchain.hardware.Clock;
 import com.github.hisahi.u020_toolchain.hardware.Keyboard;
 import com.github.hisahi.u020_toolchain.hardware.UNCD321;
 import com.github.hisahi.u020_toolchain.hardware.UNEM192;
+import com.github.hisahi.u020_toolchain.hardware.UNTM200;
 import com.github.hisahi.u020_toolchain.logic.HighResolutionTimer;
 import com.github.hisahi.u020_toolchain.logic.ITickable;
 import com.github.hisahi.u020_toolchain.ui.EmulatorMain;
@@ -20,8 +22,11 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +41,9 @@ public class UCPU16 implements ITickable {
     public static final int REG_I = 6;
     public static final int REG_J = 7;
     public boolean paused;
+    private boolean interruptHandled;
+    private boolean breakpointsEnabled;
+    public Set<Integer> breakpoints;
     boolean queueInterrupts;
     Queue<Interrupt> interruptQueue;
     StandardMemory mem;
@@ -65,6 +73,8 @@ public class UCPU16 implements ITickable {
         this.devices = new ArrayList<>();
         this.tickables = new ArrayList<>();
         this.main = null;
+        this.breakpointsEnabled = false;
+        this.breakpoints = new HashSet<>();
         this.reset(true);
     }
     public UCPU16(StandardMemory mem, EmulatorMain main) {
@@ -86,10 +96,8 @@ public class UCPU16 implements ITickable {
                 = this.rI = this.rJ = 0;
         this.pc = this.sp = this.ex = this.ia = 0;
         this.cyclesLeft = this.totalCycles = 0L;
-        this.queueInterrupts = false;
         this.interruptQueue = new ArrayDeque<>();
-        this.halt = false;
-        this.skipBranches = false;
+        this.halt = this.queueInterrupts = this.interruptHandled = this.skipBranches = false;
         if (rewriteROM) {
             this.rewriteFromROM();
         }
@@ -105,6 +113,11 @@ public class UCPU16 implements ITickable {
     
     public void addDevice(Hardware hw) {
         assert hw != null;
+        for (Hardware h: devices) {
+            if (h.hardwareId() == hw.hardwareId()) {
+                throw new IllegalArgumentException("hardware with ID " + String.format("%08x", hw.hardwareId()) + " is already attached!");
+            }
+        }
         if (hw instanceof ITickable) {
             this.tickables.add((ITickable) hw);
         }
@@ -122,10 +135,12 @@ public class UCPU16 implements ITickable {
             hw.tick();
         }
         if (cyclesLeft == 0) {
-            if (!this.queueInterrupts && !interruptQueue.isEmpty()) {
-                interrupt(interruptQueue.poll());
-                --cyclesLeft;
-                return;
+            if (this.breakpointsEnabled) {
+                if (breakpoints.contains(pc)) {
+                    this.paused = true;
+                    debugger(I18n.format("debugger.breakpoint"));
+                    return;
+                }
             }
             int ibin = readMemoryAtPC();
             int a = (ibin >> 10) & 0b111111;
@@ -140,6 +155,7 @@ public class UCPU16 implements ITickable {
             }
             IInstruction instr = Instruction.decode(a, b, o);
             if (instr == null) {
+                this.halt = true;
                 debugger(I18n.format("error.illegalinstruction"));
                 --cyclesLeft;
                 return;
@@ -148,7 +164,6 @@ public class UCPU16 implements ITickable {
                 am = readMemoryAtPC();
             }
             if (ib != null) {
-                this.cyclesLeft += ib.getCycles();
                 if (ib.takesNextWord()) {
                     bm = readMemoryAtPC();
                 }
@@ -158,7 +173,17 @@ public class UCPU16 implements ITickable {
                 this.skipBranches = instr instanceof InstructionBranch;
                 return;
             }
+            if (!this.queueInterrupts && !interruptQueue.isEmpty()) {
+                interrupt(interruptQueue.poll());
+                this.interruptHandled = true;
+                --cyclesLeft;
+                return;
+            }
+            this.interruptHandled = false;
             this.cyclesLeft += ia.getCycles() + instr.getCycles();
+            if (ib != null) {
+                this.cyclesLeft += ib.getCycles();
+            }
             instr.execute(this, ia, ib, am, bm);
         }
         --cyclesLeft;
@@ -181,6 +206,7 @@ public class UCPU16 implements ITickable {
     
     public void queueInterrupt(int msg) {
         if (interruptQueue.size() >= 256) {
+            this.halt = true;
             debugger(I18n.format("error.intqueuefull"));
             return;
         }
@@ -278,7 +304,6 @@ public class UCPU16 implements ITickable {
     }
 
     public void debugger(String reason) {
-        this.halt = true;
         main.showDebugger(reason);
     }
 
@@ -304,6 +329,7 @@ public class UCPU16 implements ITickable {
 
     public String dumpRegisters() {
         StringBuilder sb = new StringBuilder();
+        sb.append(".");
         sb.append("  A:" + String.format("%04x", rA) + " ");
         sb.append("  B:" + String.format("%04x", rB) + " ");
         sb.append("  C:" + String.format("%04x", rC) + " ");
@@ -316,10 +342,12 @@ public class UCPU16 implements ITickable {
         sb.append(" SP:" + String.format("%04x", sp) + " ");
         sb.append(" EX:" + String.format("%04x", ex) + " ");
         sb.append(" IA:" + String.format("%04x", ia) + "\n");
-        return sb.toString().trim();
+        return sb.toString().trim().substring(1);
     }
     
     public void saveState(DataOutputStream stream) throws IOException {
+        boolean restart = this.clock.isRunning();
+        this.clock.stop();
         stream.writeLong(cyclesLeft);
         stream.writeInt(halt ? 1 : 0);
         stream.writeInt(skipBranches ? 1 : 0);
@@ -348,6 +376,9 @@ public class UCPU16 implements ITickable {
             stream.writeInt((int) hw.hardwareId());
             hw.saveState(stream);
         }
+        if (restart) {
+            this.clock.start();
+        }
     }
     
     public Hardware identifyDeviceFromId(long d) {
@@ -363,6 +394,8 @@ public class UCPU16 implements ITickable {
     }
 
     public void restoreState(DataInputStream stream) throws IOException {
+        boolean restart = this.clock.isRunning();
+        this.clock.stop();
         this.interruptQueue.clear();
         this.devices.clear();
         cyclesLeft = stream.readLong();
@@ -392,6 +425,8 @@ public class UCPU16 implements ITickable {
         UNCD321 uncd321 = null;
         Keyboard keyboard = null;
         UNEM192 unem192 = null;
+        Clock clock = null;
+        UNTM200 untm200 = null;
         for (int i = 0; i < dn; ++i) {
             long id = (long)stream.readInt() & 0xFFFFFFFFL;
             Hardware hw = identifyDeviceFromId(id);
@@ -402,15 +437,26 @@ public class UCPU16 implements ITickable {
                     keyboard = (Keyboard) hw;
                 } else if (hw instanceof UNEM192) {
                     unem192 = (UNEM192) hw;
+                } else if (hw instanceof Clock) {
+                    clock = (Clock) hw;
+                } else if (hw instanceof UNTM200) {
+                    untm200 = (UNTM200) hw;
                 }
                 this.addDevice(hw);
                 hw.restoreState(stream);
             }
         }
-        if (uncd321 == null || keyboard == null || unem192 == null) {
+        if (uncd321 == null 
+                || keyboard == null 
+                || unem192 == null 
+                || clock == null 
+                || untm200 == null) {
             throw new IOException("missing devices: savestate invalid");
         } else {
-            main.changeDevices(uncd321, keyboard, unem192);
+            main.changeDevices(uncd321, keyboard, unem192, clock, untm200);
+        }
+        if (restart) {
+            this.clock.start();
         }
     }
 
@@ -420,5 +466,25 @@ public class UCPU16 implements ITickable {
 
     public void setClock(HighResolutionTimer cpuclock) {
         this.clock = cpuclock;
+    }
+
+    public boolean isHalted() {
+        return halt;
+    }
+
+    public int getCyclesLeft() {
+        return (int) this.cyclesLeft;
+    }
+    
+    public boolean wasInterruptHandled() {
+        return this.interruptHandled;
+    }
+
+    public void enableBreakpoints() {
+        this.breakpointsEnabled = true;
+    }
+
+    public void disableBreakpoints() {
+        this.breakpointsEnabled = false;
     }
 }

@@ -21,4 +21,9 @@ public class InstructionBSR implements IInstruction {
         cpu.setPC((cpu.getPC() + ia) & 0xFFFF);
     }
 
+    @Override
+    public String getName() {
+        return "BSR";
+    }
+
 }

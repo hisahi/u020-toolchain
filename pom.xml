@@ -3,10 +3,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.github.hisahi.u020_toolchain</groupId>
+  <groupId>com.github.hisahi.u020toolchain</groupId>
   <artifactId>u020-toolchain</artifactId>
   <packaging>jar</packaging>
-  <version>0.1</version>
+  <version>0.2</version>
   <name>Univtek 020 Toolchain</name>
   <url>https://github.com/hisahi/u020-toolchain/</url>
   <dependencies>
@@ -49,19 +49,6 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.17</version>
-        <configuration>
-        <configLocation>checkstyle.xml</configLocation>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.5</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>1.6</version>
         <executions>
@@ -73,7 +60,7 @@
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.github.hisahi.u020_toolchain.ui.EmulatorMain</mainClass>
+                  <mainClass>com.github.hisahi.u020toolchain.ui.EmulatorMain</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -87,10 +74,23 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.github.hisahi.u020_toolchain.ui.EmulatorMain</mainClass>
+              <mainClass>com.github.hisahi.u020toolchain.ui.EmulatorMain</mainClass>
             </manifest>
           </archive>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.17</version>
+        <configuration>
+          <configLocation>checkstyle.xml</configLocation>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>2.5</version>
       </plugin>
     </plugins>
   </build>

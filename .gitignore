@@ -1,5 +1,7 @@
 /target/
+.gitignore
 nbactions.xml
+settings.json
 /private/
 /nbproject/private/
 /nbproject/

@@ -68,7 +68,7 @@ public class UCPU16Test {
     
     @Test
     public void basicFpTest() {
-        /// TODO if BASIC updates, this vector need to be changed
+        /// TODO if BASIC updates, this vector needs to be changed
         final int FP0_sqrt = 0x37e9;
         // try to compute the square root of 0.5 using the BASIC ROM
         // floating point functions (CPU test)

@@ -7,3 +7,4 @@
 | 23.3. | 450        | näyttö (UNCD321), lisämuisti (UNEM192), näppäimistö, käyttöliittymä edistyy, optimointia, korjauksia |
 | 24.3. | 180        | kellolaite, ajastinlaite (UNTM200), debuggauskonsolin ensimmäinen versio, optimointi |
 | 29.3. | 180        | Checkstylen käyttöönotto, M35FD, lisää testejä (CPU, näppäimistö, kellolaite, UNTM200) |
+| 30.3. | 120        | asetusikkuna, käyttöliittymät konekielelle & konekieleltä kääntäjille, pieniä korjauksia |

@@ -21,6 +21,9 @@ public class ConfigFileHandler {
     public void put(String key, Object what) {
         map.put(key, what);
     }
+    public void clear() {
+        map.clear();
+    }
     public void loadConfig() {
         try {
             this.map = new HashMap<>();

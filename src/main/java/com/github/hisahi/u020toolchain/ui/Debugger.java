@@ -43,8 +43,8 @@ public class Debugger {
         cmd = new TextField();
         log.setEditable(false);
         cmd.setEditable(true);
-        log.setFont(Font.font("Monospaced"));
-        cmd.setFont(Font.font("Monospaced"));
+        log.setFont(main.getMonospacedFont());
+        cmd.setFont(main.getMonospacedFont());
         ((VBox) debuggerScene.getRoot()).getChildren().addAll(log, cmd);
         VBox.setVgrow(log, Priority.ALWAYS);
         cmd.setOnKeyPressed(new EventHandler<KeyEvent>() {

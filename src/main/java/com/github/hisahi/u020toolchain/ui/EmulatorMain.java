@@ -15,7 +15,10 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -26,6 +29,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -41,6 +45,8 @@ public class EmulatorMain extends Application {
     private Scene mainScene;
     Debugger debugger;
     EmulatorOptions options;
+    EmulatorAssembler asmwnd;
+    EmulatorDisassembler disasmwnd;
     UCPU16 cpu;
     HighResolutionTimer cpuclock;
     UNCD321 uncd321;
@@ -58,6 +64,9 @@ public class EmulatorMain extends Application {
     EmuMenuHelp menuHelp;
     int quickState;
     long animationTimer;
+    boolean shouldHideCursor;
+    boolean pauseIfInactive;
+    private boolean pausedInactive;
     
     @Override
     public void start(Stage stage) {
@@ -83,7 +92,8 @@ public class EmulatorMain extends Application {
         screenGroup.getChildren().add(screen);
         ((VBox) mainScene.getRoot()).getChildren().addAll(screenGroup);
         
-        addKeyEvents();
+        addScreenEvents();
+        addFocusBlurEvents();
         
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
@@ -98,6 +108,8 @@ public class EmulatorMain extends Application {
         
         debugger = new Debugger(this);
         options = new EmulatorOptions(this);
+        asmwnd = new EmulatorAssembler(this);
+        disasmwnd = new EmulatorDisassembler(this);
         options.reloadConfig();
         
         updateFloppies();
@@ -159,7 +171,7 @@ public class EmulatorMain extends Application {
         this.updateFloppies();
     }
 
-    private void addKeyEvents() {
+    private void addScreenEvents() {
         this.screen.setFocusTraversable(true);
         this.screen.addEventFilter(MouseEvent.MOUSE_CLICKED, (e) -> this.screen.requestFocus());
         this.screen.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -174,6 +186,39 @@ public class EmulatorMain extends Application {
             public void handle(KeyEvent event) {
                 keyboard.keyUp(event.getCode(), event.isShiftDown(), event.isControlDown());
                 event.consume();
+            }
+        });
+        this.screen.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (shouldHideCursor) {
+                    mainScene.setCursor(Cursor.NONE);
+                }
+            }
+        });
+        this.screen.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (Cursor.NONE.equals(mainScene.getCursor())) {
+                    mainScene.setCursor(Cursor.DEFAULT);
+                }
+            }
+        });
+    }
+
+    private void addFocusBlurEvents() {
+        mainStage.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue.booleanValue()) {
+                    if (pausedInactive) {
+                        cpu.paused = pausedInactive = false;
+                    }
+                } else {
+                    if (pauseIfInactive && cpuclock.isRunning()) {
+                        cpu.paused = pausedInactive = true;
+                    }
+                }
             }
         });
     }
@@ -202,7 +247,7 @@ public class EmulatorMain extends Application {
                 if (animationTimer == Long.MIN_VALUE) {
                     animationTimer = now;
                 } else {
-                    if ((now - animationTimer) >= 33000000) { // 33 ms
+                    if ((now - animationTimer) >= 16600000) { // 16.6 ms (60 fps)
                         animationTimer = now;
                     } else {
                         return;
@@ -236,7 +281,10 @@ public class EmulatorMain extends Application {
     }
 
     void showOptions() {
+        boolean oldPaused = cpu.paused;
+        cpu.paused = true;
         options.show();
+        cpu.paused = oldPaused;
     }
 
     void updateFloppies() {
@@ -271,5 +319,9 @@ public class EmulatorMain extends Application {
         if (drive != null) {
             drive.setWriteProtected(wp);
         }
+    }
+
+    Font getMonospacedFont() {
+        return Font.font("Monospaced");
     }
 }

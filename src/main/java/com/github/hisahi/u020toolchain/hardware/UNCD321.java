@@ -25,7 +25,7 @@ public class UNCD321 extends Hardware {
     private int vsyncint;
     private int cursorpos;
     private long lastblink;
-    private boolean cursorblink;
+    private boolean cursoron;
     private int[] buffer;
     private EmulatorMain main;
     private UNCD321(UCPU16 cpu) {
@@ -64,10 +64,33 @@ public class UNCD321 extends Hardware {
                 }
                 break;
             case 1:
-                this.cpu.addCycles(1280);
                 if (this.lem) {
-                    /// TODO read and convert LEM font
+                    this.cpu.addCycles(256);
+                    for (int c = 0; c < 128; ++c) {
+                        int lo = cpu.getMemory().array()[(c * 2) & 0xFFFF];
+                        int hi = cpu.getMemory().array()[(c * 2 + 1) & 0xFFFF];
+                        boolean[] l = new boolean[16];
+                        boolean[] h = new boolean[16];
+                        for (int i = 0; i < 16; ++i) {
+                            l[i] = (lo >> (15 - i)) != 0;
+                            h[i] = (hi >> (15 - i)) != 0;
+                        }
+                        cpu.getMemory().array()[(c) & 0xFFFF] = 
+                             lo8b(l[7],l[7],l[15],l[15],h[7],h[7],h[15],h[15]);
+                        cpu.getMemory().array()[(c + 256) & 0xFFFF] = 
+                             hi8b(l[6],l[6],l[14],l[14],h[6],h[6],h[14],h[14])
+                           | lo8b(l[5],l[5],l[13],l[13],h[5],h[5],h[13],h[13]);
+                        cpu.getMemory().array()[(c + 512) & 0xFFFF] = 
+                            (hi8b(l[4],l[4],l[12],l[12],h[4],h[4],h[12],h[12])
+                           | lo8b(l[3],l[3],l[11],l[11],h[3],h[3],h[11],h[11]));
+                        cpu.getMemory().array()[(c + 768) & 0xFFFF] = 
+                            (hi8b(l[2],l[2],l[10],l[10],h[2],h[2],h[10],h[10])
+                           | lo8b(l[1],l[1],l[ 9],l[ 9],h[1],h[1],h[ 9],h[ 9]));
+                        cpu.getMemory().array()[(c + 1024) & 0xFFFF] = 
+                            (hi8b(l[0],l[0],l[ 8],l[ 8],h[0],h[0],h[ 8],h[ 8]));
+                    }
                 } else {
+                    this.cpu.addCycles(1280);
                     for (int i = 0; i < 1280; ++i) {
                         font[i] = cpu.getMemory().array()[(b + i) & 0xFFFF];
                     }
@@ -84,12 +107,14 @@ public class UNCD321 extends Hardware {
                 if (this.lem) {
                     this.cpu.addCycles(128);
                     for (int i = 0; i < 128; ++i) {
-                        cpu.getMemory().array()[(b + i) & 0xFFFF] = DEFAULT_FONT_LEM[i];
+                        cpu.getMemory().array()[(b + i) & 0xFFFF] = 
+                                            DEFAULT_FONT_LEM[i];
                     }
                 } else {
                     this.cpu.addCycles(1280);
                     for (int i = 0; i < 1280; ++i) {
-                        cpu.getMemory().array()[(b + i) & 0xFFFF] = DEFAULT_FONT[i];
+                        cpu.getMemory().array()[(b + i) & 0xFFFF] = 
+                                            DEFAULT_FONT[i];
                     }
                 }
                 break;
@@ -130,19 +155,22 @@ public class UNCD321 extends Hardware {
 
     @Override
     public void reset() {
-        this.on = this.lem = this.cursorblink = false;
+        this.on = this.lem = this.cursoron = false;
         this.memscr = this.mode = this.memsprite = this.vsyncint = 0;
         this.lastblink = Long.MIN_VALUE;
         this.cursorpos = 65535;
         this.font = Arrays.copyOf(this.DEFAULT_FONT, this.DEFAULT_FONT.length);
-        this.palette = Arrays.copyOf(this.DEFAULT_PALETTE, this.DEFAULT_PALETTE.length);
+        this.palette = Arrays.copyOf(this.DEFAULT_PALETTE, 
+                                    this.DEFAULT_PALETTE.length);
         this.collisions = new int[256 * 192];
         this.buffer = new int[256 * 192];
         this.convertPalette();
     }
 
-    public void displayFrame(long now, Canvas screen, GraphicsContext ctx, PixelWriter pw, EmulatorMain emu) {
+    public void displayFrame(long now, Canvas screen, GraphicsContext ctx, 
+                            PixelWriter pw, EmulatorMain emu) {
         if (cpu.paused) {
+            lastblink = System.currentTimeMillis();
             return;
         }
         if (!this.on) {
@@ -152,7 +180,7 @@ public class UNCD321 extends Hardware {
         long msnow = System.currentTimeMillis();
         if ((msnow - lastblink) >= (lem ? 1000 : 500)) {
             lastblink = msnow;
-            cursorblink = !cursorblink;
+            cursoron = !cursoron;
         }
         int[] memarr = this.cpu.getMemory().array();
         Arrays.fill(collisions, 0);
@@ -194,17 +222,19 @@ public class UNCD321 extends Hardware {
                         int chr = this.font[base];
                         base += 0x100;
                         for (int x = 0; x < 8; ++x) {
-                            if (((chr & 0x8000) != 0) != (blink && cursorblink)) {
+                            if (((chr & 0x8000) > 0) != (blink && cursoron)) {
                                 if (fg > 0) {
-                                    setCollision(memarr, ((row + y) << 8) + col + x, -1);
+                                    setCollision(memarr, ((row + y) << 8) 
+                                                    + col + x, -1);
                                     buffer[bp] = fgc;
                                 }
                             } else {
-                                if (blink && cursorblink) {
+                                if (blink && cursoron) {
                                     buffer[bp] = fgc;
                                 }
                                 if (bg > 0) {
-                                    setCollision(memarr, ((row + y) << 8) + col + x, -1);
+                                    setCollision(memarr, ((row + y) << 8) 
+                                                    + col + x, -1);
                                     buffer[bp] = bgc;
                                 }
                             }
@@ -213,17 +243,19 @@ public class UNCD321 extends Hardware {
                         }
                         bp = ap + (y << 8) + 256;
                         for (int x = 0; x < 8; ++x) {
-                            if (((chr & 0x8000) != 0) != (blink && cursorblink)) {
+                            if (((chr & 0x8000) > 0) != (blink && cursoron)) {
                                 if (fg > 0) {
-                                    setCollision(memarr, ((row + y) << 8) + col + x, -1);
+                                    setCollision(memarr, ((row + y) << 8) 
+                                                    + col + x, -1);
                                     buffer[bp] = fgc;
                                 }
                             } else {
-                                if (blink && cursorblink) {
+                                if (blink && cursoron) {
                                     buffer[bp] = fgc;
                                 }
                                 if (bg > 0) {
-                                    setCollision(memarr, ((row + y) << 8) + col + x, -1);
+                                    setCollision(memarr, ((row + y) << 8) 
+                                                    + col + x, -1);
                                     buffer[bp] = bgc;
                                 }
                             }
@@ -259,7 +291,8 @@ public class UNCD321 extends Hardware {
                     int wrd0 = memarr[(this.memscr + ptr) & 0xFFFF];
                     int wrd1 = memarr[(3072 + this.memscr + ptr++) & 0xFFFF];
                     for (int ix = cx; ix < cx + 16; ++ix) {
-                        int ci = ((wrd0 & 0x8000) >> 15) | ((wrd1 & 0x8000) >> 14);
+                        int ci = ((wrd0 & 0x8000) >> 15) 
+                               | ((wrd1 & 0x8000) >> 14);
                         if (ci > 0) {
                             setCollision(memarr, (cy << 8) + cx + ix, -1);
                             buffer[pxl] = palette[ci];
@@ -280,7 +313,10 @@ public class UNCD321 extends Hardware {
                     int wrd2 = memarr[(6144 + this.memscr + ptr) & 0xFFFF];
                     int wrd3 = memarr[(9216 + this.memscr + ptr++) & 0xFFFF];
                     for (int ix = cx; ix < cx + 16; ++ix) {
-                        int ci = ((wrd0 & 0x8000) >> 15) | ((wrd1 & 0x8000) >> 14) | ((wrd2 & 0x8000) >> 13) | ((wrd3 & 0x8000) >> 12);
+                        int ci = ((wrd0 & 0x8000) >> 15) 
+                               | ((wrd1 & 0x8000) >> 14) 
+                               | ((wrd2 & 0x8000) >> 13) 
+                               | ((wrd3 & 0x8000) >> 12);
                         if (ci > 0) {
                             setCollision(memarr, (cy << 8) + cx + ix, -1);
                             buffer[pxl] = palette[ci];
@@ -303,10 +339,21 @@ public class UNCD321 extends Hardware {
                 }
             }
         }
-        pw.setPixels(0, 0, 256, 192, PixelFormat.getIntArgbInstance(), buffer, 0, 256);
+        pw.setPixels(0, 0, 256, 192, PixelFormat.getIntArgbInstance(), 
+                buffer, 0, 256);
         if (this.vsyncint != 0) {
             this.cpu.queueInterrupt(this.vsyncint);
         }
+    }
+    
+    private int lo8b(boolean b7, boolean b6, boolean b5, boolean b4, 
+                        boolean b3, boolean b2, boolean b1, boolean b0) {
+        return (b7 ? 128 : 0) | (b6 ? 64 : 0) | (b5 ? 32 : 0) | (b4 ? 16 : 0)
+                | (b3 ? 8 : 0) | (b2 ? 4 : 0) | (b1 ? 2 : 0) | (b0 ? 1 : 0);
+    }
+    private int hi8b(boolean b15, boolean b14, boolean b13, boolean b12, 
+                        boolean b11, boolean b10, boolean b9, boolean b8) {
+        return lo8b(b15, b14, b13, b12, b11, b10, b9, b8) << 8;
     }
     
     public void setCollision(int[] memarr, int p, int d) {
@@ -367,7 +414,8 @@ public class UNCD321 extends Hardware {
                 bp = (y << 8) + x;
                 int c = 0;
                 for (int p = 0; p < pln; ++p) {
-                    c |= ((memarr[(ptr + (p << 4)) & 0xFFFF] & mask) != 0 ? 1 : 0) << p;
+                    c |= ((memarr[(ptr + (p << 4)) & 0xFFFF] & mask) != 0 
+                            ? 1 : 0) << p;
                 }
                 if (c != 0) {
                     int sc = memarr[(sp + 8 + c) & 0xFFFF];
@@ -416,8 +464,10 @@ public class UNCD321 extends Hardware {
         memsprite = stream.readInt();
         vsyncint = stream.readInt();
         cursorpos = stream.readInt();
-        this.font = Arrays.copyOf(this.DEFAULT_FONT, this.DEFAULT_FONT.length);
-        this.palette = Arrays.copyOf(this.DEFAULT_PALETTE, this.DEFAULT_PALETTE.length);
+        this.font = Arrays.copyOf(this.DEFAULT_FONT, 
+                                this.DEFAULT_FONT.length);
+        this.palette = Arrays.copyOf(this.DEFAULT_PALETTE, 
+                                this.DEFAULT_PALETTE.length);
         for (int i = 0; i < font.length; ++i) {
             font[i] = stream.readInt();
         }
@@ -432,7 +482,9 @@ public class UNCD321 extends Hardware {
     private void convertPalette() {
         for (int i = 0; i < 16; ++i) {
             int p = palette[i];
-            palette[i] = 0xff000000 | ((((p >> 8) & 15) * 17) << 16) | ((((p >> 4) & 15) * 17) << 8) | ((p & 15) * 17);
+            palette[i] = 0xff000000 | ((((p >> 8) & 15) * 17) << 16)  
+                                    | ((((p >> 4) & 15) * 17) << 8)  
+                                    |   ((p       & 15) * 17);
         }
     }
     

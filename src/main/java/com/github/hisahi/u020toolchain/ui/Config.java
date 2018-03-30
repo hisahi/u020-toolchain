@@ -17,4 +17,8 @@ public class Config {
     public static void put(String key, Object val) {
         filehandler.put(key, val);
     }
+    public static void clear() {
+        filehandler.clear();
+        filehandler.saveConfig();
+    }
 }

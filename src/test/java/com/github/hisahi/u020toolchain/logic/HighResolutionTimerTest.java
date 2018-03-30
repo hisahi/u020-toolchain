@@ -23,7 +23,7 @@ public class HighResolutionTimerTest {
         long startTime = System.currentTimeMillis();
         this.timer.start();
         Thread.sleep(200 - (System.currentTimeMillis() - startTime));
-        this.timer.stop();
+        this.timer.stopSoft();
         long ticks = this.tickable.ticks;
         assertTrue("There are too few ticks (should be within 1%, 990000-1010000 Hz, was " + (ticks * 5) + " Hz)", ticks >= 198000);
         assertTrue("There are too many ticks (should be within 1%, 990000-1010000 Hz, was " + (ticks * 5) + " Hz)", ticks <= 202000);

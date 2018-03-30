@@ -55,6 +55,18 @@ public class EmuMenuEdit extends EmuMenu {
                 } 
             }
         });
+        assembler.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                main.asmwnd.show();
+            }
+        });
+        disassembler.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                main.disasmwnd.show();
+            }
+        });
     }
 
 }

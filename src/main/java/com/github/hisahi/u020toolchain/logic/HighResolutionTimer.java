@@ -38,6 +38,9 @@ public class HighResolutionTimer {
             this.currentThread = null;
         }
     }
+    public void stopSoft() {
+        stopped.set(true);
+    }
     private void startThread() {
         this.currentThread = new Thread() {
             @Override

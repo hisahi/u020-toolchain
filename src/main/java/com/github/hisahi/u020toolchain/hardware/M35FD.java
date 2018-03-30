@@ -11,8 +11,8 @@ import java.util.Arrays;
 
 public class M35FD extends Hardware implements ITickable {
     
-    private static final int CYCLES_PER_WORD = 65; // 2 MHz / 65 ~= 30.7 KW/s
-    private static final int CYCLES_PER_TRACK = 4800; // 4800 / 2 MHz ~= 2.4 ms
+    private static final int NS_PER_WORD = 32573; // 1 s / 32573 ns ~= 30.7 KW/s
+    private static final int NS_PER_TRACK = 2400000; // 2.4 ms
     private static final int SECTOR_COUNT = 1440;
     private static final int WORDS_PER_SECTOR = 512;
     private static final int SECTORS_PER_TRACK = 18;
@@ -27,8 +27,8 @@ public class M35FD extends Hardware implements ITickable {
     private boolean writeProtected;
     private boolean operationRunning;
     private boolean operationIsWrite;
+    private long nextTick;
     private int wordsLeft;
-    private int cyclesLeft;
     private int memaddr;
     private int diskaddr;
     private int state;
@@ -96,6 +96,7 @@ public class M35FD extends Hardware implements ITickable {
                 memaddr = cpu.readRegister(UCPU16.REG_Y);
                 cpu.writeRegister(UCPU16.REG_B, 1);
                 this.operationIsWrite = false;
+                this.nextTick = System.nanoTime();
                 this.setStateAndError(STATE_BUSY, ERROR_NONE);
                 this.operationRunning = true;
                 break;
@@ -125,6 +126,7 @@ public class M35FD extends Hardware implements ITickable {
                 memaddr = cpu.readRegister(UCPU16.REG_Y);
                 cpu.writeRegister(UCPU16.REG_B, 1);
                 this.operationIsWrite = true;
+                this.nextTick = System.nanoTime();
                 this.setStateAndError(STATE_BUSY, ERROR_NONE);
                 this.operationRunning = true;
                 break;
@@ -173,7 +175,7 @@ public class M35FD extends Hardware implements ITickable {
     @Override
     public void reset() {
         this.operationRunning = this.operationIsWrite = false;
-        this.track = this.sector = this.wordsLeft = this.cyclesLeft = 
+        this.track = this.sector = this.wordsLeft = 
                 this.intmsg = this.memaddr = this.diskaddr = 
                 this.state = this.error = 0;
     }
@@ -212,12 +214,12 @@ public class M35FD extends Hardware implements ITickable {
         stream.writeInt(memaddr);
         stream.writeInt(diskaddr);
         stream.writeInt(wordsLeft);
-        stream.writeInt(cyclesLeft);
         stream.writeInt(state);
         stream.writeInt(error);
         stream.writeInt(intmsg);
         stream.writeInt(diskid);
         stream.writeInt(opdiskid);
+        stream.writeLong(System.nanoTime() - nextTick);
         stream.write(inserted ? 1 : 0);
         if (inserted) {
             for (int i = 0; i < DISK_SIZE; ++i) {
@@ -238,12 +240,12 @@ public class M35FD extends Hardware implements ITickable {
         memaddr = stream.readInt();
         diskaddr = stream.readInt();
         wordsLeft = stream.readInt();
-        cyclesLeft = stream.readInt();
         state = stream.readInt();
         error = stream.readInt();
         intmsg = stream.readInt();
         diskid = stream.readInt();
         opdiskid = stream.readInt();
+        nextTick = System.nanoTime() - stream.readLong();
         inserted = stream.read() != 0;
         if (inserted) {
             for (int i = 0; i < DISK_SIZE; ++i) {
@@ -255,8 +257,8 @@ public class M35FD extends Hardware implements ITickable {
     @Override
     public void tick() {
         if (this.operationRunning) {
-            --this.cyclesLeft;
-            if (this.cyclesLeft <= 0) {
+            long now = System.nanoTime();
+            while (now >= this.nextTick) {
                 // see if disk has been ejected
                 if (this.diskid != this.opdiskid || !this.inserted) {
                     this.setStateAndError(getValidDiskState(), ERROR_EJECT);
@@ -271,16 +273,16 @@ public class M35FD extends Hardware implements ITickable {
                 // seek
                 if (this.track > this.seektotrack) {
                     --this.track;
-                    this.cyclesLeft = CYCLES_PER_TRACK;
-                    return;
+                    this.nextTick += NS_PER_TRACK;
+                    continue;
                 }
                 if (this.track < this.seektotrack) {
                     ++this.track;
-                    this.cyclesLeft = CYCLES_PER_TRACK;
-                    return;
+                    this.nextTick += NS_PER_TRACK;
+                    continue;
                 }
                 // read or write
-                this.cyclesLeft = CYCLES_PER_WORD;
+                this.nextTick += NS_PER_WORD;
                 --this.wordsLeft;
                 if (this.operationIsWrite) {
                     this.disk[this.diskaddr++] = cpu.getMemory().read(this.memaddr++);
@@ -293,6 +295,7 @@ public class M35FD extends Hardware implements ITickable {
                     this.setState(getValidDiskState());
                     this.operationRunning = false;
                     this.writeBack();
+                    return;
                 }
             }
         }

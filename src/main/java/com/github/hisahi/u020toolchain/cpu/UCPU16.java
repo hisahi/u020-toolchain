@@ -83,14 +83,23 @@ public class UCPU16 implements ITickable {
     }
 
     public void reset() {
-        reset(false);
+        reset(false, true);
     }
     
     public void reset(boolean rewriteROM) {
+        reset(rewriteROM, true);
+    }
+    
+    public void reset(boolean rewriteROM, boolean resetDevices) {
         boolean running = false;
         if (this.clock != null) {
             running = this.clock.isRunning();
             this.clock.stop();
+        }
+        if (resetDevices && main != null) {
+            this.devices.clear();
+            main.initDevices();
+            main.reloadConfig();
         }
         this.rA = this.rB = this.rC = this.rX = this.rY = this.rZ
                 = this.rI = this.rJ = 0;
@@ -100,10 +109,6 @@ public class UCPU16 implements ITickable {
         this.halt = this.queueInterrupts = this.interruptHandled = this.skipBranches = false;
         if (rewriteROM) {
             this.rewriteFromROM();
-        }
-        if (main != null) {
-            this.devices.clear();
-            main.initDevices();
         }
         this.paused = false;
         if (running) {

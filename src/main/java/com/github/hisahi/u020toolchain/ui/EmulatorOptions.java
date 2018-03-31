@@ -3,6 +3,7 @@ package com.github.hisahi.u020toolchain.ui;
 
 import com.github.hisahi.u020toolchain.hardware.Hardware;
 import com.github.hisahi.u020toolchain.hardware.M35FD;
+import com.github.hisahi.u020toolchain.hardware.UNMS001;
 import java.util.Iterator;
 import java.util.Optional;
 import javafx.collections.FXCollections;
@@ -23,6 +24,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class EmulatorOptions {
@@ -34,6 +37,7 @@ public class EmulatorOptions {
     private ComboBox cpuspeed;
     private CheckBox hidecursor;
     private CheckBox pauseinactive;
+    private CheckBox unms001;
     
     public EmulatorOptions(EmulatorMain main) {
         this.main = main;
@@ -47,6 +51,8 @@ public class EmulatorOptions {
         mainStage.setTitle(I18n.format("title.options"));
         
         ((VBox) mainScene.getRoot()).getChildren().addAll(getDriveSetting());
+        ((VBox) mainScene.getRoot()).getChildren().addAll(getMouseSetting());
+        ((VBox) mainScene.getRoot()).getChildren().addAll(getResetWarning());
         ((VBox) mainScene.getRoot()).getChildren().addAll(getHideCursor());
         ((VBox) mainScene.getRoot()).getChildren().addAll(getPauseIfInactive());
         ((VBox) mainScene.getRoot()).getChildren().addAll(getDisplayScale());
@@ -63,32 +69,80 @@ public class EmulatorOptions {
         Config.put("cpuhz", indexToCpuSpeed(cpuspeed.getSelectionModel().getSelectedIndex()));
         Config.put("hidecursor", hidecursor.isSelected());
         Config.put("pauseinactive", pauseinactive.isSelected());
+        Config.put("unms001", unms001.isSelected());
         reloadConfig();
     }
 
     void reloadConfig() {
-        int m35fd = clamp(tryGetInt("m35fd_drives", 0), 0, 2);
+        boolean hwchanged = false;
+        int m35fd_raw = clamp(tryGetInt("m35fd_drives", 0), 0, 2);
+        boolean m35fd_0 = m35fd_raw >= 1;
+        boolean m35fd_1 = m35fd_raw >= 2;
+        boolean m35fd_0_now = false;
+        boolean m35fd_1_now = false;
+        boolean unms001 = tryGetBoolean("unms001", false);
         int scale = clamp(tryGetInt("displayscale", 2), 1, 4);
         int speed = clamp(tryGetInt("cpuhz", 200), 50, 800);
         boolean hide = tryGetBoolean("hidecursor", false);
         boolean pause = tryGetBoolean("pauseinactive", false);
-        inserteddrives.getValueFactory().setValue(m35fd);
+        inserteddrives.getValueFactory().setValue(m35fd_raw);
         displayscale.getSelectionModel().select(scale - 1);
         cpuspeed.getSelectionModel().select(cpuSpeedToIndex(speed));
         hidecursor.setSelected(hide);
         pauseinactive.setSelected(pause);
-        Iterator<Hardware> drives = main.cpu.getDevices().iterator();
-        while (drives.hasNext()) {
-            Hardware hw = drives.next();
-            if (hw instanceof M35FD && ((M35FD) hw).getDriveId() >= m35fd) {
-                ((M35FD) hw).reset();
-                ((M35FD) hw).eject();
-                drives.remove();
+        this.unms001.setSelected(unms001);
+        Iterator<Hardware> hwiter = main.cpu.getDevices().iterator();
+        while (hwiter.hasNext()) {
+            Hardware hw = hwiter.next();
+            if (hw instanceof M35FD) {
+                int did = ((M35FD) hw).getDriveId();
+                if (did == 0) {
+                    if (m35fd_0) {
+                        m35fd_0_now = true;
+                    } else {
+                        ((M35FD) hw).reset();
+                        ((M35FD) hw).eject();
+                        hwchanged = true;
+                        hwiter.remove();
+                    }
+                } else if (did == 1) {
+                    if (m35fd_1) {
+                        m35fd_1_now = true;
+                    } else {
+                        ((M35FD) hw).reset();
+                        ((M35FD) hw).eject();
+                        hwchanged = true;
+                        hwiter.remove();
+                    }
+                }
             }
         }
-        for (int i = 0; i < m35fd; ++i) {
-            M35FD drive = new M35FD(main.cpu, i);
-            main.cpu.getDevices().add(drive);
+        if (m35fd_0 && !m35fd_0_now) {
+            main.cpu.getDevices().add(new M35FD(main.cpu, 0));
+            hwchanged = true;
+        }
+        if (m35fd_1 && !m35fd_1_now) {
+            main.cpu.getDevices().add(new M35FD(main.cpu, 1));
+            hwchanged = true;
+        }
+        boolean unms001_now = false;
+        hwiter = main.cpu.getDevices().iterator();
+        while (hwiter.hasNext()) {
+            Hardware hw = hwiter.next();
+            if (hw instanceof UNMS001) {
+                if (unms001) {
+                    unms001_now = true;
+                } else {
+                    hw.reset();
+                    hwiter.remove();
+                    hwchanged = true;
+                    main.unms001 = null;
+                }
+            }
+        }
+        if (unms001 && !unms001_now) {
+            main.cpu.getDevices().add(main.unms001 = new UNMS001(main.cpu));
+            hwchanged = true;
         }
         int oldscale = (int) main.screen.getScaleX();
         if (oldscale != scale) {
@@ -100,6 +154,9 @@ public class EmulatorOptions {
         main.shouldHideCursor = hide;
         main.pauseIfInactive = pause;
         main.updateFloppies();
+        if (hwchanged) {
+            main.cpu.reset(true, false);
+        }
     }
 
     private HBox getHideCursor() {
@@ -136,6 +193,27 @@ public class EmulatorOptions {
         inserteddrives = new Spinner(0, 2, 0);
         inserteddrives.setPrefWidth(64);
         hbox.getChildren().addAll(lbl, space, inserteddrives);
+        return hbox;
+    }
+
+    private HBox getMouseSetting() {
+        HBox hbox = new HBox();
+        Label lbl = new Label(I18n.format("options.unms001"));
+        lbl.setAlignment(Pos.CENTER_LEFT);
+        final Pane space = new Pane();
+        HBox.setHgrow(space, Priority.ALWAYS);
+        space.setMinSize(10, 1);
+        unms001 = new CheckBox();
+        hbox.getChildren().addAll(lbl, space, unms001);
+        return hbox;
+    }
+
+    private HBox getResetWarning() {
+        HBox hbox = new HBox();
+        Label lbl = new Label(I18n.format("options.resetwarning"));
+        lbl.setFont(Font.font(lbl.getFont().getFamily(), FontWeight.EXTRA_BOLD, lbl.getFont().getSize()));
+        lbl.setAlignment(Pos.CENTER);
+        hbox.getChildren().addAll(lbl);
         return hbox;
     }
 

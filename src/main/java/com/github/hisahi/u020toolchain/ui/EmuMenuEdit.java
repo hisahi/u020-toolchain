@@ -3,6 +3,7 @@ package com.github.hisahi.u020toolchain.ui;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -41,7 +42,13 @@ public class EmuMenuEdit extends EmuMenu {
     }
 
     private void addActions() {
-        
+        copy.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                String data = main.uncd321.copyScreenBuffer();
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(data), null);
+            }
+        });
         paste.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {

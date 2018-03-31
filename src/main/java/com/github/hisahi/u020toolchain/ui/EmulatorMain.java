@@ -9,6 +9,7 @@ import com.github.hisahi.u020toolchain.hardware.Keyboard;
 import com.github.hisahi.u020toolchain.hardware.M35FD;
 import com.github.hisahi.u020toolchain.hardware.UNCD321;
 import com.github.hisahi.u020toolchain.hardware.UNEM192;
+import com.github.hisahi.u020toolchain.hardware.UNMS001;
 import com.github.hisahi.u020toolchain.hardware.UNTM200;
 import com.github.hisahi.u020toolchain.logic.HighResolutionTimer;
 import javafx.animation.AnimationTimer;
@@ -54,6 +55,7 @@ public class EmulatorMain extends Application {
     UNEM192 unem192;
     Clock clock;
     UNTM200 untm200;
+    UNMS001 unms001;
     Canvas screen;
     GraphicsContext ctx;
     PixelWriter pw;
@@ -114,6 +116,7 @@ public class EmulatorMain extends Application {
         
         updateFloppies();
         
+        this.cpu.reset(true); 
         stage.setScene(mainScene);
         stage.sizeToScene();
         stage.setResizable(false);
@@ -188,6 +191,30 @@ public class EmulatorMain extends Application {
                 event.consume();
             }
         });
+        this.screen.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (unms001 != null) {
+                    unms001.updateFromData((int) event.getX(), (int) event.getY(), event.isPrimaryButtonDown(), event.isSecondaryButtonDown());
+                }
+            }
+        });
+        this.screen.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (unms001 != null) {
+                    unms001.updateFromData((int) event.getX(), (int) event.getY(), event.isPrimaryButtonDown(), event.isSecondaryButtonDown());
+                }
+            }
+        });
+        this.screen.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (unms001 != null) {
+                    unms001.updateFromData((int) event.getX(), (int) event.getY(), event.isPrimaryButtonDown(), event.isSecondaryButtonDown());
+                }
+            }
+        });
         this.screen.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -227,7 +254,6 @@ public class EmulatorMain extends Application {
         this.cpu = new UCPU16(new StandardMemory(), this);
         this.cpuclock = new HighResolutionTimer(CPU_HZ, cpu);
         this.cpu.setClock(cpuclock);
-        this.cpu.reset(true);
         this.cpu.getClock().start();
     }
 
@@ -291,13 +317,13 @@ public class EmulatorMain extends Application {
         boolean d0 = getDrive(0) != null;
         boolean d1 = getDrive(1) != null;
         menuFile.floppy0Insert.setDisable(!d0);
-        menuFile.floppy0Eject.setDisable(!d0);
+        menuFile.floppy0Eject.setDisable(!(d0 && getDrive(0).hasMedia()));
         menuFile.floppy0Wp.setDisable(!d0);
         if (!d0) {
             menuFile.floppy0Wp.setSelected(false);
         }
         menuFile.floppy1Insert.setDisable(!d1);
-        menuFile.floppy1Eject.setDisable(!d1);
+        menuFile.floppy1Eject.setDisable(!(d1 && getDrive(1).hasMedia()));
         menuFile.floppy1Wp.setDisable(!d1);
         if (!d1) {
             menuFile.floppy1Wp.setSelected(false);
@@ -323,5 +349,9 @@ public class EmulatorMain extends Application {
 
     Font getMonospacedFont() {
         return Font.font("Monospaced");
+    }
+
+    public void reloadConfig() {
+        options.reloadConfig();
     }
 }

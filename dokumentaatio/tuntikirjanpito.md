@@ -8,3 +8,4 @@
 | 24.3. | 180        | kellolaite, ajastinlaite (UNTM200), debuggauskonsolin ensimmäinen versio, optimointi |
 | 29.3. | 180        | Checkstylen käyttöönotto, M35FD, lisää testejä (CPU, näppäimistö, kellolaite, UNTM200) |
 | 30.3. | 120        | asetusikkuna, käyttöliittymät konekielelle & konekieleltä kääntäjille, pieniä korjauksia |
+| 31.3. | 120        | UNMS001-tuki, UNCD321-näytöltä kopioiminen, käyttöliittymä M35FD-levykeasemille |

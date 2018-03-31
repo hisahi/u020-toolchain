@@ -102,6 +102,8 @@ public class EmuMenuRun extends EmuMenu {
                 main.cpu.paused = true;
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle(I18n.format("dialog.loadstate"));
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18n.format("dialog.extension.usv"), "*.usv"));
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18n.format("dialog.extension.all"), "*"));
                 File file = fileChooser.showOpenDialog(main.mainStage);
                 if (file != null) {
                     loadStateFrom(file);
@@ -116,6 +118,8 @@ public class EmuMenuRun extends EmuMenu {
                 main.cpu.paused = true;
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle(I18n.format("dialog.savestate"));
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18n.format("dialog.extension.usv"), "*.usv"));
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18n.format("dialog.extension.all"), "*"));
                 File file = fileChooser.showSaveDialog(main.mainStage);
                 if (file != null) {
                     saveStateTo(file);
@@ -184,7 +188,7 @@ public class EmuMenuRun extends EmuMenu {
                     Logger.getLogger(EmuMenuRun.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            new Alert(AlertType.ERROR, "Cannot load the save state!", ButtonType.OK).showAndWait();
+            new Alert(AlertType.ERROR, I18n.format("error.savestate"), ButtonType.OK).showAndWait();
             return;
         }
         if (restoredata != null) {

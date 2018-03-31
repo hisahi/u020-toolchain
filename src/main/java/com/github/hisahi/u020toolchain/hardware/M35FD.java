@@ -16,7 +16,7 @@ public class M35FD extends Hardware implements ITickable {
     private static final int SECTOR_COUNT = 1440;
     private static final int WORDS_PER_SECTOR = 512;
     private static final int SECTORS_PER_TRACK = 18;
-    private static final int DISK_SIZE = 737280; // 737280 KW
+    public static final int DISK_SIZE = 737280; // 737280 KW
     private int driveid;
     private int track;
     private int seektotrack;
@@ -303,6 +303,10 @@ public class M35FD extends Hardware implements ITickable {
 
     public int getDriveId() {
         return this.driveid;
+    }
+
+    public boolean hasMedia() {
+        return this.inserted;
     }
 
     private static final int STATE_NO_MEDIA = 0;

@@ -3,6 +3,7 @@ package com.github.hisahi.u020toolchain.hardware;
 
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
+import com.github.hisahi.u020toolchain.logic.ITickable;
 import com.github.hisahi.u020toolchain.ui.EmulatorMain;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -178,6 +179,14 @@ public class M35FD extends Hardware implements ITickable {
         this.track = this.sector = this.wordsLeft = 
                 this.intmsg = this.memaddr = this.diskaddr = 
                 this.state = this.error = 0;
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
     }
     
     public void setState(int state) {

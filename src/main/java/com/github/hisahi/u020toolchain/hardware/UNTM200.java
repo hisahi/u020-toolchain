@@ -2,6 +2,7 @@
 package com.github.hisahi.u020toolchain.hardware; 
 
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
+import com.github.hisahi.u020toolchain.logic.ITickable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -69,6 +70,14 @@ public class UNTM200 extends Hardware implements ITickable {
         this.on = false;
         this.interval = this.progress = 0L;
         this.counter = 0;
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
     }
 
     @Override

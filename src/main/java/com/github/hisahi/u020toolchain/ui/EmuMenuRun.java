@@ -80,11 +80,11 @@ public class EmuMenuRun extends EmuMenu {
         pause.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                if (main.cpu.paused) {
-                    main.cpu.paused = false;
+                if (main.cpu.isPaused()) {
+                    main.cpu.resume();
                     pause.setText(I18n.format("menu.run.pause"));
                 } else {
-                    main.cpu.paused = true;
+                    main.cpu.pause();
                     pause.setText(I18n.format("menu.run.resume"));
                 }
             }
@@ -98,8 +98,8 @@ public class EmuMenuRun extends EmuMenu {
         loadState.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                boolean oldPaused = main.cpu.paused;
-                main.cpu.paused = true;
+                boolean oldPaused = main.cpu.isPaused();
+                main.cpu.pause();
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle(I18n.format("dialog.loadstate"));
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18n.format("dialog.extension.usv"), "*.usv"));
@@ -108,14 +108,16 @@ public class EmuMenuRun extends EmuMenu {
                 if (file != null) {
                     loadStateFrom(file);
                 }
-                main.cpu.paused = oldPaused;
+                if (!oldPaused) {
+                    main.cpu.resume();
+                }
             }
         });
         saveState.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                boolean oldPaused = main.cpu.paused;
-                main.cpu.paused = true;
+                boolean oldPaused = main.cpu.isPaused();
+                main.cpu.pause();
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle(I18n.format("dialog.savestate"));
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18n.format("dialog.extension.usv"), "*.usv"));
@@ -124,29 +126,35 @@ public class EmuMenuRun extends EmuMenu {
                 if (file != null) {
                     saveStateTo(file);
                 }
-                main.cpu.paused = oldPaused;
+                if (!oldPaused) {
+                    main.cpu.resume();
+                }
             }
         });
         loadStateQuick.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                boolean oldPaused = main.cpu.paused;
-                main.cpu.paused = true;
+                boolean oldPaused = main.cpu.isPaused();
+                main.cpu.pause();
                 File f = new File(QUICK_SAVE_FILE + main.getQuickSaveState());
                 if (f.isFile()) {
                     loadStateFrom(f);
                 }
-                main.cpu.paused = oldPaused;
+                if (!oldPaused) {
+                    main.cpu.resume();
+                }
             }
         });
         saveStateQuick.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                boolean oldPaused = main.cpu.paused;
-                main.cpu.paused = true;
+                boolean oldPaused = main.cpu.isPaused();
+                main.cpu.pause();
                 File f = new File(QUICK_SAVE_FILE + main.getQuickSaveState());
                 saveStateTo(f);
-                main.cpu.paused = oldPaused;
+                if (!oldPaused) {
+                    main.cpu.resume();
+                }
             }
         });
         for (int i = 0; i < 10; ++i) {

@@ -149,6 +149,14 @@ public class UNEM192 extends Hardware {
         }    
     }
 
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
     private void writeBack() {
         for (int i = 0; i < 16; ++i) {
             switch (banks[i]) {

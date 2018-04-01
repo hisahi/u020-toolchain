@@ -31,6 +31,8 @@ public abstract class Hardware {
     public abstract long hardwareManufacturer();
     public abstract void hwi(UCPU16 cpu);
     public abstract void reset();
+    public abstract void pause();
+    public abstract void resume();
     public abstract void saveState(DataOutputStream stream) throws IOException;
     public abstract void restoreState(DataInputStream stream) throws IOException;
 }

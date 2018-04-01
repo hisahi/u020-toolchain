@@ -76,18 +76,26 @@ public class UNCD321 extends Hardware {
                             h[i] = (hi >> (15 - i)) != 0;
                         }
                         cpu.getMemory().array()[(c) & 0xFFFF] = 
-                             lo8b(l[7],l[7],l[15],l[15],h[7],h[7],h[15],h[15]);
+                              lo8b(l[7], l[7], l[15], l[15], 
+                                     h[7], h[7], h[15], h[15]);
                         cpu.getMemory().array()[(c + 256) & 0xFFFF] = 
-                             hi8b(l[6],l[6],l[14],l[14],h[6],h[6],h[14],h[14])
-                           | lo8b(l[5],l[5],l[13],l[13],h[5],h[5],h[13],h[13]);
+                              hi8b(l[6], l[6], l[14], l[14], 
+                                     h[6], h[6], h[14], h[14])
+                            | lo8b(l[5], l[5], l[13], l[13], 
+                                   h[5], h[5], h[13], h[13]);
                         cpu.getMemory().array()[(c + 512) & 0xFFFF] = 
-                            (hi8b(l[4],l[4],l[12],l[12],h[4],h[4],h[12],h[12])
-                           | lo8b(l[3],l[3],l[11],l[11],h[3],h[3],h[11],h[11]));
+                             (hi8b(l[4], l[4], l[12], l[12], 
+                                    h[4], h[4], h[12], h[12])
+                            | lo8b(l[3], l[3], l[11], l[11], 
+                                   h[3], h[3], h[11], h[11]));
                         cpu.getMemory().array()[(c + 768) & 0xFFFF] = 
-                            (hi8b(l[2],l[2],l[10],l[10],h[2],h[2],h[10],h[10])
-                           | lo8b(l[1],l[1],l[ 9],l[ 9],h[1],h[1],h[ 9],h[ 9]));
+                             (hi8b(l[2], l[2], l[10], l[10], 
+                                    h[2], h[2], h[10], h[10])
+                            | lo8b(l[1], l[1], l[ 9], l[ 9], 
+                                   h[1], h[1], h[ 9], h[ 9]));
                         cpu.getMemory().array()[(c + 1024) & 0xFFFF] = 
-                            (hi8b(l[0],l[0],l[ 8],l[ 8],h[0],h[0],h[ 8],h[ 8]));
+                             (hi8b(l[0], l[0], l[ 8], l[ 8], 
+                                    h[0], h[0], h[ 8], h[ 8]));
                     }
                 } else {
                     this.cpu.addCycles(1280);
@@ -154,6 +162,14 @@ public class UNCD321 extends Hardware {
     }
 
     @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
     public void reset() {
         this.on = this.lem = this.cursoron = false;
         this.memscr = this.mode = this.memsprite = this.vsyncint = 0;
@@ -166,10 +182,33 @@ public class UNCD321 extends Hardware {
         this.buffer = new int[256 * 192];
         this.convertPalette();
     }
+    
+    private void drawCharacterRow(int[] memarr, int bp, int chr, boolean blink, int row, int col, int bg, int fg, int bgc, int fgc, int y) {
+        for (int x = 0; x < 8; ++x) {
+            if (((chr & 0x8000) > 0) != (blink && cursoron)) {
+                if (fg > 0) {
+                    setCollision(memarr, ((row + y) << 8) 
+                                    + col + x, -1);
+                    buffer[bp] = fgc;
+                }
+            } else {
+                if (blink && cursoron) {
+                    buffer[bp] = fgc;
+                }
+                if (bg > 0) {
+                    setCollision(memarr, ((row + y) << 8) 
+                                    + col + x, -1);
+                    buffer[bp] = bgc;
+                }
+            }
+            chr <<= 1;
+            ++bp;
+        }
+    }
 
     public void displayFrame(long now, Canvas screen, GraphicsContext ctx, 
                             PixelWriter pw, EmulatorMain emu) {
-        if (cpu.paused) {
+        if (cpu.isPaused()) {
             lastblink = System.currentTimeMillis();
             return;
         }
@@ -221,47 +260,8 @@ public class UNCD321 extends Hardware {
                         int bp = ap + (y << 8);
                         int chr = this.font[base];
                         base += 0x100;
-                        for (int x = 0; x < 8; ++x) {
-                            if (((chr & 0x8000) > 0) != (blink && cursoron)) {
-                                if (fg > 0) {
-                                    setCollision(memarr, ((row + y) << 8) 
-                                                    + col + x, -1);
-                                    buffer[bp] = fgc;
-                                }
-                            } else {
-                                if (blink && cursoron) {
-                                    buffer[bp] = fgc;
-                                }
-                                if (bg > 0) {
-                                    setCollision(memarr, ((row + y) << 8) 
-                                                    + col + x, -1);
-                                    buffer[bp] = bgc;
-                                }
-                            }
-                            chr <<= 1;
-                            ++bp;
-                        }
-                        bp = ap + (y << 8) + 256;
-                        for (int x = 0; x < 8; ++x) {
-                            if (((chr & 0x8000) > 0) != (blink && cursoron)) {
-                                if (fg > 0) {
-                                    setCollision(memarr, ((row + y) << 8) 
-                                                    + col + x, -1);
-                                    buffer[bp] = fgc;
-                                }
-                            } else {
-                                if (blink && cursoron) {
-                                    buffer[bp] = fgc;
-                                }
-                                if (bg > 0) {
-                                    setCollision(memarr, ((row + y) << 8) 
-                                                    + col + x, -1);
-                                    buffer[bp] = bgc;
-                                }
-                            }
-                            chr <<= 1;
-                            ++bp;
-                        }
+                        drawCharacterRow(memarr, bp, chr, blink, row, col, bg, fg, bgc, fgc, y);
+                        drawCharacterRow(memarr, bp + 256, chr << 8, blink, row, col, bg, fg, bgc, fgc, y);
                     }
                     
                 }

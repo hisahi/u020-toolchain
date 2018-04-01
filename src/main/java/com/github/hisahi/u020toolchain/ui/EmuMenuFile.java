@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.ui; 
 
+import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.hardware.M35FD;
 import java.io.File;
 import java.io.FileInputStream;
@@ -71,6 +72,21 @@ public class EmuMenuFile extends EmuMenu {
     }
 
     private void addActions() {
+        loadAndRun.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+                boolean oldPaused = main.cpu.isPaused();
+                main.cpu.pause();
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle(I18n.format("dialog.loadandrun"));
+                File file = fileChooser.showOpenDialog(main.mainStage);
+                if (file != null) {
+                    attemptLoadAndRunFrom(file);
+                } else if (!oldPaused) {
+                    main.cpu.resume();
+                }
+            }
+        });
         floppy0Insert.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -141,6 +157,47 @@ public class EmuMenuFile extends EmuMenu {
         });
     }
     
+    public void attemptLoadAndRunFrom(File file) {
+        long len = file.length();
+        if (len > 2 * M35FD.DISK_SIZE) {
+            new Alert(Alert.AlertType.ERROR, I18n.format("error.run.toolarge"), ButtonType.OK).showAndWait();
+            return;
+        }
+        if ((len & 1) != 0) {
+            new Alert(Alert.AlertType.ERROR, I18n.format("error.run.odd"), ButtonType.OK).showAndWait();
+            return;
+        }
+        int[] img = new int[((int) file.length()) >> 1];
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] buf = new byte[(int) file.length()];
+            int rb;
+            if ((rb = fis.read(buf)) != buf.length) {
+                throw new IOException("how can I not read this entire file? expected to read " + buf.length + " bytes but only got " + rb);
+            }
+            // conversion: byte (8b) to 16b, big endian
+            for (int i = 0; i < img.length; ++i) {
+                img[i] = (unsign(buf[i << 1]) << 8) | unsign(buf[(i << 1) + 1]);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(EmuMenuFile.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, I18n.format("error.run.loadio"), ButtonType.OK).showAndWait();
+            return;
+        }
+        main.cpu.reset(true);
+        main.cpu.pause();
+        main.cpu.setPC(0);
+        int[] memarr = main.cpu.getMemory().array();
+        for (int i = 0; i < StandardMemory.MEMORY_SIZE; ++i) {
+            if (i >= img.length) {
+                memarr[i] = 0;
+            } else {
+                memarr[i] = img[i];
+            }
+        }
+        main.cpu.reset(false, false);
+        main.cpu.resume();
+    }
+    
     public void insertFileToDrive(M35FD drive) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(I18n.format("dialog.openfloppy"));
@@ -166,7 +223,7 @@ public class EmuMenuFile extends EmuMenu {
                 int[] data = new int[M35FD.DISK_SIZE];
                 // conversion: byte (8b) to 16b, big endian
                 for (int i = 0; i < data.length; ++i) {
-                    data[i] = (img[i << 1] << 8) | img[(i << 1) + 1];
+                    data[i] = (unsign(img[i << 1]) << 8) | unsign(img[(i << 1) + 1]);
                 }
                 drive.insert(data);
             } catch (IOException ex) {
@@ -176,6 +233,13 @@ public class EmuMenuFile extends EmuMenu {
             }
             main.updateFloppies();
         }
+    }
+
+    private int unsign(byte b) {
+        if (b < 0) {
+            return 256 + (int) b;
+        }
+        return (int) b;
     }
 
 }

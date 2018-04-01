@@ -3,6 +3,7 @@ package com.github.hisahi.u020toolchain.ui;
 
 import com.github.hisahi.u020toolchain.hardware.Hardware;
 import com.github.hisahi.u020toolchain.hardware.M35FD;
+import com.github.hisahi.u020toolchain.hardware.UNAC810;
 import com.github.hisahi.u020toolchain.hardware.UNMS001;
 import java.util.Iterator;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -35,9 +37,11 @@ public class EmulatorOptions {
     private Spinner inserteddrives;
     private ComboBox displayscale;
     private ComboBox cpuspeed;
+    private Slider volumeslider;
     private CheckBox hidecursor;
     private CheckBox pauseinactive;
     private CheckBox unms001;
+    private CheckBox unac810;
     
     public EmulatorOptions(EmulatorMain main) {
         this.main = main;
@@ -52,11 +56,13 @@ public class EmulatorOptions {
         
         ((VBox) mainScene.getRoot()).getChildren().addAll(getDriveSetting());
         ((VBox) mainScene.getRoot()).getChildren().addAll(getMouseSetting());
+        ((VBox) mainScene.getRoot()).getChildren().addAll(getSoundSetting());
         ((VBox) mainScene.getRoot()).getChildren().addAll(getResetWarning());
         ((VBox) mainScene.getRoot()).getChildren().addAll(getHideCursor());
         ((VBox) mainScene.getRoot()).getChildren().addAll(getPauseIfInactive());
         ((VBox) mainScene.getRoot()).getChildren().addAll(getDisplayScale());
         ((VBox) mainScene.getRoot()).getChildren().addAll(getEmulationSpeed());
+        ((VBox) mainScene.getRoot()).getChildren().addAll(getVolumeSetting());
         ((VBox) mainScene.getRoot()).getChildren().addAll(getButtons());
         
         mainStage.setScene(mainScene);
@@ -69,36 +75,44 @@ public class EmulatorOptions {
         Config.put("cpuhz", indexToCpuSpeed(cpuspeed.getSelectionModel().getSelectedIndex()));
         Config.put("hidecursor", hidecursor.isSelected());
         Config.put("pauseinactive", pauseinactive.isSelected());
+        Config.put("volume", volumeslider.getValue() * 0.01);
         Config.put("unms001", unms001.isSelected());
+        Config.put("unac810", unac810.isSelected());
         reloadConfig();
     }
 
     void reloadConfig() {
         boolean hwchanged = false;
-        int m35fd_raw = clamp(tryGetInt("m35fd_drives", 0), 0, 2);
-        boolean m35fd_0 = m35fd_raw >= 1;
-        boolean m35fd_1 = m35fd_raw >= 2;
-        boolean m35fd_0_now = false;
-        boolean m35fd_1_now = false;
+        int m35fdraw = clamp(tryGetInt("m35fd_drives", 0), 0, 2);
+        boolean m35fd0 = m35fdraw >= 1;
+        boolean m35fd1 = m35fdraw >= 2;
+        boolean m35fd0now = false;
+        boolean m35fd1now = false;
         boolean unms001 = tryGetBoolean("unms001", false);
+        boolean unac810 = tryGetBoolean("unac810", false);
         int scale = clamp(tryGetInt("displayscale", 2), 1, 4);
         int speed = clamp(tryGetInt("cpuhz", 200), 50, 800);
         boolean hide = tryGetBoolean("hidecursor", false);
         boolean pause = tryGetBoolean("pauseinactive", false);
-        inserteddrives.getValueFactory().setValue(m35fd_raw);
+        double volume = clamp(tryGetDouble("volume", 1.0), 0.0, 1.0);
+        inserteddrives.getValueFactory().setValue(m35fdraw);
         displayscale.getSelectionModel().select(scale - 1);
         cpuspeed.getSelectionModel().select(cpuSpeedToIndex(speed));
         hidecursor.setSelected(hide);
         pauseinactive.setSelected(pause);
+        volumeslider.setValue((int) (volume * 100.0));
         this.unms001.setSelected(unms001);
+        this.unac810.setSelected(unac810);
+        boolean unms001now = false;
+        boolean unac810now = false;
         Iterator<Hardware> hwiter = main.cpu.getDevices().iterator();
         while (hwiter.hasNext()) {
             Hardware hw = hwiter.next();
             if (hw instanceof M35FD) {
                 int did = ((M35FD) hw).getDriveId();
                 if (did == 0) {
-                    if (m35fd_0) {
-                        m35fd_0_now = true;
+                    if (m35fd0) {
+                        m35fd0now = true;
                     } else {
                         ((M35FD) hw).reset();
                         ((M35FD) hw).eject();
@@ -106,8 +120,8 @@ public class EmulatorOptions {
                         hwiter.remove();
                     }
                 } else if (did == 1) {
-                    if (m35fd_1) {
-                        m35fd_1_now = true;
+                    if (m35fd1) {
+                        m35fd1now = true;
                     } else {
                         ((M35FD) hw).reset();
                         ((M35FD) hw).eject();
@@ -115,34 +129,45 @@ public class EmulatorOptions {
                         hwiter.remove();
                     }
                 }
-            }
-        }
-        if (m35fd_0 && !m35fd_0_now) {
-            main.cpu.getDevices().add(new M35FD(main.cpu, 0));
-            hwchanged = true;
-        }
-        if (m35fd_1 && !m35fd_1_now) {
-            main.cpu.getDevices().add(new M35FD(main.cpu, 1));
-            hwchanged = true;
-        }
-        boolean unms001_now = false;
-        hwiter = main.cpu.getDevices().iterator();
-        while (hwiter.hasNext()) {
-            Hardware hw = hwiter.next();
-            if (hw instanceof UNMS001) {
+            } else if (hw instanceof UNMS001) {
                 if (unms001) {
-                    unms001_now = true;
+                    unms001now = true;
                 } else {
                     hw.reset();
                     hwiter.remove();
                     hwchanged = true;
                     main.unms001 = null;
                 }
+            } else if (hw instanceof UNAC810) {
+                if (unac810) {
+                    unac810now = true;
+                } else {
+                    hw.reset();
+                    hwiter.remove();
+                    hwchanged = true;
+                    main.unac810 = null;
+                }
             }
         }
-        if (unms001 && !unms001_now) {
-            main.cpu.getDevices().add(main.unms001 = new UNMS001(main.cpu));
+        if (m35fd0 && !m35fd0now) {
+            main.cpu.addDevice(new M35FD(main.cpu, 0));
             hwchanged = true;
+        }
+        if (m35fd1 && !m35fd1now) {
+            main.cpu.addDevice(new M35FD(main.cpu, 1));
+            hwchanged = true;
+        }
+        if (unms001 && !unms001now) {
+            main.cpu.addDevice(main.unms001 = new UNMS001(main.cpu));
+            hwchanged = true;
+        }
+        if (unac810 && !unac810now) {
+            main.cpu.addDevice(main.unac810 = new UNAC810(main.cpu));
+            hwchanged = true;
+        }
+        if (main.unac810 != null) {
+            main.unac810.setVolume(volume);
+            main.unac810.setSpeed(speed);
         }
         int oldscale = (int) main.screen.getScaleX();
         if (oldscale != scale) {
@@ -208,6 +233,18 @@ public class EmulatorOptions {
         return hbox;
     }
 
+    private HBox getSoundSetting() {
+        HBox hbox = new HBox();
+        Label lbl = new Label(I18n.format("options.unac810"));
+        lbl.setAlignment(Pos.CENTER_LEFT);
+        final Pane space = new Pane();
+        HBox.setHgrow(space, Priority.ALWAYS);
+        space.setMinSize(10, 1);
+        unac810 = new CheckBox();
+        hbox.getChildren().addAll(lbl, space, unac810);
+        return hbox;
+    }
+
     private HBox getResetWarning() {
         HBox hbox = new HBox();
         Label lbl = new Label(I18n.format("options.resetwarning"));
@@ -231,6 +268,25 @@ public class EmulatorOptions {
                             I18n.format("options.cpuspeed2"),
                             I18n.format("options.cpuspeed4")));
         hbox.getChildren().addAll(lbl, space, cpuspeed);
+        return hbox;
+    }
+    
+    private HBox getVolumeSetting() {
+        HBox hbox = new HBox();
+        Label lbl = new Label(I18n.format("options.volume"));
+        lbl.setAlignment(Pos.CENTER_LEFT);
+        final Pane space = new Pane();
+        HBox.setHgrow(space, Priority.ALWAYS);
+        space.setMinSize(10, 1);
+        volumeslider = new Slider();
+        volumeslider.setMin(0);
+        volumeslider.setMax(100);
+        volumeslider.setShowTickLabels(true);
+        volumeslider.setShowTickMarks(true);
+        volumeslider.setMajorTickUnit(25);
+        volumeslider.setMinorTickCount(5);
+        volumeslider.setBlockIncrement(2);
+        hbox.getChildren().addAll(lbl, space, volumeslider);
         return hbox;
     }
 
@@ -344,6 +400,16 @@ public class EmulatorOptions {
         }
     }
 
+    private double clamp(double i, double a, double b) {
+        if (i < a) {
+            return a;
+        } else if (i > b) {
+            return b;
+        } else {
+            return i;
+        }
+    }
+
     private boolean tryGetBoolean(String c, boolean b) {
         Object o = Config.get(c, b);
         if (o instanceof Boolean) {
@@ -359,6 +425,15 @@ public class EmulatorOptions {
             return ((Integer) o).intValue();
         } else {
             return i;
+        }
+    }
+
+    private double tryGetDouble(String c, double d) {
+        Object o = Config.get(c, d);
+        if (o instanceof Double) {
+            return ((Double) o).doubleValue();
+        } else {
+            return d;
         }
     }
     

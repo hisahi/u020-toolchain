@@ -183,6 +183,14 @@ public class UnaryInstructionTest {
         }
 
         @Override
+        public void pause() {
+        }
+
+        @Override
+        public void resume() {
+        }
+
+        @Override
         public void saveState(DataOutputStream buf) {
         }
 

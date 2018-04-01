@@ -7,6 +7,7 @@ import com.github.hisahi.u020toolchain.hardware.Clock;
 import com.github.hisahi.u020toolchain.hardware.Hardware;
 import com.github.hisahi.u020toolchain.hardware.Keyboard;
 import com.github.hisahi.u020toolchain.hardware.M35FD;
+import com.github.hisahi.u020toolchain.hardware.UNAC810;
 import com.github.hisahi.u020toolchain.hardware.UNCD321;
 import com.github.hisahi.u020toolchain.hardware.UNEM192;
 import com.github.hisahi.u020toolchain.hardware.UNMS001;
@@ -36,7 +37,7 @@ import javafx.stage.WindowEvent;
 
 public class EmulatorMain extends Application {
 
-    public static final String VERSION = "v0.2";
+    public static final String VERSION = "v0.3";
     public static final int CPU_HZ = 2000000;
     public static void main(String[] args) {
         launch(args);
@@ -56,6 +57,7 @@ public class EmulatorMain extends Application {
     Clock clock;
     UNTM200 untm200;
     UNMS001 unms001;
+    UNAC810 unac810;
     Canvas screen;
     GraphicsContext ctx;
     PixelWriter pw;
@@ -117,6 +119,7 @@ public class EmulatorMain extends Application {
         updateFloppies();
         
         this.cpu.reset(true); 
+        cpuclock.start();
         stage.setScene(mainScene);
         stage.sizeToScene();
         stage.setResizable(false);
@@ -239,11 +242,13 @@ public class EmulatorMain extends Application {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (newValue.booleanValue()) {
                     if (pausedInactive) {
-                        cpu.paused = pausedInactive = false;
+                        pausedInactive = false;
+                        cpu.resume();
                     }
                 } else {
                     if (pauseIfInactive && cpuclock.isRunning()) {
-                        cpu.paused = pausedInactive = true;
+                        pausedInactive = true;
+                        cpu.pause();
                     }
                 }
             }
@@ -254,7 +259,7 @@ public class EmulatorMain extends Application {
         this.cpu = new UCPU16(new StandardMemory(), this);
         this.cpuclock = new HighResolutionTimer(CPU_HZ, cpu);
         this.cpu.setClock(cpuclock);
-        this.cpu.getClock().start();
+        this.cpu.pause();
     }
 
     public void initDevices() {
@@ -307,10 +312,12 @@ public class EmulatorMain extends Application {
     }
 
     void showOptions() {
-        boolean oldPaused = cpu.paused;
-        cpu.paused = true;
+        boolean oldPaused = cpu.isPaused();
+        cpu.pause();
         options.show();
-        cpu.paused = oldPaused;
+        if (!oldPaused) {
+            cpu.resume();
+        }
     }
 
     void updateFloppies() {

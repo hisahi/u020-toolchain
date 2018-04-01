@@ -61,6 +61,14 @@ public class Keyboard extends Hardware {
                 break;
         }
     }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
     
     public boolean isKeyDown(int b) {
         if (b >= 0x200) {

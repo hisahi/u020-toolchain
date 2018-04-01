@@ -53,6 +53,14 @@ public class UNMS001 extends Hardware {
     }
 
     @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
     public void saveState(DataOutputStream stream) throws IOException {
         stream.writeInt(curX);
         stream.writeInt(curY);

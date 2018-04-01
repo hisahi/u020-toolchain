@@ -2,6 +2,7 @@
 package com.github.hisahi.u020toolchain.hardware; 
 
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
+import com.github.hisahi.u020toolchain.logic.ITickable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,6 +14,7 @@ public class Clock extends Hardware implements ITickable {
     private long lastTick;
     private int counter;
     private int intmsg;
+    private boolean offset;
 
     public Clock(UCPU16 cpu) {
         super(cpu);
@@ -82,6 +84,22 @@ public class Clock extends Hardware implements ITickable {
         this.counter = stream.readInt();
         this.interval = stream.readLong();
         this.lastTick = System.nanoTime() - stream.readLong();
+    }
+
+    @Override
+    public void pause() {
+        if (!offset) {
+            offset = true;
+            lastTick -= System.nanoTime();
+        }
+    }
+
+    @Override
+    public void resume() {
+        if (offset) {
+            offset = false;
+            lastTick += System.nanoTime();
+        }
     }
 
     @Override

@@ -9,3 +9,4 @@
 | 29.3. | 180        | Checkstylen käyttöönotto, M35FD, lisää testejä (CPU, näppäimistö, kellolaite, UNTM200) |
 | 30.3. | 120        | asetusikkuna, käyttöliittymät konekielelle & konekieleltä kääntäjille, pieniä korjauksia |
 | 31.3. | 120        | UNMS001-tuki, UNCD321-näytöltä kopioiminen, käyttöliittymä M35FD-levykeasemille |
+| 1.4.  | 150        | UNAC810, load & run, pause/resume-järjestelmän uusiminen, korjauksia |

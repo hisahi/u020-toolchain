@@ -5,6 +5,7 @@ import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.hardware.Hardware;
 import com.github.hisahi.u020toolchain.logic.AssemblyListing;
 import com.github.hisahi.u020toolchain.logic.Disassembler;
+import java.util.ArrayList;
 import java.util.List;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -24,12 +25,17 @@ public class Debugger {
     private Scene debuggerScene;
     private TextArea log;
     private TextField cmd;
-    private String lastCommand;
+    private List<String> history;
     private int memoryLast;
+    private int historyIndex;
+    private String backup;
     public Debugger(EmulatorMain main) {
         this.main = main;
         this.cpu = main.cpu;
         this.memoryLast = 0;
+        this.history = new ArrayList<>();
+        this.historyIndex = this.history.size();
+        this.backup = "";
         initDebuggerStage();
     }
 
@@ -55,6 +61,26 @@ public class Debugger {
                     String line = cmd.getText();
                     cmd.setText("");
                     executeCommand(line);
+                } else if (event.getCode() == KeyCode.UP) {
+                    event.consume();
+                    if (historyIndex > 0) {
+                        if (historyIndex == history.size()) {
+                            backup = cmd.getText();
+                        }
+                        --historyIndex;
+                        cmd.setText(history.get(historyIndex));
+                        cmd.end();
+                    }
+                } else if (event.getCode() == KeyCode.DOWN) {
+                    if (historyIndex < history.size()) {
+                        ++historyIndex;
+                        if (historyIndex == history.size()) {
+                            cmd.setText(backup);
+                        } else {
+                            cmd.setText(history.get(historyIndex));
+                        }
+                        cmd.end();
+                    }
                 }
             }
         });
@@ -89,7 +115,8 @@ public class Debugger {
     }
     private void executeCommand(String line) {
         if (line.isEmpty()) {
-            if (!lastCommand.isEmpty()) {
+            if (this.history.size() > 0) {
+                String lastCommand = this.history.get(this.history.size() - 1);
                 if (!lastCommand.equals("n") && !lastCommand.equals("nr") && !lastCommand.equals("cycle")) {
                     logPrintln(">" + lastCommand);   
                 }
@@ -97,7 +124,12 @@ public class Debugger {
             }
             return;
         }
-        lastCommand = line;
+        this.history.add(line);
+        while (this.history.size() > 512) {
+            this.history.remove(0);
+        }
+        this.historyIndex = this.history.size();
+        this.backup = "";
         String cmd = line.split(" ")[0];
         String[] args = line.split(" ");
         main.cpu.getClock().stop();
@@ -160,10 +192,10 @@ public class Debugger {
             logPrintln(I18n.format("debugger.halted"));
             return;
         }
-        if (!main.cpu.paused) {
+        if (!main.cpu.isPaused()) {
             pauseCPU(args);
         }
-        cpu.paused = false;
+        cpu.resume();
         int oldPC = cpu.getPC();
         cpu.tick();
         if (oldPC != cpu.getPC()) {
@@ -174,25 +206,25 @@ public class Debugger {
         } else {
             logPrintln(I18n.format("debugger.cyclestonext", cpu.getCyclesLeft()));
         }
-        cpu.paused = true;
+        cpu.pause();
     }
 
     private void resetCPU(String[] args) {
         logPrintln(I18n.format("debugger.reset"));
         main.cpu.reset(true);
-        main.cpu.paused = true;
+        main.cpu.pause();
         main.menuRun.pause.setText(I18n.format("menu.run.resume"));
     }
 
     private void pauseCPU(String[] args) {
         logPrintln(I18n.format("debugger.paused"));
-        main.cpu.paused = true;
+        main.cpu.pause();
         main.menuRun.pause.setText(I18n.format("menu.run.resume"));
     }
 
     private void resumeCPU(String[] args) {
         logPrintln(I18n.format("debugger.unpaused"));
-        main.cpu.paused = false;
+        main.cpu.resume();
         main.menuRun.pause.setText(I18n.format("menu.run.pause"));
     }
 
@@ -217,11 +249,11 @@ public class Debugger {
             logPrintln(I18n.format("debugger.halted"));
             return;
         }
-        if (!main.cpu.paused) {
+        if (!main.cpu.isPaused()) {
             pauseCPU(args);
         }
         int oldPC = cpu.getPC();
-        cpu.paused = false;
+        cpu.pause();
         while (cpu.getCyclesLeft() > 0) {
             cpu.tick();
         }
@@ -230,7 +262,7 @@ public class Debugger {
             logPrintln(I18n.format("debugger.interrupt", String.format("%04x", cpu.readRegister(UCPU16.REG_A))));
         }
         disassembleInstruction();
-        cpu.paused = true;
+        cpu.resume();
     }
 
     private void runInstructionWithRegs(String[] args) {
@@ -238,11 +270,11 @@ public class Debugger {
             logPrintln(I18n.format("debugger.halted"));
             return;
         }
-        if (!main.cpu.paused) {
+        if (!main.cpu.isPaused()) {
             pauseCPU(args);
         }
         int oldPC = cpu.getPC();
-        cpu.paused = false;
+        cpu.resume();
         while (cpu.getCyclesLeft() > 0) {
             cpu.tick();
         }
@@ -252,7 +284,7 @@ public class Debugger {
             logPrintln(I18n.format("debugger.interrupt", String.format("%04x", cpu.readRegister(UCPU16.REG_A))));
         }
         disassembleInstruction();
-        cpu.paused = true;
+        cpu.pause();
     }
 
     private void disassembleInstruction() {

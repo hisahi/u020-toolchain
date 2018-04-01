@@ -40,7 +40,7 @@ public class UCPU16 implements ITickable {
     public static final int REG_Z = 5;
     public static final int REG_I = 6;
     public static final int REG_J = 7;
-    public boolean paused;
+    private boolean paused;
     private boolean interruptHandled;
     private boolean breakpointsEnabled;
     public Set<Integer> breakpoints;
@@ -521,5 +521,21 @@ public class UCPU16 implements ITickable {
 
     public void disableBreakpoints() {
         this.breakpointsEnabled = false;
+    }
+    
+    public boolean isPaused() {
+        return this.paused;
+    }
+    public void pause() {
+        this.paused = true;
+        for (Hardware hw: this.devices) {
+            hw.pause();
+        }
+    }
+    public void resume() {
+        for (Hardware hw: this.devices) {
+            hw.resume();
+        }
+        this.paused = false;
     }
 }

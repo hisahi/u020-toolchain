@@ -132,7 +132,17 @@ public class UCPU16 implements ITickable {
     public List<Hardware> getDevices() {
         return this.devices;
     }
-
+    
+    // these variables are used by tick() only but avoids allocation every time
+    private int ibin;
+    private int am;
+    private int bm;
+    private int ta;
+    private int tb;
+    private int to;
+    private IAddressingMode tia;
+    private IAddressingMode tib;
+    private IInstruction tinstr;
     @Override
     public void tick() {
         if (halt || paused) {
@@ -149,35 +159,33 @@ public class UCPU16 implements ITickable {
                     return;
                 }
             }
-            int ibin = readMemoryAtPC();
-            int a = (ibin >> 10) & 0b111111;
-            int b = (ibin >> 5) & 0b11111;
-            int o = (ibin) & 0b11111;
-            int am = 0;
-            int bm = 0;
-            IAddressingMode ia = AddressingMode.decode(a);
-            IAddressingMode ib = null;
-            if (o != 0) {
-                ib = AddressingMode.decode(b);
+            ibin = readMemoryAtPC();
+            ta = (ibin >> 10) & 0b111111;
+            tb = (ibin >> 5) & 0b11111;
+            to = (ibin) & 0b11111;
+            am = 0;
+            bm = 0;
+            tia = AddressingMode.decode(ta);
+            tib = null;
+            if (to != 0) {
+                tib = AddressingMode.decode(tb);
             }
-            IInstruction instr = Instruction.decode(a, b, o);
-            if (instr == null) {
+            tinstr = Instruction.decode(ta, tb, to);
+            if (tinstr == null) {
                 this.halt = true;
                 debugger(I18n.format("error.illegalinstruction"));
                 --cyclesLeft;
                 return;
             }
-            if (ia.takesNextWord()) {
+            if (tia.takesNextWord()) {
                 am = readMemoryAtPC();
             }
-            if (ib != null) {
-                if (ib.takesNextWord()) {
-                    bm = readMemoryAtPC();
-                }
+            if (tib != null && tib.takesNextWord()) {
+                bm = readMemoryAtPC();
             }
             if (this.skipBranches) {
                 // skip multiple branch instructions if consecutive
-                this.skipBranches = instr instanceof InstructionBranch;
+                this.skipBranches = tinstr instanceof InstructionBranch;
                 return;
             }
             if (!this.queueInterrupts && !interruptQueue.isEmpty()) {
@@ -187,11 +195,9 @@ public class UCPU16 implements ITickable {
                 return;
             }
             this.interruptHandled = false;
-            this.cyclesLeft += ia.getCycles() + instr.getCycles();
-            if (ib != null) {
-                this.cyclesLeft += ib.getCycles();
-            }
-            instr.execute(this, ia, ib, am, bm);
+            this.cyclesLeft += tia.getCycles() + tinstr.getCycles()
+                            + (tib != null ? tib.getCycles() : 0);
+            tinstr.execute(this, tia, tib, am, bm);
         }
         --cyclesLeft;
     }
@@ -481,14 +487,16 @@ public class UCPU16 implements ITickable {
                 }
             }
         }
-        if (uncd321 == null 
-                || keyboard == null 
-                || unem192 == null 
-                || clock == null 
-                || untm200 == null) {
-            throw new IOException("missing devices: savestate invalid");
-        } else {
-            main.loadDevicesFromState(uncd321, keyboard, unem192, clock, untm200);
+        if (main != null) {
+            if (uncd321 == null 
+                    || keyboard == null 
+                    || unem192 == null 
+                    || clock == null 
+                    || untm200 == null) {
+                throw new IOException("missing devices: savestate invalid");
+            } else {
+                main.loadDevicesFromState(uncd321, keyboard, unem192, clock, untm200);
+            }
         }
         if (restart) {
             this.clock.start();

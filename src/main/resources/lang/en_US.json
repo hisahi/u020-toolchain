@@ -121,5 +121,12 @@
     "error.run.toolarge": "This image is too large! Max size is 737 280 words (1 474 560 bytes, big endian)",
     "error.run.loadio": "Canoot load the image!",
     "error.illegalinstruction": "illegal instruction",
-    "error.intqueuefull": "interrupt queue full"
+    "error.intqueuefull": "interrupt queue full",
+    "error.disasm.invalidhex": "Invalid hex input!",
+    "error.disasm.hexlong": "Hex input is too long! (more than 65536 words)",
+    "error.disasm.invalidaddr": "Invalid starting address!",
+    "error.disasm.linenosym": "Symbol table, line %1$d",
+    "error.disasm.duplicatelabel": "A label for this address already exists",
+    "error.disasm.invalidlabel": "Invalid label",
+    "error.disasm.syntaxerror": "Syntax error"
 }

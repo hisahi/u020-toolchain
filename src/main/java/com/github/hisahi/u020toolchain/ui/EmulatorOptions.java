@@ -340,6 +340,7 @@ public class EmulatorOptions {
                 if (result.get() == ButtonType.OK) {
                     Config.clear();
                     reloadConfig();
+                    main.cpu.pause();
                 }
             }
         });

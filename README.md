@@ -9,7 +9,14 @@ See the "doc" folder for a full documentation.
 
 # Ohjelmistotekniikan menetelmät
 
-Tämä repositorio ja sen alla oleva ohjelma on tehty kevätlukukauden 2018 (2017-2018 periodi IV) Ohjelmistotekniikan menetelmät -kurssin harjoitustyönä. Ohjeiden mukaiset [alustava määrittelydokumentti](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/vaatimusmaarittely.md) sekä [työaikakirjanpito](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/tuntikirjanpito.md) löytyy myös tästä repositoriosta. Kaikki suoraan OTM-kirjanpitoon liittyvät asiakirjat löytyykin dokumentaatio-kansion alta.
+Tämä repositorio ja sen alla oleva ohjelma on tehty kevätlukukauden 2018 (2017-2018 periodi IV) Ohjelmistotekniikan menetelmät -kurssin harjoitustyönä. Kaikki suoraan OTM-kirjanpitoon liittyvät asiakirjat löytyykin dokumentaatio-kansion alta.
 
+* [Vaatimusmäärittely](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/vaatimusmaarittely.md)
+* [Tuntikirjanpito](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/tuntikirjanpito.md)
+* [Luokkakaavio](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/luokkakaaviot.md)
+* [Sekvenssikaavioita](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/sekvenssikaaviot.md)
+* [Arkkitehtuuri](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/arkkitehtuuri.md)
+* [Testausdokumentti](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/testaus.md)
+* [Lyhyt käyttöohje](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/kayttoohje.md) (täysi käyttöohje on englanniksi doc-kansiossa)
 
 

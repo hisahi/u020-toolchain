@@ -30,7 +30,11 @@ public class AddressingModeRegisterIndirectPlusWord implements IAddressingMode {
     }
 
     @Override
-    public String format(boolean isB, int val) {
-        return "[" + String.valueOf("ABCXYZIJ".charAt(reg)) + "+" + String.format("0x%04x", val) + "]";
+    public String format(boolean isB, int val, String label) {
+        if (label != null) {
+            return "[" + String.valueOf("ABCXYZIJ".charAt(reg)) + "+" + label + "]";
+        } else {
+            return "[" + String.valueOf("ABCXYZIJ".charAt(reg)) + "+" + String.format("0x%04x", val) + "]";
+        }
     }
 }

@@ -107,7 +107,6 @@ public class EmulatorMain extends Application {
         });
         
         initCPU();
-        //initDevices(); called via CPU reset now
         initDisplay();
         
         debugger = new Debugger(this);
@@ -120,6 +119,7 @@ public class EmulatorMain extends Application {
         
         this.cpu.reset(true); 
         cpuclock.start();
+        
         stage.setScene(mainScene);
         stage.sizeToScene();
         stage.setResizable(false);
@@ -258,16 +258,24 @@ public class EmulatorMain extends Application {
     private void initCPU() {
         this.cpu = new UCPU16(new StandardMemory(), this);
         this.cpuclock = new HighResolutionTimer(CPU_HZ, cpu);
-        this.cpu.setClock(cpuclock);
         this.cpu.pause();
+        this.cpu.setClock(cpuclock);
     }
 
     public void initDevices() {
-        this.cpu.addDevice(this.uncd321 = new UNCD321(this.cpu, this));
-        this.cpu.addDevice(this.keyboard = new Keyboard(this.cpu));
-        this.cpu.addDevice(this.unem192 = new UNEM192(this.cpu));
-        this.cpu.addDevice(this.clock = new Clock(this.cpu));
-        this.cpu.addDevice(this.untm200 = new UNTM200(this.cpu));
+        cpu.addDevice(this.uncd321 = new UNCD321(cpu, null));
+        cpu.addDevice(this.keyboard = new Keyboard(cpu));
+        cpu.addDevice(this.unem192 = new UNEM192(cpu));
+        cpu.addDevice(this.clock = new Clock(cpu));
+        cpu.addDevice(this.untm200 = new UNTM200(cpu));
+    }
+
+    public static void initDevicesForTesting(UCPU16 cpu) {
+        cpu.addDevice(new UNCD321(cpu, null));
+        cpu.addDevice(new Keyboard(cpu));
+        cpu.addDevice(new UNEM192(cpu));
+        cpu.addDevice(new Clock(cpu));
+        cpu.addDevice(new UNTM200(cpu));
     }
 
     private void initDisplay() {

@@ -31,8 +31,12 @@ public class AddressingModeLiteral implements IAddressingMode {
     }
 
     @Override
-    public String format(boolean isB, int val) {
-        return String.valueOf(this.val);
+    public String format(boolean isB, int val, String label) {
+        if (label != null) {
+            return label;
+        } else {
+            return String.valueOf(this.val);
+        }
     }
 
 }

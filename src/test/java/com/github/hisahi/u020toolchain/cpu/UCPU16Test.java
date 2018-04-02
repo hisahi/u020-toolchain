@@ -1,6 +1,13 @@
 
 package com.github.hisahi.u020toolchain.cpu;
 
+import com.github.hisahi.u020toolchain.logic.HighResolutionTimer;
+import com.github.hisahi.u020toolchain.ui.EmulatorMain;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -93,5 +100,59 @@ public class UCPU16Test {
         assertEquals(0xb504, cpu.getMemory().read(FP0+2));
         assertEquals(0xf333, cpu.getMemory().read(FP0+3));
         assertEquals(0xf9da, cpu.getMemory().read(FP0+4));
+    }
+    
+    @Test
+    public void canRestoreSavedStateWithoutException() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream daos = new DataOutputStream(baos);
+        HighResolutionTimer timer = new HighResolutionTimer(1, cpu);
+        cpu.setClock(timer);
+        EmulatorMain.initDevicesForTesting(cpu);
+        cpu.saveState(daos);
+        int oldDeviceCount = cpu.getDevices().size();
+        String oldRegDump = cpu.dumpRegisters();
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        DataInputStream dais = new DataInputStream(bais);
+        UCPU16 cpu2 = new UCPU16(new StandardMemory());
+        cpu2.setClock(timer);
+        cpu2.restoreState(dais);
+        assertEquals("CPU restore state didn't restore devices correctly", oldDeviceCount, cpu2.getDevices().size());
+        assertEquals("CPU restore state didn't restore registers correctly", oldRegDump, cpu2.dumpRegisters());
+    }
+    
+    @Test
+    public void interruptQueueTest() {
+        cpu.writeRegister(UCPU16.REG_A, 0);
+        int r = (int) (Math.random() * 65536);
+        cpu.setIA(1);
+        cpu.queueInterrupts = false;
+        cpu.queueInterrupt(r);
+        assertEquals("interrupt was not queued", 1, cpu.interruptQueue.size());
+        while (cpu.cyclesLeft > 0) {
+            cpu.tick();
+        }
+        cpu.tick();
+        assertEquals("interrupt message not written to A", r, cpu.readRegister(UCPU16.REG_A));
+        assertTrue("interrupt queueing was not enabled", cpu.queueInterrupts);
+        cpu.reset();
+        cpu.setIA(0);
+        cpu.queueInterrupts = false;
+        cpu.queueInterrupt(r);
+        assertEquals("interrupt was not queued", 1, cpu.interruptQueue.size());
+        while (cpu.cyclesLeft > 0) {
+            cpu.tick();
+        }
+        cpu.tick();
+        assertEquals("interrupt should not be handled as IA = 0", 0, cpu.readRegister(UCPU16.REG_A));
+    }
+    
+    @Test
+    public void pauseResumeTest() {
+        cpu.pause();
+        assertTrue("CPU was not paused", cpu.isPaused());
+        cpu.resume();
+        assertFalse("CPU was not resumed", cpu.isPaused());
+        cpu.pause();
     }
 }

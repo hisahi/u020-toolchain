@@ -30,7 +30,7 @@ public class AddressingModeRegister implements IAddressingMode {
     }
 
     @Override
-    public String format(boolean isB, int val) {
+    public String format(boolean isB, int val, String label) {
         return String.valueOf("ABCXYZIJ".charAt(reg));
     }
 }

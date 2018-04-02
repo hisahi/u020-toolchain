@@ -79,12 +79,12 @@ public class BinaryInstructionTest {
     
     @Test
     public void testInstructionMLI() {
-        assertEquals("MLI did not compute the value correctly", 10, executeWithA(Instruction.MUL, 5, 2));
+        assertEquals("MLI did not compute the value correctly", 10, executeWithA(Instruction.MLI, 5, 2));
         assertEquals("EX was incorrectly modified by MLI", 0, cpu.getEX());
-        assertEquals("MLI did not compute the value correctly", 0x6009, executeWithA(Instruction.MUL, 0x1003, 0x1003));
+        assertEquals("MLI did not compute the value correctly", 0x6009, executeWithA(Instruction.MLI, 0x1003, 0x1003));
         assertEquals("EX was incorrectly modified by MLI", 0x0100, cpu.getEX());
-        assertEquals("MLI did not compute the value correctly", 0xFD00, executeWithA(Instruction.MUL, 0xFF00, 0xFF03));
-        assertEquals("EX was incorrectly modified by MLI", 0xFE03, cpu.getEX());
+        assertEquals("MLI did not compute the value correctly", 0xFD00, executeWithA(Instruction.MLI, 0xFF00, 0xFF03));
+        assertEquals("EX was incorrectly modified by MLI", 0x0000, cpu.getEX());
     }
     
     @Test
@@ -103,6 +103,21 @@ public class BinaryInstructionTest {
         assertEquals("EX was incorrectly modified by DVI", 0x8000, cpu.getEX());
         assertEquals("DVI did not compute the value correctly", 0xFDA9, executeWithA(Instruction.DVI, 0x1066, 0xFFF9));
         assertEquals("EX was incorrectly modified by DVI", 0x4925, cpu.getEX());
+    }
+    
+    @Test
+    public void testInstructionMOD() {
+        assertEquals("MOD did not compute the value correctly", 2, executeWithA(Instruction.MOD, 8, 3));
+        assertEquals("MOD did not compute the value correctly", 6, executeWithA(Instruction.MOD, 27, 7));
+        assertEquals("MOD did not compute the value correctly", 0, executeWithA(Instruction.MOD, 11, 0));
+    }
+    
+    @Test
+    public void testInstructionMDI() {
+        assertEquals("MDI did not compute the value correctly", 2, executeWithA(Instruction.MDI, 8, 3));
+        assertEquals("MDI did not compute the value correctly", 6, executeWithA(Instruction.MDI, 27, 7));
+        assertEquals("MDI did not compute the value correctly", 0xfff9, executeWithA(Instruction.MDI, 0xfff9, 16));
+        assertEquals("MDI did not compute the value correctly", 0, executeWithA(Instruction.MDI, 11, 0));
     }
     
     @Test

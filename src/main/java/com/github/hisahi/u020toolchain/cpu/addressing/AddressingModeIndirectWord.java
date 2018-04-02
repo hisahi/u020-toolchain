@@ -29,8 +29,12 @@ public class AddressingModeIndirectWord implements IAddressingMode {
     }
 
     @Override
-    public String format(boolean isB, int val) {
-        return String.format("[0x%04x]", val);
+    public String format(boolean isB, int val, String label) {
+        if (label != null) {
+            return String.format("[%s]", label);
+        } else {
+            return String.format("[0x%04x]", val);
+        }
     }
 
 }

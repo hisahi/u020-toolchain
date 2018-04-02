@@ -19,14 +19,13 @@ public class HighResolutionTimerTest {
     }
 
     @Test
-    public void test1MHzWithinPromille() throws InterruptedException {
-        long startTime = System.currentTimeMillis();
+    public void test1MHzWithin5Percent() throws InterruptedException {
         this.timer.start();
-        Thread.sleep(200 - (System.currentTimeMillis() - startTime));
+        Thread.sleep(200);
         this.timer.stopSoft();
         long ticks = this.tickable.ticks;
-        assertTrue("There are too few ticks (should be within 1%, 990000-1010000 Hz, was " + (ticks * 5) + " Hz)", ticks >= 198000);
-        assertTrue("There are too many ticks (should be within 1%, 990000-1010000 Hz, was " + (ticks * 5) + " Hz)", ticks <= 202000);
+        assertTrue("There are too few ticks (should be within 5%, 950000-1050000 Hz, was " + (ticks * 5) + " Hz)", ticks >= 190000);
+        assertTrue("There are too many ticks (should be within 5%, 950000-1050000 Hz, was " + (ticks * 5) + " Hz)", ticks <= 210000);
     }
     
     class DummyTickable implements ITickable {

@@ -29,7 +29,7 @@ public class AddressingModeRegisterPC implements IAddressingMode {
     }
 
     @Override
-    public String format(boolean isB, int val) {
+    public String format(boolean isB, int val, String label) {
         return "PC";
     }
 

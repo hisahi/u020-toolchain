@@ -183,26 +183,23 @@ public class UNCD321 extends Hardware {
         this.convertPalette();
     }
     
-    private void drawCharacterRow(int[] memarr, int bp, int chr, boolean blink, int row, int col, int bg, int fg, int bgc, int fgc, int y) {
+    private void drawCharacterRow(int[] memarr, int bp, int chr, boolean blink, int pxp, int bgc, int fgc) {
         for (int x = 0; x < 8; ++x) {
-            if (((chr & 0x8000) > 0) != (blink && cursoron)) {
-                if (fg > 0) {
-                    setCollision(memarr, ((row + y) << 8) 
-                                    + col + x, -1);
-                    buffer[bp] = fgc;
+            if (((chr & 0x8000) != 0) != blink) {
+                if (fgc != 0) {
+                    setCollision(memarr, pxp + x, -1);
+                    buffer[bp + x] = fgc;
                 }
             } else {
-                if (blink && cursoron) {
-                    buffer[bp] = fgc;
+                if (blink) {
+                    buffer[bp + x] = fgc;
                 }
-                if (bg > 0) {
-                    setCollision(memarr, ((row + y) << 8) 
-                                    + col + x, -1);
-                    buffer[bp] = bgc;
+                if (bgc != 0) {
+                    setCollision(memarr, pxp + x, -1);
+                    buffer[bp + x] = bgc;
                 }
             }
             chr <<= 1;
-            ++bp;
         }
     }
 
@@ -240,6 +237,7 @@ public class UNCD321 extends Hardware {
             int ptr = 0;
             int base;
             boolean blink;
+            int fg, bg, fgc, bgc, ap, bp, chr;
             for (int row = 1; row < 191; row += 10) {
                 for (int col = 0; col < 256; col += 8) {
                     int wrd = memarr[(memscr + ptr) & 0xFFFF];
@@ -251,19 +249,18 @@ public class UNCD321 extends Hardware {
                         base = (wrd & 0xFF);
                     }
                     ++ptr;
-                    int fg = ((wrd >> 12) & 0xF);
-                    int bg = ((wrd >> 8) & 0xF);
-                    int fgc = this.palette[fg];
-                    int bgc = this.palette[bg];
-                    int ap = (row << 8) + col;
+                    fg = ((wrd >> 12) & 0xF);
+                    bg = ((wrd >> 8) & 0xF);
+                    fgc = fg == 0 ? 0 : this.palette[fg];
+                    bgc = bg == 0 ? 0 : this.palette[bg];
+                    ap = (row << 8) + col;
                     for (int y = 0; y < 10; y += 2) {
-                        int bp = ap + (y << 8);
-                        int chr = this.font[base];
+                        bp = ap + (y << 8);
+                        chr = this.font[base];
                         base += 0x100;
-                        drawCharacterRow(memarr, bp, chr, blink, row, col, bg, fg, bgc, fgc, y);
-                        drawCharacterRow(memarr, bp + 256, chr << 8, blink, row, col, bg, fg, bgc, fgc, y);
+                        drawCharacterRow(memarr, bp, chr, blink && cursoron, ((row + y) << 8) + col, bgc, fgc);
+                        drawCharacterRow(memarr, bp + 256, chr << 8, blink && cursoron, ((row + y) << 8) + col, bgc, fgc);
                     }
-                    
                 }
             }
         } else if (mode == 1) {

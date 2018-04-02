@@ -84,7 +84,7 @@
         </module>
 
         <module name="JavadocStyle">
-           <property name="scope" value="public"/>
+            <property name="scope" value="public"/>
             <property name="checkEmptyJavadoc" value="true"/>
         </module>
 

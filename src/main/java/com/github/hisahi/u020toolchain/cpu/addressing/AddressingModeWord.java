@@ -28,8 +28,12 @@ public class AddressingModeWord implements IAddressingMode {
     }
 
     @Override
-    public String format(boolean isB, int val) {
-        return String.format("0x%04x", val);
+    public String format(boolean isB, int val, String label) {
+        if (label != null) {
+            return label;
+        } else {
+            return String.format("0x%04x", val);
+        }
     }
 
 }

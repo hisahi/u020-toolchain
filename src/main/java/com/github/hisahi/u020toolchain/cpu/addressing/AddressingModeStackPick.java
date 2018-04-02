@@ -29,7 +29,7 @@ public class AddressingModeStackPick implements IAddressingMode {
     }
 
     @Override
-    public String format(boolean isB, int val) {
+    public String format(boolean isB, int val, String label) {
         return "[SP+" + String.format("0x%04x", val) + "]";
     }
 

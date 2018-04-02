@@ -8,6 +8,7 @@ Version 2.0
 
 * 16 bit words
 * 0x40000 words of ram (0x10000 addressable at any given time)
+  * 0x10000 by default, but expanded to 0x40000 by UNEM192 (standard feature)
 * 8 registers (A, B, C, X, Y, Z, I, J)
 * program counter (PC)
 * stack pointer (SP)

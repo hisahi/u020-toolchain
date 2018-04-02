@@ -1,5 +1,8 @@
 // UNEM192
 // 192 kw extra memory module
+// NOTE: this is the peripheral that upgrades CPU memory from 64 kw to 256 kw.
+//     the CPU docs say 0x40000 words (256 kw) of memory: this is because this
+//     peripheral is now *a standard feature* of the CPU.
 //
 // HID = 0xCA1C4B47
 // VER = 0x01c0

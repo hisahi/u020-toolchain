@@ -263,7 +263,7 @@ public class EmulatorMain extends Application {
     }
 
     public void initDevices() {
-        cpu.addDevice(this.uncd321 = new UNCD321(cpu, null));
+        cpu.addDevice(this.uncd321 = new UNCD321(cpu, this));
         cpu.addDevice(this.keyboard = new Keyboard(cpu));
         cpu.addDevice(this.unem192 = new UNEM192(cpu));
         cpu.addDevice(this.clock = new Clock(cpu));

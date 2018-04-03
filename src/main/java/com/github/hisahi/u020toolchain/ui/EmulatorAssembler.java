@@ -140,7 +140,10 @@ public class EmulatorAssembler {
                 if (file != null) {
                     try (FileOutputStream fos = new FileOutputStream(file)) {
                         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-                        bw.write(symboltable.getText());
+                        for (String line: symboltable.getText().split("\n")) {
+                            bw.write(line);
+                            bw.newLine();
+                        }
                     } catch (IOException ex) {
                         Logger.getLogger(EmuMenuFile.class.getName()).log(Level.SEVERE, null, ex);
                         new Alert(Alert.AlertType.ERROR, I18n.format("error.fileio"), ButtonType.OK).showAndWait();
@@ -213,6 +216,7 @@ public class EmulatorAssembler {
                             }
                             bw.write(String.format("%04x", binary[i]));
                         }
+                        bw.write(" ");
                         bw.newLine();
                     } catch (IOException ex) {
                         Logger.getLogger(EmuMenuFile.class.getName()).log(Level.SEVERE, null, ex);

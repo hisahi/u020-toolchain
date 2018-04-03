@@ -46,7 +46,7 @@
     "dialog.extension.usv": "Univtek 020 Save State (*.usv)",
     "dialog.extension.ufi": "Univtek 020 Floppy Image (*.ufi)",
     "dialog.extension.lst": "Univtek 020 Assembly listing (*.lst)",
-    "dialog.extension.sym": "Univtek 020 Symbol table (*.syn)",
+    "dialog.extension.sym": "Univtek 020 Symbol table (*.sym)",
     "title.options": "Options",
     "options.resetwarning": "WARNING! Changing hardware settings above will reset the machine!",
     "options.inserteddrives": "Number of inserted M35FD drives",

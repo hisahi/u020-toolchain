@@ -206,16 +206,14 @@ public class EmulatorAssembler {
                     try (FileOutputStream fos = new FileOutputStream(file)) {
                         DataOutputStream dos = new DataOutputStream(fos);
                         int[] binary = asmres.getBinary();
+                        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
                         for (int i = 0; i < binary.length; ++i) {
-                            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-                            for (String s: listing.getItems()) {
-                                if (i > 0) {
-                                    bw.write(" ");
-                                }
-                                bw.write(String.format("%04x", binary[i]));
+                            if (i > 0) {
+                                bw.write(" ");
                             }
-                            bw.newLine();
+                            bw.write(String.format("%04x", binary[i]));
                         }
+                        bw.newLine();
                     } catch (IOException ex) {
                         Logger.getLogger(EmuMenuFile.class.getName()).log(Level.SEVERE, null, ex);
                         new Alert(Alert.AlertType.ERROR, I18n.format("error.fileio"), ButtonType.OK).showAndWait();

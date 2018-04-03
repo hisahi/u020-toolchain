@@ -4,9 +4,21 @@ package com.github.hisahi.u020toolchain.ui;
 import com.github.hisahi.u020toolchain.logic.AssemblyListing;
 import com.github.hisahi.u020toolchain.logic.Disassembler;
 import com.github.hisahi.u020toolchain.logic.SymbolTableParser;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -14,6 +26,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
@@ -22,6 +35,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class EmulatorDisassembler {
@@ -31,7 +45,7 @@ public class EmulatorDisassembler {
     private TextField address;
     private TextArea hexinput;
     private TextArea symboltable;
-    private TextArea listingArea;
+    private ListView<String> listingArea;
     private TabPane tabPane;
     private Tab resultTab;
     private List<AssemblyListing> listing;
@@ -75,16 +89,41 @@ public class EmulatorDisassembler {
         hexinput = new TextArea();
         hexinput.setFont(main.getMonospacedFont());
         hexinput.setMaxHeight(Double.MAX_VALUE);
+        hexinput.setWrapText(false);
         Button importbin = new Button(I18n.format("disassembler.hex.import"));
         Button disasm = new Button(I18n.format("disassembler.disassemble"));
         importbin.setMaxWidth(Double.MAX_VALUE);
         disasm.setMaxWidth(Double.MAX_VALUE);
-        
+        importbin.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle(I18n.format("dialog.importbin"));
+                File file = fileChooser.showOpenDialog(main.mainStage);
+                if (file != null) {
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        byte[] f = new byte[Math.min(131072, (int) file.length())];
+                        int rb = fis.read(f) & ~1;
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < rb; i += 2) {
+                            sb.append(String.format("%02x", f[i]));
+                            sb.append(String.format("%02x", f[i + 1]));
+                            sb.append(' ');
+                        }
+                        hexinput.setText(sb.toString().trim());
+                    } catch (IOException ex) {
+                        Logger.getLogger(EmulatorDisassembler.class.getName()).log(Level.SEVERE, null, ex);
+                        new Alert(Alert.AlertType.ERROR, I18n.format("error.fileio"), ButtonType.OK).showAndWait();
+                    }
+                }
+            }
+        });
         disasm.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 listing = null;
-                Map<Integer, String> labels = new HashMap<>();
+                listingArea.getItems().clear();
+                Map<Integer, List<String>> labels = new HashMap<>();
                 int startAddr;
                 try {
                     startAddr = Integer.parseInt(stripHex(address.getText()), 16) & 0xFFFF;
@@ -110,16 +149,20 @@ public class EmulatorDisassembler {
                 try {
                     SymbolTableParser.parse(symboltable.getText(), labels, dataAreas);
                 } catch (IllegalArgumentException ex) {
+                    ex.printStackTrace();
                     new Alert(Alert.AlertType.ERROR, ex.getMessage(), ButtonType.OK).showAndWait();
                     return;
                 }
                 try {
                     listing = Disassembler.disassemble(memory, startAddr, startAddr + tok.length, labels, dataAreas);
                 } catch (IllegalArgumentException ex) {
+                    ex.printStackTrace();
                     new Alert(Alert.AlertType.ERROR, ex.getMessage(), ButtonType.OK).showAndWait();
                     return;
                 }
-                listingArea.setText(Disassembler.listingToString(listing));
+                for (String line: Disassembler.listingToString(listing).split("\n")) {
+                    listingArea.getItems().add(line);
+                }
                 tabPane.getSelectionModel().select(resultTab);
             }
         });
@@ -139,7 +182,28 @@ public class EmulatorDisassembler {
         symboltable = new TextArea();
         symboltable.setFont(main.getMonospacedFont());
         symboltable.setMaxHeight(Double.MAX_VALUE);
-        vbox.getChildren().addAll(label, symboltable);
+        symboltable.setWrapText(false);
+        Button importsym = new Button(I18n.format("disassembler.symbol.import"));
+        importsym.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle(I18n.format("dialog.importbin"));
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18n.format("dialog.extension.sym"), "*.sym"));
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18n.format("dialog.extension.all"), "*"));
+                File file = fileChooser.showOpenDialog(main.mainStage);
+                if (file != null) {
+                    try {
+                        symboltable.setText(new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8));
+                    } catch (IOException ex) {
+                        Logger.getLogger(EmulatorDisassembler.class.getName()).log(Level.SEVERE, null, ex);
+                        new Alert(Alert.AlertType.ERROR, I18n.format("error.fileio"), ButtonType.OK).showAndWait();
+                    }
+                }
+            }
+        });
+        importsym.setMaxWidth(Double.MAX_VALUE);
+        vbox.getChildren().addAll(label, symboltable, importsym);
         VBox.setVgrow(symboltable, Priority.ALWAYS);
         tab.setContent(vbox);
         return tab;
@@ -152,10 +216,37 @@ public class EmulatorDisassembler {
         Label label = new Label(I18n.format("disassembler.code.desc"));
         label.setTextAlignment(TextAlignment.JUSTIFY);
         label.setWrapText(true);
-        listingArea = new TextArea();
-        listingArea.setFont(main.getMonospacedFont());
+        listingArea = new ListView<>();
         listingArea.setMaxHeight(Double.MAX_VALUE);
-        vbox.getChildren().addAll(label, listingArea);
+        listingArea.setStyle("-fx-font-family: \"monospace\";");
+        Button exportlst = new Button(I18n.format("disassembler.code.export"));
+        exportlst.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (listing == null) {
+                    return;
+                }
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle(I18n.format("dialog.exportlist"));
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18n.format("dialog.extension.lst"), "*.lst"));
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(I18n.format("dialog.extension.all"), "*"));
+                File file = fileChooser.showSaveDialog(main.mainStage);
+                if (file != null) {
+                    try (FileOutputStream fos = new FileOutputStream(file)) {
+                        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+                        for (String s: listingArea.getItems()) {
+                            bw.write(s);
+                            bw.newLine();
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(EmuMenuFile.class.getName()).log(Level.SEVERE, null, ex);
+                        new Alert(Alert.AlertType.ERROR, I18n.format("error.fileio"), ButtonType.OK).showAndWait();
+                    }
+                }
+            }
+        });
+        exportlst.setMaxWidth(Double.MAX_VALUE);
+        vbox.getChildren().addAll(label, listingArea, exportlst);
         VBox.setVgrow(listingArea, Priority.ALWAYS);
         tab.setContent(vbox);
         return tab;
@@ -172,6 +263,9 @@ public class EmulatorDisassembler {
         if (mainStage.isShowing()) {
             mainStage.toFront();
         } else {
+            hexinput.clear();
+            symboltable.clear();
+            listingArea.getItems().clear();
             mainStage.show();
         }
     }

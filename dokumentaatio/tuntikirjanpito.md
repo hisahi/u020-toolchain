@@ -11,3 +11,4 @@
 | 31.3. | 120        | UNMS001-tuki, UNCD321-näytöltä kopioiminen, käyttöliittymä M35FD-levykeasemille |
 | 1.4.  | 150        | UNAC810, load & run, pause/resume-järjestelmän uusiminen, korjauksia |
 | 2.4.  | 150        | konekieleksi kääntäjä (disassembler), lisätestejä, korjauksia |
+| 3.4.  | 270        | ensimmäinen konekielestä kääntäjä (assembler), korjauksia konekieleksi kääntäjään (disassembler) |

@@ -20,7 +20,7 @@
           <property name="allowInSwitchCase" value="true"/>
         </module>
         <module name="NestedIfDepth">
-          <property name="max" value="2"/>
+          <property name="max" value="3"/>
         </module>
         <module name="NestedForDepth">
           <property name="max" value="2"/>

@@ -35,6 +35,9 @@ public class AddressingModeLiteral implements IAddressingMode {
         if (label != null) {
             return label;
         } else {
+            if (this.val < 0) {
+                return String.format("0x%04x", this.val & 0xFFFF);
+            }
             return String.valueOf(this.val);
         }
     }

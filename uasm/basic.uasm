@@ -3651,7 +3651,7 @@
     JSR FP0_int32_adv
     IFN [FPERROR], 0
         SET PC, error_illegalarg
-    SET PC, STMT_READ_F_i
+    SET PC, STMT_READ_F_I
 
 :STMT_READ_N_BIN
     JSR exec_expr_val_bin
@@ -4570,7 +4570,7 @@
     IFG C, 0
         SET PC, STMT_DEF_VN_COPY
     JSR switch_code         ; back to code.
-    SET PC, stmt_data       ; skip until end of statement
+    SET PC, STMT_DATA       ; skip until end of statement
 
 :STMT_POKE
     JSR exec_endst          ; end of statement?
@@ -4721,7 +4721,7 @@
     IFE [BTMP+8], 0
         SET PC, FUNC_INT_P
     SET A, FP_c_m1
-    SET FP1_lc
+    JSR FP1_lc
     JSR FP0_add
 :FUNC_INT_P
     JSR FP0_store
@@ -5092,9 +5092,9 @@
     SET X, [EXPRSP]
     JSR OP_PTR2
     IFN [X], 1
-        SET PC; exec_expr_typemis
+        SET PC, exec_expr_typemis
     IFN [Y], 1
-        SET PC; exec_expr_typemis
+        SET PC, exec_expr_typemis
     ADD [EXPRSP], 3
     XOR [Y+1], [X+1]
     XOR [Y+2], [X+2]
@@ -5104,9 +5104,9 @@
     SET X, [EXPRSP]
     JSR OP_PTR2
     IFN [X], 1
-        SET PC; exec_expr_typemis
+        SET PC, exec_expr_typemis
     IFN [Y], 1
-        SET PC; exec_expr_typemis
+        SET PC, exec_expr_typemis
     ADD [EXPRSP], 3
     BOR [Y+1], [X+1]
     BOR [Y+2], [X+2]
@@ -5116,9 +5116,9 @@
     SET X, [EXPRSP]
     JSR OP_PTR2
     IFN [X], 1
-        SET PC; exec_expr_typemis
+        SET PC, exec_expr_typemis
     IFN [Y], 1
-        SET PC; exec_expr_typemis
+        SET PC, exec_expr_typemis
     ADD [EXPRSP], 3
     AND [Y+1], [X+1]
     AND [Y+2], [X+2]

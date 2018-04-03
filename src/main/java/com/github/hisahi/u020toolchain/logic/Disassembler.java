@@ -11,6 +11,7 @@ import com.github.hisahi.u020toolchain.cpu.instructions.IInstruction;
 import com.github.hisahi.u020toolchain.cpu.instructions.Instruction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,24 +29,33 @@ public class Disassembler {
         }
         return l;
     }
-    public static List<AssemblyListing> disassemble(int[] memory, int start, int end, Map<Integer, String> labels, int[] dataAreas) {
+    public static List<AssemblyListing> disassemble(int[] memory, int start, int end, Map<Integer, List<String>> labels, int[] dataAreas) {
         List<AssemblyListing> l = new ArrayList<>();
         int pos = start;
         for (int i = (end & ~0xFFFF) != 0 ? (end & 0xFFFF) : 0; i < start; ++i) {
             if (labels.containsKey(i)) {
-                l.add(new AssemblyListing(i, new int[] {}, ":" + labels.get(i)));
+                for (String label: labels.get(i)) {
+                    l.add(new AssemblyListing(i, new int[] {}, ":" + label));
+                }
             }
         }
         while (pos < end) {
             List<AssemblyListing> il = disassembleInstruction(memory, pos, labels, dataAreas);
-            l.addAll(il);
-            for (AssemblyListing instr: il) {
+            Iterator<AssemblyListing> iter = il.iterator();
+            while (iter.hasNext()) {
+                AssemblyListing instr = iter.next();
                 pos += instr.getHex().length;
+                if (instr.getCode() == null) {
+                    iter.remove();
+                }
             }
+            l.addAll(il);
         }
         for (int i = end; i < 0x10000; ++i) {
             if (labels.containsKey(i)) {
-                l.add(new AssemblyListing(i, new int[] {}, ":" + labels.get(i)));
+                for (String label: labels.get(i)) {
+                    l.add(new AssemblyListing(i, new int[] {}, ":" + label));
+                }
             }
         }
         return l;
@@ -61,11 +71,17 @@ public class Disassembler {
         }
         return sb.toString().trim().substring(1);
     }
-    private static List<AssemblyListing> disassembleInstruction(int[] memory, int pos, Map<Integer, String> labels, int[] dataAreas) {
+    private static List<AssemblyListing> disassembleInstruction(int[] memory, int pos, Map<Integer, List<String>> labels, int[] dataAreas) {
         ArrayList<AssemblyListing> ls = new ArrayList<>();
         int opos = pos;
         if (labels != null && labels.containsKey(opos)) {
-            ls.add(new AssemblyListing(opos, new int[] {}, ":" + labels.get(opos)));
+            for (String label: labels.get(opos)) {
+                ls.add(new AssemblyListing(opos, new int[] {}, ":" + label));
+            }
+        }
+        if (dataAreas != null && dataAreas[opos] == -1) {
+            ls.add(new AssemblyListing(opos, new int[] { memory[opos] }, null));
+            return ls;
         }
         if (dataAreas != null && dataAreas[opos] == 1) { // 1 = DAT
             ls.add(new AssemblyListing(opos, new int[] { memory[opos] }, "    DAT     0x" + String.format("%04x", memory[opos])));
@@ -95,7 +111,7 @@ public class Disassembler {
         int am = 0;
         int bm = 0;
         int ip = -1;
-        String finalLabel = null;
+        List<String> finalLabel = null;
         IAddressingMode ia = AddressingMode.decode(a);
         IAddressingMode ib = null;
         if (o != 0) {
@@ -106,18 +122,23 @@ public class Disassembler {
             if (labels != null && labels.containsKey(pos)) {
                 ip = ls.size();
                 ls.add(new AssemblyListing(opos, copyOfRangeWithWraparound(memory, opos, pos), null));
-                finalLabel = labels.get(pos);
+                List<String> lbls = labels.get(pos);
+                finalLabel = lbls;
                 opos = pos;
             }
             am = memory[(pos++) & 0xFFFF];
         }
         if (ib != null && ib.takesNextWord()) {
             if (labels != null && labels.containsKey(pos)) {
+                List<String> lbls = labels.get(pos);
                 if (ip < 0) {
                     ip = ls.size();
                     ls.add(new AssemblyListing(opos, copyOfRangeWithWraparound(memory, opos, pos), null));
                 } else {
-                    ls.add(new AssemblyListing(opos, copyOfRangeWithWraparound(memory, opos, pos), ":" + finalLabel));
+                    ls.add(new AssemblyListing(opos, copyOfRangeWithWraparound(memory, opos, pos), ":" + finalLabel.get(0)));
+                    for (int i = 1; i < finalLabel.size(); ++i) {
+                        ls.add(new AssemblyListing(pos, new int[0], ":" + finalLabel.get(i)));
+                    }
                 }
                 finalLabel = labels.get(pos);
                 opos = pos;
@@ -134,12 +155,12 @@ public class Disassembler {
             boolean albl = couldBeLabel(ia);
             if (o == 0) {
                 finalstr = String.format("%s%-6s  %s", spacing, instr.getName(), 
-                        ia.format(false, am, albl && labels.containsKey(am) ? labels.get(am) : null));
+                        ia.format(false, am, albl && labels.containsKey(am) ? last(labels.get(am)) : null));
             } else {
                 boolean blbl = couldBeLabel(ib);
                 finalstr = String.format("%s%-6s  %s, %s", spacing, instr.getName(), 
-                        ib.format(true, bm, blbl && labels.containsKey(bm) ? labels.get(bm) : null), 
-                        ia.format(false, am, albl && labels.containsKey(am) ? labels.get(am) : null));
+                        ib.format(true, bm, blbl && labels.containsKey(bm) ? last(labels.get(bm)) : null), 
+                        ia.format(false, am, albl && labels.containsKey(am) ? last(labels.get(am)) : null));
             }
         } 
         if (finalstr == null) {
@@ -153,7 +174,10 @@ public class Disassembler {
             AssemblyListing templ = ls.get(ip);
             ls.remove(ip);
             ls.add(ip, new AssemblyListing(templ.getPos(), templ.getHex(), finalstr));
-            ls.add(new AssemblyListing(opos, copyOfRangeWithWraparound(memory, opos, pos), ":" + finalLabel));
+            ls.add(new AssemblyListing(opos, copyOfRangeWithWraparound(memory, opos, pos), ":" + finalLabel.get(0)));
+            for (int i = 1; i < finalLabel.size(); ++i) {
+                ls.add(new AssemblyListing(pos, new int[0], ":" + finalLabel.get(i)));
+            }
         } else {
             ls.add(new AssemblyListing(opos, copyOfRangeWithWraparound(memory, opos, pos), finalstr));
         }
@@ -173,6 +197,10 @@ public class Disassembler {
                     || ia instanceof AddressingModeIndirectWord
                     || ia instanceof AddressingModeRegisterIndirectPlusWord
                     || ia instanceof AddressingModeLiteral;
+    }
+
+    private static String last(List<String> x) {
+        return x.get(x.size() - 1);
     }
     
     private Disassembler() {}

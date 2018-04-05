@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,11 +141,7 @@ public class EmulatorAssembler {
                 File file = fileChooser.showSaveDialog(main.mainStage);
                 if (file != null) {
                     try (FileOutputStream fos = new FileOutputStream(file)) {
-                        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-                        for (String line: symboltable.getText().split("\n")) {
-                            bw.write(line);
-                            bw.newLine();
-                        }
+                        Files.write(file.toPath(), symboltable.getText().getBytes());
                     } catch (IOException ex) {
                         Logger.getLogger(EmuMenuFile.class.getName()).log(Level.SEVERE, null, ex);
                         new Alert(Alert.AlertType.ERROR, I18n.format("error.fileio"), ButtonType.OK).showAndWait();

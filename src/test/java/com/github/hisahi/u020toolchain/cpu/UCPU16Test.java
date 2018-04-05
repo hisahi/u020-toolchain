@@ -39,6 +39,18 @@ public class UCPU16Test {
     }
 
     @Test
+    public void initialStateTest() {
+        cpu.reset();
+        for (int i = 0; i < 8; ++i) {
+            assertEquals(0, cpu.readRegister(i));
+        }
+        assertEquals(0, cpu.getPC());
+        assertEquals(0, cpu.getSP());
+        assertEquals(0, cpu.getEX());
+        assertEquals(0, cpu.getIA());
+    }
+
+    @Test
     public void testProgram1() {
         cpu.reset();
         /*          SET A, 0x30              ; 7c01 0030
@@ -103,7 +115,7 @@ public class UCPU16Test {
     }
     
     @Test
-    public void canRestoreSavedStateWithoutException() throws IOException {
+    public void restoreSavedStateWithoutExceptionTest() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream daos = new DataOutputStream(baos);
         HighResolutionTimer timer = new HighResolutionTimer(1, cpu);
@@ -122,24 +134,48 @@ public class UCPU16Test {
     }
     
     @Test
-    public void interruptQueueTest() {
+    public void interruptQueueTestIaNonzero() {
         cpu.writeRegister(UCPU16.REG_A, 0);
         int r = (int) (Math.random() * 65536);
         cpu.setIA(1);
         cpu.queueInterrupts = false;
         cpu.queueInterrupt(r);
         assertEquals("interrupt was not queued", 1, cpu.interruptQueue.size());
+    }
+    
+    @Test
+    public void interruptQueueTestIaZero() {
+        cpu.writeRegister(UCPU16.REG_A, 0);
+        int r = (int) (Math.random() * 65536);
+        cpu.setIA(0);
+        cpu.queueInterrupts = false;
+        cpu.queueInterrupt(r);
+        assertEquals("interrupt was not queued", 1, cpu.interruptQueue.size());
+    }
+    
+    @Test
+    public void interruptHandleIaNonzeroTest() {
+        int r = (int) (Math.random() * 65536);
+        cpu.writeRegister(UCPU16.REG_A, 0);
+        cpu.setIA(1);
+        cpu.queueInterrupts = false;
+        cpu.queueInterrupt(r);
         while (cpu.cyclesLeft > 0) {
             cpu.tick();
         }
         cpu.tick();
         assertEquals("interrupt message not written to A", r, cpu.readRegister(UCPU16.REG_A));
         assertTrue("interrupt queueing was not enabled", cpu.queueInterrupts);
+    }
+    
+    @Test
+    public void interruptHandleIaZeroTest() {
+        int r = (int) (Math.random() * 65536);
+        cpu.writeRegister(UCPU16.REG_A, 0);
         cpu.reset();
         cpu.setIA(0);
         cpu.queueInterrupts = false;
         cpu.queueInterrupt(r);
-        assertEquals("interrupt was not queued", 1, cpu.interruptQueue.size());
         while (cpu.cyclesLeft > 0) {
             cpu.tick();
         }
@@ -148,11 +184,16 @@ public class UCPU16Test {
     }
     
     @Test
-    public void pauseResumeTest() {
+    public void pauseTest() {
+        cpu.pause();
+        assertTrue("CPU was not paused", cpu.isPaused());
+    }
+    
+    @Test
+    public void resumeTest() {
         cpu.pause();
         assertTrue("CPU was not paused", cpu.isPaused());
         cpu.resume();
         assertFalse("CPU was not resumed", cpu.isPaused());
-        cpu.pause();
     }
 }

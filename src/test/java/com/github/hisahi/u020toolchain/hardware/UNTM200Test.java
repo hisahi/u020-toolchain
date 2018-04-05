@@ -54,26 +54,58 @@ public class UNTM200Test {
     }
 
     @Test
-    public void timerTest() {
-        getCounter(); // reset counter
+    public void timerDoNotTickWhenOffTest() {
         setInterval(0); // disable timer
         for (int i = 0; i < 10000; ++i) {
             timer.tick();
         }
         assertEquals("timer should not tick when turned off", 0, getCounter());
+    }
+
+    @Test
+    public void timerLowIntervalGetTest() {
         setInterval(1);
         assertEquals("interval is not returned correctly", 1, getInterval());
+    }
+
+    @Test
+    public void timerLowIntervalTickTest() {
+        setInterval(1);
         for (int i = 0; i < 1000; ++i) {
             timer.tick();
         }
         assertEquals("timer does not tick correctly", 1000, getCounter());
+    }
+
+    @Test
+    public void timerCounterResetAfterReadTest() {
+        setInterval(1);
+        for (int i = 0; i < 1000; ++i) {
+            timer.tick();
+        }
+        getCounter();
         assertEquals("timer counter should reset after a query", 0, getCounter());
-        for (int i = 0; i < 100; ++i) {
+    }
+
+    @Test
+    public void timerCounterResetAfterIntervalChangeTest() {
+        setInterval(1);
+        for (int i = 0; i < 1000; ++i) {
             timer.tick();
         }
         setInterval(65538);
         assertEquals("timer counter should reset after a change of interval", 0, getCounter());
+    }
+
+    @Test
+    public void timerHighIntervalGetTest() {
+        setInterval(65538);
         assertEquals("interval is not returned correctly", 65538, getInterval());
+    }
+
+    @Test
+    public void timerHighIntervalTickTest() {
+        setInterval(65538);
         for (int i = 0; i < 100000; ++i) {
             timer.tick();
         }

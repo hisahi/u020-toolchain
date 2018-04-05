@@ -48,20 +48,44 @@ public class UnaryInstructionTest {
     }
 
     @Test
-    public void testJSR() {
+    public void testJSRPushesOneValue() {
         cpu.setPC(0x2000);
         executeWithA(Instruction.JSR, 0x4000);
         assertEquals("JSR pushes 0 or >1 values", 0xFFFF, cpu.getSP());
+    }
+
+    @Test
+    public void testJSRPushesRightValue() {
+        cpu.setPC(0x2000);
+        executeWithA(Instruction.JSR, 0x4000);
         assertEquals("JSR pushes wrong value", 0x2000, cpu.getMemory().read(cpu.getSP()));
+    }
+
+    @Test
+    public void testJSRSetsPC() {
+        cpu.setPC(0x2000);
+        executeWithA(Instruction.JSR, 0x4000);
         assertEquals("JSR doesn't set PC correctly", 0x4000, cpu.getPC());
     }
 
     @Test
-    public void testBSR() {
+    public void testBSRPushesOneValue() {
         cpu.setPC(0x2000);
         executeWithA(Instruction.BSR, 0x4000);
         assertEquals("BSR pushes 0 or >1 values", 0xFFFF, cpu.getSP());
+    }
+
+    @Test
+    public void testBSRPushesRightValue() {
+        cpu.setPC(0x2000);
+        executeWithA(Instruction.BSR, 0x4000);
         assertEquals("BSR pushes wrong value", 0x2000, cpu.getMemory().read(cpu.getSP()));
+    }
+
+    @Test
+    public void testBSRSetsPC() {
+        cpu.setPC(0x2000);
+        executeWithA(Instruction.BSR, 0x4000);
         assertEquals("BSR doesn't set PC correctly", 0x6000, cpu.getPC());
     }
 
@@ -77,28 +101,65 @@ public class UnaryInstructionTest {
         int r1 = randomWord();
         executeWithA(Instruction.IAS, r1);
         assertEquals("IAS does not set IA correctly", cpu.getIA(), r1);
+    }
+
+    @Test
+    public void testIASDoesNotModifyTarget() {
+        int r1 = randomWord();
+        executeWithA(Instruction.IAS, r1);
         assertEquals("IAS modifies the register which it shouldn't", cpu.readRegister(0), r1);
     }
 
     @Test
-    public void testRFI() {
+    public void testRFIPopsTwoValues() {
         int oldpc = randomWord();
         int olda = randomWord();
         cpu.stackPush(oldpc);
         cpu.stackPush(olda);
         executeWithA(Instruction.RFI, 0);
         assertEquals("RFI should pop 2 values", 0, cpu.getSP());
+    }
+
+    @Test
+    public void testRFIPopsPC() {
+        int oldpc = randomWord();
+        int olda = randomWord();
+        cpu.stackPush(oldpc);
+        cpu.stackPush(olda);
+        executeWithA(Instruction.RFI, 0);
         assertEquals("RFI does not pop PC correctly", oldpc, cpu.getPC());
+    }
+
+    @Test
+    public void testRFIPopsA() {
+        int oldpc = randomWord();
+        int olda = randomWord();
+        cpu.stackPush(oldpc);
+        cpu.stackPush(olda);
+        executeWithA(Instruction.RFI, 0);
         assertEquals("RFI does not pop A correctly", olda, cpu.readRegister(0));
+    }
+
+    @Test
+    public void testRFIDisablesInterruptQueueing() {
+        int oldpc = randomWord();
+        int olda = randomWord();
+        cpu.stackPush(oldpc);
+        cpu.stackPush(olda);
+        executeWithA(Instruction.RFI, 0);
         assertFalse("RFI does not disable interrupt queueing", cpu.areInterruptsBeingQueued());
     }
 
     @Test
-    public void testIAQ() {
-        executeWithA(Instruction.IAQ, 0);
-        assertFalse("IAQ does not disable interrupt queueing correctly", cpu.areInterruptsBeingQueued());
+    public void testIAQEnable() {
         executeWithA(Instruction.IAQ, 1);
         assertTrue("IAQ does not enable interrupt queueing correctly", cpu.areInterruptsBeingQueued());
+    }
+
+    @Test
+    public void testIAQDisable() {
+        executeWithA(Instruction.IAQ, 0);
+        assertFalse("IAQ does not disable interrupt queueing correctly", cpu.areInterruptsBeingQueued());
     }
 
     @Test
@@ -129,14 +190,26 @@ public class UnaryInstructionTest {
     }
 
     @Test
-    public void testSXB() {
+    public void testSXBPositive() {
         assertEquals("SXB fails to sign-extend", 0x0000, executeWithA(Instruction.SXB, 0x00));
         assertEquals("SXB fails to sign-extend", 0x007F, executeWithA(Instruction.SXB, 0x7F));
+    }
+
+    @Test
+    public void testSXBNegative() {
         assertEquals("SXB fails to sign-extend", 0xFF80, executeWithA(Instruction.SXB, 0x80));
         assertEquals("SXB fails to sign-extend", 0xFFC2, executeWithA(Instruction.SXB, 0xC2));
         assertEquals("SXB fails to sign-extend", 0xFFFF, executeWithA(Instruction.SXB, 0xFF));
+    }
+
+    @Test
+    public void testSXBPositiveHighByteNonZero() {
         assertEquals("SXB fails to sign-extend", 0x0000, executeWithA(Instruction.SXB, 0xFF00));
         assertEquals("SXB fails to sign-extend", 0x007F, executeWithA(Instruction.SXB, 0xFF7F));
+    }
+
+    @Test
+    public void testSXBNegativeHighByteNonZero() {
         assertEquals("SXB fails to sign-extend", 0xFF80, executeWithA(Instruction.SXB, 0xFF80));
         assertEquals("SXB fails to sign-extend", 0xFFC2, executeWithA(Instruction.SXB, 0xFFC2));
         assertEquals("SXB fails to sign-extend", 0xFFFF, executeWithA(Instruction.SXB, 0xFFFF));
@@ -150,6 +223,7 @@ public class UnaryInstructionTest {
         assertEquals("SWP fails to swap bytes", 0x3412, executeWithA(Instruction.SWP, 0x1234));
     }
     
+    // for testHWQ and testHWI
     class DummyHardware extends Hardware {
         int called;
         

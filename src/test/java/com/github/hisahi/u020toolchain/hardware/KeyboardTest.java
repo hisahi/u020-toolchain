@@ -41,10 +41,15 @@ public class KeyboardTest {
     }
 
     @Test
-    public void keyDownUpTest() {
+    public void keyDownTest() {
         assertFalse("key should not be down by default", kb.isKeyDown(0x20));
         kb.keyDown(SPACE, false, false);
         assertTrue("key isn't set to be down correctly", kb.isKeyDown(0x20));
+    }
+
+    @Test
+    public void keyUpTest() {
+        kb.keyDown(SPACE, false, false);
         kb.keyUp(SPACE, false, false);
         assertFalse("key isn't set to be up correctly", kb.isKeyDown(0x20));
     }

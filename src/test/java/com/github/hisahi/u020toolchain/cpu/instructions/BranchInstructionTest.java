@@ -40,58 +40,122 @@ public class BranchInstructionTest {
     }
     
     @Test
-    public void testIFB() {
+    public void testIFBTrue() {
         assertTrue(checkBranchWithLiterals(Instruction.IFB, 5, 3));
+    }
+    
+    @Test
+    public void testIFBFalse() {
         assertFalse(checkBranchWithLiterals(Instruction.IFB, 4, 1));
     }
     
     @Test
-    public void testIFC() {
+    public void testIFCFalse() {
         assertFalse(checkBranchWithLiterals(Instruction.IFC, 5, 3));
+    }
+    
+    @Test
+    public void testIFCTrue() {
         assertTrue(checkBranchWithLiterals(Instruction.IFC, 4, 1));
     }
     
     @Test
-    public void testIFE() {
+    public void testIFETrue() {
         assertTrue(checkBranchWithLiterals(Instruction.IFE, 5, 5));
+    }
+    
+    @Test
+    public void testIFEFalse() {
         assertFalse(checkBranchWithLiterals(Instruction.IFE, 0, 1));
     }
     
     @Test
-    public void testIFN() {
+    public void testIFNFalse() {
         assertFalse(checkBranchWithLiterals(Instruction.IFN, 5, 5));
+    }
+    
+    @Test
+    public void testIFNTrue() {
         assertTrue(checkBranchWithLiterals(Instruction.IFN, 0, 1));
     }
     
     @Test
-    public void testIFG() {
+    public void testIFGTrue() {
         assertTrue(checkBranchWithLiterals(Instruction.IFG, 5, 3));
+    }
+    
+    @Test
+    public void testIFGIsUnsignedTrue() {
         assertTrue(checkBranchWithLiterals(Instruction.IFG, 0xffff, 3));
+    }
+    
+    @Test
+    public void testIFGIsUnsignedFalse() {
         assertFalse(checkBranchWithLiterals(Instruction.IFG, 0x00ff, 0xffff));
+    }
+    
+    @Test
+    public void testIFGIfEqualThenFalse() {
         assertFalse(checkBranchWithLiterals(Instruction.IFG, 5, 5));
     }
     
     @Test
-    public void testIFA() {
+    public void testIFATrue() {
         assertTrue(checkBranchWithLiterals(Instruction.IFA, 5, 3));
-        assertFalse(checkBranchWithLiterals(Instruction.IFA, 0xffff, 3));
+    }
+    
+    @Test
+    public void testIFAIsUnsignedTrue() {
         assertTrue(checkBranchWithLiterals(Instruction.IFA, 0x00ff, 0xffff));
+    }
+    
+    @Test
+    public void testIFAIsUnsignedFalse() {
+        assertFalse(checkBranchWithLiterals(Instruction.IFA, 0xffff, 3));
+    }
+    
+    @Test
+    public void testIFAIfEqualThenFalse() {
         assertFalse(checkBranchWithLiterals(Instruction.IFA, 5, 5));
     }
     
     @Test
-    public void testIFL() {
-        assertFalse(checkBranchWithLiterals(Instruction.IFL, 5, 3));
-        assertFalse(checkBranchWithLiterals(Instruction.IFL, 0xffff, 3));
+    public void testIFLIsSignedTrue() {
         assertTrue(checkBranchWithLiterals(Instruction.IFL, 0x00ff, 0xffff));
+    }
+    
+    @Test
+    public void testIFLFalse() {
+        assertFalse(checkBranchWithLiterals(Instruction.IFL, 5, 3));
+    }
+    
+    @Test
+    public void testIFLIsSignedFalse() {
+        assertFalse(checkBranchWithLiterals(Instruction.IFL, 0xffff, 3));
+    }
+    
+    @Test
+    public void testIFLIfEqualThenFalse() {
         assertFalse(checkBranchWithLiterals(Instruction.IFL, 5, 5));
     }
     
     @Test
-    public void testIFU() {
-        assertFalse(checkBranchWithLiterals(Instruction.IFU, 5, 3));
+    public void testIFUIsSignedTrue() {
         assertTrue(checkBranchWithLiterals(Instruction.IFU, 0xffff, 3));
+    }
+    
+    @Test
+    public void testIFUFalse() {
+        assertFalse(checkBranchWithLiterals(Instruction.IFU, 5, 3));
+    }
+    
+    @Test
+    public void testIFUIsSignedFalse() {
         assertFalse(checkBranchWithLiterals(Instruction.IFU, 0x00ff, 0xffff));
+    }
+    
+    @Test
+    public void testIFUIfEqualThenFalse() {
         assertFalse(checkBranchWithLiterals(Instruction.IFU, 5, 5));
     }
 }

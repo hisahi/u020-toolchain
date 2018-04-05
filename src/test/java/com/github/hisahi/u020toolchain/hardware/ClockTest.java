@@ -48,19 +48,30 @@ public class ClockTest {
     }
     
     @Test
-    public void clockTest() throws InterruptedException {
-        getCounter(); // reset counter
+    public void clockShouldNotRunIfOff() throws InterruptedException {
         setClockInterval(0); // turn off clock
         Thread.sleep(200);
         clock.tick();
         assertEquals("Clock was running even when it should be off", 0, getCounter());
+    }
+    
+    @Test
+    public void clockRunsTest() throws InterruptedException {
         setClockInterval(6000); // 100 Hz
         clock.tick();
         Thread.sleep(200);
         clock.tick();
         assertEquals("Clock should run at 100 Hz", 20, getCounter());
+    }
+    
+    @Test
+    public void clockCounterTest() throws InterruptedException {
+        setClockInterval(6000); // 100 Hz
+        clock.tick();
+        Thread.sleep(200);
+        clock.tick();
+        getCounter();
         assertEquals("Clock counter should reset on read", 0, getCounter());
-        setClockInterval(0); // turn off clock
     }
 
     

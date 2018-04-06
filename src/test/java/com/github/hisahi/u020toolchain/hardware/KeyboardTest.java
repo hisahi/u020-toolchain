@@ -10,10 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import javafx.scene.input.KeyCode;
 import static javafx.scene.input.KeyCode.*;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -23,21 +20,9 @@ public class KeyboardTest {
     public KeyboardTest() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
     @Before
     public void setUp() {
         kb = new Keyboard(new UCPU16(new StandardMemory()));
-    }
-    
-    @After
-    public void tearDown() {
     }
 
     @Test
@@ -91,5 +76,36 @@ public class KeyboardTest {
         int c = dis.readInt();
         assertEquals("keyboard queue should be limited to 32 keys", 32, c);
         bais.close();
+    }
+    
+    public boolean matchesKeyCode(int expected, KeyCode code, boolean shift, boolean ctrl) {
+        kb.keyDown(code, shift, ctrl);
+        boolean ok = kb.isKeyDown(expected);
+        kb.keyUp(code, shift, ctrl);
+        return ok;
+    }
+
+    @Test
+    public void shiftResultsInLowercaseTest() throws IOException {
+        final KeyCode[] ALPHABET_KEYS = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z};
+        for (int i = 0; i < 26; ++i) {
+            assertTrue(matchesKeyCode(0x41 + i, ALPHABET_KEYS[i], false, false));
+            assertTrue(matchesKeyCode(0x61 + i, ALPHABET_KEYS[i], true, false));
+        }
+    }
+
+    @Test
+    public void specialKeysTest() throws IOException {
+        assertTrue(matchesKeyCode(0x10, BACK_SPACE, false, false));
+        assertTrue(matchesKeyCode(0x11, ENTER, false, false));
+        assertTrue(matchesKeyCode(0x12, INSERT, false, false));
+        assertTrue(matchesKeyCode(0x13, DELETE, false, false));
+        assertTrue(matchesKeyCode(0x180, UP, false, false));
+        assertTrue(matchesKeyCode(0x181, DOWN, false, false));
+        assertTrue(matchesKeyCode(0x182, LEFT, false, false));
+        assertTrue(matchesKeyCode(0x183, RIGHT, false, false));
+        assertTrue(matchesKeyCode(0x190, SHIFT, false, false));
+        assertTrue(matchesKeyCode(0x191, CONTROL, false, false));
+        assertTrue(matchesKeyCode(0x192, HOME, false, false));
     }
 }

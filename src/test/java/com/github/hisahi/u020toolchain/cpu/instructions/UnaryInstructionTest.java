@@ -7,10 +7,7 @@ import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.AddressingMode;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -20,21 +17,9 @@ public class UnaryInstructionTest {
     public UnaryInstructionTest() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
     @Before
     public void setUp() {
         cpu = new UCPU16(new StandardMemory());
-    }
-    
-    @After
-    public void tearDown() {
     }
 
     public static int executeWithA(IInstruction instr, int a) {

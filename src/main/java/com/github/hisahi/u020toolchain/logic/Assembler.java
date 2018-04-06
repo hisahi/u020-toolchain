@@ -4,7 +4,6 @@ package com.github.hisahi.u020toolchain.logic;
 import com.github.hisahi.u020toolchain.ui.I18n;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -91,15 +90,15 @@ public class Assembler {
             hex[i] = (hex[i] + labelpos.get(labelfill.get(i))) & 0xFFFF;
         }
         return new AssemblerResult(Arrays.copyOfRange(hex, 0, pos), 
-                constructSymbolTable(labelpos, dataAreas));
+                constructSymbolTable(pos, labelpos, dataAreas));
     }
     
-    static String constructSymbolTable(Map<String, Integer> labels,
+    static String constructSymbolTable(int length, Map<String, Integer> labels,
                                         int[] dataAreas) {
         List<String> lines = new ArrayList<>();
         int lastArea = 0;
         int lastAreaStart = -1;
-        for (int i = 0; i < 65536; ++i) {
+        for (int i = 0; i < length; ++i) {
             if (dataAreas[i] != lastArea) {
                 if (lastArea != 0) {
                     lines.add(getHeaderForDataAreaType(lastArea) + " " 
@@ -109,9 +108,9 @@ public class Assembler {
                 lastAreaStart = i;
             }
         }
-        if (lastArea != 0) {
+        if (lastArea != 0 && length > 0) {
             lines.add(getHeaderForDataAreaType(lastArea) + " " 
-                    + rangeToString(lastAreaStart, 65535));
+                    + rangeToString(lastAreaStart, length - 1));
         }
         List<String> labellines = new ArrayList<>();
         for (String label: labels.keySet()) {

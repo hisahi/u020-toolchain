@@ -6,7 +6,7 @@
   <groupId>com.github.hisahi.u020toolchain</groupId>
   <artifactId>u020-toolchain</artifactId>
   <packaging>jar</packaging>
-  <version>0.3</version>
+  <version>0.4</version>
   <name>Univtek 020 Toolchain</name>
   <url>https://github.com/hisahi/u020-toolchain/</url>
   <dependencies>
@@ -30,7 +30,7 @@
         <version>0.8.0</version>
         <configuration>
           <excludes>
-            <exclude>todoapp/ui/**/*</exclude>
+            <exclude>com/github/hisahi/u020toolchain/ui/**/*</exclude>
           </excludes>
         </configuration>
         <executions>

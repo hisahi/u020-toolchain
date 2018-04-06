@@ -2,7 +2,6 @@
 package com.github.hisahi.u020toolchain.logic; 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -115,7 +114,7 @@ public class InstructionAssembler {
                     }
                     requestSymbol.put(pos, ia.label);
                     dataAreas[pos] = 0;
-                    data[pos++] = 0;
+                    data[pos++] = ia.parameter;
                 } else {
                     dataAreas[pos] = 0;
                     data[pos++] = ia.parameter;

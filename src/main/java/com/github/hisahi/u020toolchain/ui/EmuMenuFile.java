@@ -5,7 +5,6 @@ import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.hardware.M35FD;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;

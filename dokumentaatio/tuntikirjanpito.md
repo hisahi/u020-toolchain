@@ -15,4 +15,5 @@ _pyöristettynä lähimpään tasatuntimäärään_
 | 2.4.  | 3          | konekieleksi kääntäjä (disassembler), lisätestejä, korjauksia |
 | 3.4.  | 5          | ensimmäinen konekielestä kääntäjä (assembler), korjauksia konekieleksi kääntäjään (disassembler) |
 | 5.4.  | 2          | testien halkaiseminen, luokkakaavio, sekvenssikaavioita |
+| 6.4.  | 2          | testit kääntäjille, lisätestejä laitteistolle, korjauksia |
 | _yht_ | TBD        |  |

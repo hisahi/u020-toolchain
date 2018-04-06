@@ -37,7 +37,7 @@ import javafx.stage.WindowEvent;
 
 public class EmulatorMain extends Application {
 
-    public static final String VERSION = "v0.3";
+    public static final String VERSION = "v0.4";
     public static final int CPU_HZ = 2000000;
     public static void main(String[] args) {
         launch(args);

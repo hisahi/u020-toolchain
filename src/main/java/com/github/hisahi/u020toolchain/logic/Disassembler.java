@@ -10,7 +10,6 @@ import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 import com.github.hisahi.u020toolchain.cpu.instructions.IInstruction;
 import com.github.hisahi.u020toolchain.cpu.instructions.Instruction;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +31,12 @@ public class Disassembler {
     public static List<AssemblyListing> disassemble(int[] memory, int start, int end, Map<Integer, List<String>> labels, int[] dataAreas) {
         List<AssemblyListing> l = new ArrayList<>();
         int pos = start;
-        for (int i = (end & ~0xFFFF) != 0 ? (end & 0xFFFF) : 0; i < start; ++i) {
-            if (labels.containsKey(i)) {
-                for (String label: labels.get(i)) {
-                    l.add(new AssemblyListing(i, new int[] {}, ":" + label));
+        if (labels != null) {
+            for (int i = (end & ~0xFFFF) != 0 ? (end & 0xFFFF) : 0; i < start; ++i) {
+                if (labels.containsKey(i)) {
+                    for (String label: labels.get(i)) {
+                        l.add(new AssemblyListing(i, new int[] {}, ":" + label));
+                    }
                 }
             }
         }
@@ -51,10 +52,12 @@ public class Disassembler {
             }
             l.addAll(il);
         }
-        for (int i = end; i < 0x10000; ++i) {
-            if (labels.containsKey(i)) {
-                for (String label: labels.get(i)) {
-                    l.add(new AssemblyListing(i, new int[] {}, ":" + label));
+        if (labels != null) {
+            for (int i = end; i < 0x10000; ++i) {
+                if (labels.containsKey(i)) {
+                    for (String label: labels.get(i)) {
+                        l.add(new AssemblyListing(i, new int[] {}, ":" + label));
+                    }
                 }
             }
         }

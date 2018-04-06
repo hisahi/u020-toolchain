@@ -3,10 +3,7 @@ package com.github.hisahi.u020toolchain.hardware;
 
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,22 +13,10 @@ public class ClockTest {
     public ClockTest() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
     @Before
     public void setUp() {
         cpu = new UCPU16(new StandardMemory());
         clock = new Clock(cpu);
-    }
-    
-    @After
-    public void tearDown() {
     }
     
     // ticks every 60/d seconds (d/60 Hz), if d = 0 turn off

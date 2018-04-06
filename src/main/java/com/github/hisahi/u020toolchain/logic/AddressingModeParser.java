@@ -31,7 +31,7 @@ class AddressingModeParser {
         }
         if (string.startsWith("PICK")) {
             String[] pickTokens = string.split("\\s+");
-            if (pickTokens.length == 2 && pickTokens[0] == "PICK") {
+            if (pickTokens.length == 2 && pickTokens[0].equals("PICK")) {
                 int offset = 0;
                 InstructionAddressingMode im = parseValue(pickTokens[1]);
                 return new InstructionAddressingMode(0x1a, im.parameter, im.label);

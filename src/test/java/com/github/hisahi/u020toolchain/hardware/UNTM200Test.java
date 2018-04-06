@@ -3,10 +3,7 @@ package com.github.hisahi.u020toolchain.hardware;
 
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,22 +13,10 @@ public class UNTM200Test {
     public UNTM200Test() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
     @Before
     public void setUp() {
         cpu = new UCPU16(new StandardMemory()); 
         timer = new UNTM200(cpu);
-    }
-    
-    @After
-    public void tearDown() {
     }
     
     public void setInterval(int cycles) {

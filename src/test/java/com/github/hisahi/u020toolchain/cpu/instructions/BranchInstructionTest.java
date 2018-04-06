@@ -4,9 +4,6 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.AddressingMode;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -19,18 +16,6 @@ public class BranchInstructionTest {
     @BeforeClass
     public static void setUpClass() {
         cpu = new UCPU16(new StandardMemory());
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
     }
 
     public static boolean checkBranchWithLiterals(IInstruction instr, int b, int a) {

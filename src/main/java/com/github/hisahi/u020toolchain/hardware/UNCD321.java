@@ -12,6 +12,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
+import javafx.scene.paint.Color;
 
 public class UNCD321 extends Hardware {
     private boolean on;
@@ -135,7 +136,9 @@ public class UNCD321 extends Hardware {
             case 6:
                 this.mode = b & 3;
                 this.lem = (b & (1 << 15)) != 0;
-                main.setCanCopy(this.mode == 0);
+                if (main != null) {
+                    main.setCanCopy(this.mode == 0);
+                }
                 break;
             case 7:
                 this.cpu.writeRegister(UCPU16.REG_C, this.mode);
@@ -203,14 +206,19 @@ public class UNCD321 extends Hardware {
         }
     }
 
-    public void displayFrame(long now, Canvas screen, GraphicsContext ctx, 
+    public void displayFrame(Canvas screen, GraphicsContext ctx, 
                             PixelWriter pw, EmulatorMain emu) {
         if (cpu.isPaused()) {
             lastblink = System.currentTimeMillis();
             return;
         }
         if (!this.on) {
-            emu.clearScreen();
+            if (emu != null) {
+                emu.clearScreen();
+            } else {
+                ctx.setFill(Color.BLACK);
+                ctx.fillRect(0, 0, 256, 192);
+            }
             return;
         }
         long msnow = System.currentTimeMillis();

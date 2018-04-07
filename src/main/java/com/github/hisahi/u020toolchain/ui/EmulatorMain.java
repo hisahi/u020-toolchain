@@ -292,7 +292,7 @@ public class EmulatorMain extends Application {
                         return;
                     }
                 }
-                uncd321.displayFrame(now, screen, ctx, pw, self);
+                uncd321.displayFrame(screen, ctx, pw, self);
             }
         }.start();
     }

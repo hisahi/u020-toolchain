@@ -82,7 +82,7 @@ public class M35FD extends Hardware implements ITickable {
                 if (this.operationRunning) { // busy
                     this.setError(ERROR_BUSY);
                     break;
-                } else if (!this.operationRunning) { // R/W but no disk
+                } else if (!this.inserted) { // R/W but no disk
                     this.setError(ERROR_NO_MEDIA);
                     break;
                 }
@@ -97,6 +97,7 @@ public class M35FD extends Hardware implements ITickable {
                 memaddr = cpu.readRegister(UCPU16.REG_Y);
                 cpu.writeRegister(UCPU16.REG_B, 1);
                 this.operationIsWrite = false;
+                this.wordsLeft = WORDS_PER_SECTOR;
                 this.nextTick = System.nanoTime();
                 this.setStateAndError(STATE_BUSY, ERROR_NONE);
                 this.operationRunning = true;
@@ -112,7 +113,7 @@ public class M35FD extends Hardware implements ITickable {
                 } else if (this.writeProtected) { // write but wp
                     this.setError(ERROR_PROTECTED);
                     break;
-                } else if (!this.operationRunning) { // R/W but no disk
+                } else if (!this.inserted) { // R/W but no disk
                     this.setError(ERROR_NO_MEDIA);
                     break;
                 } 
@@ -127,6 +128,7 @@ public class M35FD extends Hardware implements ITickable {
                 memaddr = cpu.readRegister(UCPU16.REG_Y);
                 cpu.writeRegister(UCPU16.REG_B, 1);
                 this.operationIsWrite = true;
+                this.wordsLeft = WORDS_PER_SECTOR;
                 this.nextTick = System.nanoTime();
                 this.setStateAndError(STATE_BUSY, ERROR_NONE);
                 this.operationRunning = true;
@@ -317,16 +319,20 @@ public class M35FD extends Hardware implements ITickable {
     public boolean hasMedia() {
         return this.inserted;
     }
-
-    private static final int STATE_NO_MEDIA = 0;
-    private static final int STATE_READY = 1;
-    private static final int STATE_READY_WP = 2;
-    private static final int STATE_BUSY = 3;
     
-    private static final int ERROR_NONE = 0;
-    private static final int ERROR_BUSY = 1;
-    private static final int ERROR_NO_MEDIA = 2;
-    private static final int ERROR_PROTECTED = 3;
-    private static final int ERROR_EJECT = 4;
-    private static final int ERROR_BAD_SECTOR = 5;
+    int[] getRawMedia() {
+        return this.disk;
+    }
+
+    static final int STATE_NO_MEDIA = 0;
+    static final int STATE_READY = 1;
+    static final int STATE_READY_WP = 2;
+    static final int STATE_BUSY = 3;
+    
+    static final int ERROR_NONE = 0;
+    static final int ERROR_BUSY = 1;
+    static final int ERROR_NO_MEDIA = 2;
+    static final int ERROR_PROTECTED = 3;
+    static final int ERROR_EJECT = 4;
+    static final int ERROR_BAD_SECTOR = 5;
 }

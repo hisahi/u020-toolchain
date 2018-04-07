@@ -16,4 +16,5 @@ _pyöristettynä lähimpään tasatuntimäärään_
 | 3.4.  | 5          | ensimmäinen konekielestä kääntäjä (assembler), korjauksia konekieleksi kääntäjään (disassembler) |
 | 5.4.  | 2          | testien halkaiseminen, luokkakaavio, sekvenssikaavioita |
 | 6.4.  | 2          | testit kääntäjille, lisätestejä laitteistolle, korjauksia |
+| 7.4.  | 1          | testit M35FD-levykeasemalle |
 | _yht_ | TBD        |  |

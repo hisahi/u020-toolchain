@@ -5,6 +5,8 @@ import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.hardware.Clock;
 import com.github.hisahi.u020toolchain.hardware.Hardware;
+import com.github.hisahi.u020toolchain.hardware.IPixelWriter;
+import com.github.hisahi.u020toolchain.hardware.JavaFXPixelWriter;
 import com.github.hisahi.u020toolchain.hardware.Keyboard;
 import com.github.hisahi.u020toolchain.hardware.M35FD;
 import com.github.hisahi.u020toolchain.hardware.UNAC810;
@@ -61,6 +63,7 @@ public class EmulatorMain extends Application {
     Canvas screen;
     GraphicsContext ctx;
     PixelWriter pw;
+    IPixelWriter ipw;
     EmuMenuFile menuFile;
     EmuMenuEdit menuEdit;
     EmuMenuRun menuRun;
@@ -91,6 +94,7 @@ public class EmulatorMain extends Application {
         this.screen = new Canvas(256, 192);
         this.ctx = this.screen.getGraphicsContext2D();
         this.pw = this.ctx.getPixelWriter();
+        this.ipw = new JavaFXPixelWriter(this.screen);
         setScale(2);
         this.clearScreen();
         screenGroup.getChildren().add(screen);
@@ -292,7 +296,7 @@ public class EmulatorMain extends Application {
                         return;
                     }
                 }
-                uncd321.displayFrame(screen, ctx, pw, self);
+                uncd321.displayFrame(ipw, self);
             }
         }.start();
     }

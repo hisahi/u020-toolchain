@@ -17,4 +17,5 @@ _pyöristettynä lähimpään tasatuntimäärään_
 | 5.4.  | 2          | testien halkaiseminen, luokkakaavio, sekvenssikaavioita |
 | 6.4.  | 2          | testit kääntäjille, lisätestejä laitteistolle, korjauksia |
 | 7.4.  | 1          | testit M35FD-levykeasemalle |
+| 8.4.  | 2          | testit UNCD321-näytölle |
 | _yht_ | TBD        |  |

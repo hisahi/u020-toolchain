@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 INT instruction that triggers an
+ * software interrupt.
+ * 
+ * @author hisahi
+ */
 public class InstructionINT implements IInstruction {
-
-    public InstructionINT() {
-    }
 
     @Override
     public int getCycles() {

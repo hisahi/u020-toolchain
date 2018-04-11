@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.ui; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.hardware.Hardware;
 import com.github.hisahi.u020toolchain.logic.AssemblyListing;
@@ -17,6 +18,12 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * The class for the Debugger window. Parses commands sent to the
+ * debugger and executes them.
+ * 
+ * @author hisahi
+ */
 public class Debugger {
     private EmulatorMain main;
     private UCPU16 cpu;
@@ -28,6 +35,12 @@ public class Debugger {
     private int memoryLast;
     private int historyIndex;
     private String backup;
+    
+    /**
+     * Initializes a new Debugger instance.
+     * 
+     * @param main The main window.
+     */
     public Debugger(EmulatorMain main) {
         this.main = main;
         this.cpu = main.cpu;
@@ -102,16 +115,33 @@ public class Debugger {
             cmd.requestFocus();
         }
     }
+    
+    /**
+     * Logs text into the debugger console.
+     * 
+     * @param text The text to be logged.
+     */
     public void logPrint(String text) {
         log.appendText(text);
         log.setScrollTop(Double.MAX_VALUE);
     }
+    
+    /**
+     * Logs a newline into the debugger console.
+     */
     public void logPrintln() {
         logPrint("\n");
     }
+    
+    /**
+     * Logs a line of text into the debugger console.
+     * 
+     * @param text The text to be logged.
+     */
     public void logPrintln(String text) {
         logPrint(text + "\n");
     }
+    
     private void executeCommand(String line) {
         if (line.isEmpty()) {
             if (this.history.size() > 0) {
@@ -199,7 +229,7 @@ public class Debugger {
         cpu.tick();
         if (oldPC != cpu.getPC()) {
             if (cpu.wasInterruptHandled()) {
-                logPrintln(I18n.format("debugger.interrupt", String.format("%04x", cpu.readRegister(UCPU16.REG_A))));
+                logPrintln(I18n.format("debugger.interrupt", String.format("%04x", cpu.readRegister(Register.A))));
             }
             disassembleInstruction();
         } else {
@@ -258,7 +288,7 @@ public class Debugger {
         }
         cpu.tick();
         if (cpu.wasInterruptHandled()) {
-            logPrintln(I18n.format("debugger.interrupt", String.format("%04x", cpu.readRegister(UCPU16.REG_A))));
+            logPrintln(I18n.format("debugger.interrupt", String.format("%04x", cpu.readRegister(Register.A))));
         }
         disassembleInstruction();
         cpu.resume();
@@ -280,7 +310,7 @@ public class Debugger {
         cpu.tick();
         logPrintln(cpu.dumpRegisters().replace("\n", ""));
         if (cpu.wasInterruptHandled()) {
-            logPrintln(I18n.format("debugger.interrupt", String.format("%04x", cpu.readRegister(UCPU16.REG_A))));
+            logPrintln(I18n.format("debugger.interrupt", String.format("%04x", cpu.readRegister(Register.A))));
         }
         disassembleInstruction();
         cpu.pause();

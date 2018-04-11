@@ -14,6 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the implementation of the Generic Keyboard peripheral.
+ * 
+ * @author hisahi
+ */
 public class KeyboardTest {
     Keyboard kb;
     

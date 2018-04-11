@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.hardware; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.instructions.Operations;
 import com.github.hisahi.u020toolchain.ui.EmulatorMain;
@@ -9,6 +10,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Implements the UNCD321 peripheral that serves as the main
+ * display for Univtek 020. The display has four different display
+ * modes (1 text, 3 graphical) and can handle up to 16 sprites.
+ * 
+ * @author hisahi
+ */
 public class UNCD321 extends Hardware {
     private boolean on;
     private int memscr;
@@ -24,10 +32,23 @@ public class UNCD321 extends Hardware {
     private int[] buffer;
     private EmulatorMain main;
     int memsprite;
+    
+    /**
+     * Initializes a new UNCD321 instance without an EmulatorMain instance.
+     * 
+     * @param cpu  The UCPU16 instance.
+     */
     private UNCD321(UCPU16 cpu) {
         super(cpu);
         this.reset();
     }
+    
+    /**
+     * Initializes a new UNCD321 instance with an EmulatorMain instance.
+     * 
+     * @param cpu  The UCPU16 instance.
+     * @param main The EmulatorMain instance.
+     */
     public UNCD321(UCPU16 cpu, EmulatorMain main) {
         this(cpu);
         this.main = main;
@@ -50,8 +71,8 @@ public class UNCD321 extends Hardware {
 
     @Override
     public void hwi(UCPU16 cpu) {
-        int b = cpu.readRegister(UCPU16.REG_B);
-        switch (cpu.readRegister(UCPU16.REG_A)) {
+        int b = cpu.readRegister(Register.B);
+        switch (cpu.readRegister(Register.A)) {
             case 0: 
                 this.memscr = b;
                 this.on = b != 0;
@@ -62,6 +83,7 @@ public class UNCD321 extends Hardware {
             case 1:
                 if (this.lem) {
                     this.cpu.addCycles(256);
+                    // convert LEM font
                     for (int c = 0; c < 128; ++c) {
                         int lo = cpu.getMemory().array()[(b + c * 2) & 0xFFFF];
                         int hi = cpu.getMemory().array()[(b + c * 2 + 1) & 0xFFFF];
@@ -148,7 +170,7 @@ public class UNCD321 extends Hardware {
                 }
                 break;
             case 7:
-                this.cpu.writeRegister(UCPU16.REG_C, this.mode);
+                this.cpu.writeRegister(Register.C, this.mode);
                 break;
             case 8:
                 this.cursorpos = b;
@@ -157,13 +179,13 @@ public class UNCD321 extends Hardware {
                 }
                 break;
             case 9:
-                this.cpu.writeRegister(UCPU16.REG_C, this.cursorpos);
+                this.cpu.writeRegister(Register.C, this.cursorpos);
                 break;
             case 10:
                 this.memsprite = b;
                 break;
             case 11:
-                this.cpu.writeRegister(UCPU16.REG_C, this.memsprite);
+                this.cpu.writeRegister(Register.C, this.memsprite);
                 break;
             case 12:
                 this.vsyncint = b;
@@ -213,6 +235,12 @@ public class UNCD321 extends Hardware {
         }
     }
 
+    /**
+     * Renders a single frame into the given IPixelWriter.
+     * 
+     * @param ipw The IPixelWriter to write the rendered screen into.
+     * @param emu The EmulatorMain instance.
+     */
     public void displayFrame(IPixelWriter ipw, EmulatorMain emu) {
         if (cpu.isPaused()) {
             lastblink = System.currentTimeMillis();
@@ -360,12 +388,13 @@ public class UNCD321 extends Hardware {
         return (b7 ? 128 : 0) | (b6 ? 64 : 0) | (b5 ? 32 : 0) | (b4 ? 16 : 0)
                 | (b3 ? 8 : 0) | (b2 ? 4 : 0) | (b1 ? 2 : 0) | (b0 ? 1 : 0);
     }
+    
     private int hi8b(boolean b15, boolean b14, boolean b13, boolean b12, 
                         boolean b11, boolean b10, boolean b9, boolean b8) {
         return lo8b(b15, b14, b13, b12, b11, b10, b9, b8) << 8;
     }
     
-    public void setCollision(int[] memarr, int p, int d) {
+    private void setCollision(int[] memarr, int p, int d) {
         int base = this.memsprite - 9;
         if (d > 0) {
             if (this.collisions[p] > 0) {
@@ -383,7 +412,7 @@ public class UNCD321 extends Hardware {
         this.collisions[p] = d;
     }
     
-    public void drawSprite(int[] memarr, int s) {
+    private void drawSprite(int[] memarr, int s) {
         int sp = this.memsprite + (s << 4);
         int cf = memarr[(sp + 6) & 0xFFFF];
         int ax = Operations.signExtend16To32(memarr[(sp + 4) & 0xFFFF]);
@@ -499,6 +528,11 @@ public class UNCD321 extends Hardware {
         }
     }
     
+    /**
+     * Copies the text from the current screen buffer.
+     * 
+     * @return The copied text.
+     */
     public String copyScreenBuffer() {
         if (!this.on || this.mode != 0) {
             return null;

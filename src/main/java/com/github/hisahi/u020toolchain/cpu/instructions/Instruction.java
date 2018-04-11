@@ -1,6 +1,12 @@
 
 package com.github.hisahi.u020toolchain.cpu.instructions;
 
+/**
+ * This is a helper class for UCPU-16 instructions. It contains the
+ * decoding logic as well as the instances of the instructions.
+ * 
+ * @author hisahi
+ */
 public class Instruction {
     public static final IInstruction SET = new InstructionSET();
     public static final IInstruction ADD = new InstructionADD();
@@ -46,6 +52,18 @@ public class Instruction {
     public static final IInstruction SXB = new InstructionSXB();
     public static final IInstruction SWP = new InstructionSWP();
     
+    /**
+     * Decodes an instruction operation from its internal representation
+     * in the instruction (or the operation code, opcode).
+     * 
+     * @param a       The field a of the machine code instruction.
+     * @param b       The field b of the machine code instruction. Used to
+     *                determine an unary instruction if o is 0.
+     * @param o       The field o of the machine code instruction. Used to
+     *                determine a binary instruction.
+     * @return        The instance of the matching instruction, 
+     *                or null if no instruction matches the given parameters.
+     */
     public static IInstruction decode(int a, int b, int o) {
         switch (o) {
             case 0x01: return SET;

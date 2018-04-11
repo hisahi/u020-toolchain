@@ -1,14 +1,18 @@
 
 package com.github.hisahi.u020toolchain.cpu.instructions; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.hardware.Hardware;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 HWQ instruction that returns the hardware ID,
+ * version and manufacturer information of a connected peripheral.
+ * 
+ * @author hisahi
+ */
 public class InstructionHWQ implements IInstruction {
-
-    public InstructionHWQ() {
-    }
 
     @Override
     public int getCycles() {
@@ -22,11 +26,11 @@ public class InstructionHWQ implements IInstruction {
             return;
         }
         Hardware device = cpu.getDevices().get(ia);
-        cpu.writeRegister(0, device.getIdLow());
-        cpu.writeRegister(1, device.getIdHigh());
-        cpu.writeRegister(2, device.getVersion());
-        cpu.writeRegister(3, device.getManufacturerLow());
-        cpu.writeRegister(4, device.getManufacturerHigh());
+        cpu.writeRegister(Register.A, device.getIdLow());
+        cpu.writeRegister(Register.B, device.getIdHigh());
+        cpu.writeRegister(Register.C, device.getVersion());
+        cpu.writeRegister(Register.X, device.getManufacturerLow());
+        cpu.writeRegister(Register.Y, device.getManufacturerHigh());
     }
 
     @Override

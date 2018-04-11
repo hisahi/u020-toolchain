@@ -4,10 +4,14 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 SHL instruction that performs a logical
+ * shift left on the first parameter the number of times specified by
+ * the second parameter. Bits shifted over are stored in EX.
+ * 
+ * @author hisahi
+ */
 public class InstructionSHL implements IInstruction {
-
-    public InstructionSHL() {
-    }
 
     @Override
     public int getCycles() {

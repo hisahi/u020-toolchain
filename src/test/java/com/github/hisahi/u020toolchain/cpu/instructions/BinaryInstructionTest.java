@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.cpu.instructions;
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.AddressingMode;
@@ -9,6 +10,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the UCPU-16 binary instructions (instructions that
+ * take two parameters). This class however does not test the IF*
+ * instructions, for which BranchInstructionTest exists.
+ * 
+ * @author hisahi
+ */
 public class BinaryInstructionTest {
     
     public static UCPU16 cpu;
@@ -30,9 +38,9 @@ public class BinaryInstructionTest {
     }
 
     public static int executeWithA(IInstruction instr, int b, int a) {
-        cpu.writeRegister(0, b);
+        cpu.writeRegister(Register.A, b);
         instr.execute(cpu, AddressingMode.NW, AddressingMode.REG_A, a, 0);
-        return cpu.readRegister(0);
+        return cpu.readRegister(Register.A);
     }
     
     @Test
@@ -351,8 +359,8 @@ public class BinaryInstructionTest {
     
     @Test
     public void testInstructionSTI() {
-        cpu.writeRegister(6, 0);
-        cpu.writeRegister(7, 0);
+        cpu.writeRegister(Register.I, 0);
+        cpu.writeRegister(Register.J, 0);
         int r1 = randomWord();
         assertEquals("STI did not modify the value correctly", r1, executeWithA(Instruction.STI, 0, r1));
     }
@@ -360,25 +368,25 @@ public class BinaryInstructionTest {
     @Test
     public void testInstructionSTIDoesNotModifyEX() {
         int oldex = cpu.getEX();
-        cpu.writeRegister(6, 0);
-        cpu.writeRegister(7, 0);
+        cpu.writeRegister(Register.I, 0);
+        cpu.writeRegister(Register.J, 0);
         executeWithA(Instruction.STI, 0, 5);
         assertEquals("EX was unexpectedly modified by STI", oldex, cpu.getEX());
     }
     
     @Test
     public void testInstructionSTIIncreasesRegs() {
-        cpu.writeRegister(6, 0);
-        cpu.writeRegister(7, 0);
+        cpu.writeRegister(Register.I, 0);
+        cpu.writeRegister(Register.J, 0);
         executeWithA(Instruction.STI, 0, 5);
-        assertEquals("STI did not increase register I correctly", 1, cpu.readRegister(6));
-        assertEquals("STI did not increase register J correctly", 1, cpu.readRegister(7));
+        assertEquals("STI did not increase register I correctly", 1, cpu.readRegister(Register.I));
+        assertEquals("STI did not increase register J correctly", 1, cpu.readRegister(Register.J));
     }
     
     @Test
     public void testInstructionSTD() {
-        cpu.writeRegister(6, 0);
-        cpu.writeRegister(7, 0);
+        cpu.writeRegister(Register.I, 0);
+        cpu.writeRegister(Register.J, 0);
         int r1 = randomWord();
         assertEquals("STD did not modify the value correctly", r1, executeWithA(Instruction.STD, 0, r1));
     }
@@ -386,18 +394,18 @@ public class BinaryInstructionTest {
     @Test
     public void testInstructionSTDDoesNotModifyEX() {
         int oldex = cpu.getEX();
-        cpu.writeRegister(6, 0);
-        cpu.writeRegister(7, 0);
+        cpu.writeRegister(Register.I, 0);
+        cpu.writeRegister(Register.J, 0);
         executeWithA(Instruction.STD, 0, 4);
         assertEquals("EX was unexpectedly modified by STD", oldex, cpu.getEX());
     }
     
     @Test
     public void testInstructionSTDDecreasesRegs() {
-        cpu.writeRegister(6, 0);
-        cpu.writeRegister(7, 0);
+        cpu.writeRegister(Register.I, 0);
+        cpu.writeRegister(Register.J, 0);
         executeWithA(Instruction.STD, 0, 4);
-        assertEquals("STD did not decrease register I correctly", 0xffff, cpu.readRegister(6));
-        assertEquals("STD did not decrease register J correctly", 0xffff, cpu.readRegister(7));
+        assertEquals("STD did not decrease register I correctly", 0xffff, cpu.readRegister(Register.I));
+        assertEquals("STD did not decrease register J correctly", 0xffff, cpu.readRegister(Register.J));
     }
 }

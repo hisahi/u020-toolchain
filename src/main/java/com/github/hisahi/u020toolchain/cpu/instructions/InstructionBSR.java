@@ -4,10 +4,14 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 BSR instruction that behaves like JSR;
+ * but performs a relative jump rather than an absolute one. This
+ * instruction is primarily designed for position independent code.
+ * 
+ * @author hisahi
+ */
 public class InstructionBSR implements IInstruction {
-
-    public InstructionBSR() {
-    }
 
     @Override
     public int getCycles() {

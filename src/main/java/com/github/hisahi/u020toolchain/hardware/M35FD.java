@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.hardware; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.logic.ITickable;
@@ -10,6 +11,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Implements the M35FD peripheral that serves as the main floppy
+ * peripheral for Univtek 020.
+ * 
+ * @author hisahi
+ */
 public class M35FD extends Hardware implements ITickable {
     
     private static final int NS_PER_WORD = 32573; // 1 s / 32573 ns ~= 30.7 KW/s
@@ -39,6 +46,12 @@ public class M35FD extends Hardware implements ITickable {
     private int opdiskid;
     private EmulatorMain main;
     
+    /**
+     * Initializes a new M35FD instance.
+     * 
+     * @param cpu     The UCPU16 instance.
+     * @param driveid The drive number.
+     */
     public M35FD(UCPU16 cpu, int driveid) {
         super(cpu);
         this.driveid = driveid;
@@ -66,19 +79,19 @@ public class M35FD extends Hardware implements ITickable {
 
     @Override
     public void hwi(UCPU16 cpu) {
-        switch (cpu.readRegister(UCPU16.REG_A)) {
+        switch (cpu.readRegister(Register.A)) {
             case 0:
-                cpu.writeRegister(UCPU16.REG_B, state);
-                cpu.writeRegister(UCPU16.REG_C, error);
+                cpu.writeRegister(Register.B, state);
+                cpu.writeRegister(Register.C, error);
                 error = ERROR_NONE;
                 break;
             case 1:
-                this.intmsg = cpu.readRegister(UCPU16.REG_B);
+                this.intmsg = cpu.readRegister(Register.B);
                 break;
             case 2: 
             {
                 opdiskid = diskid;
-                cpu.writeRegister(UCPU16.REG_B, 0);
+                cpu.writeRegister(Register.B, 0);
                 if (this.operationRunning) { // busy
                     this.setError(ERROR_BUSY);
                     break;
@@ -86,16 +99,16 @@ public class M35FD extends Hardware implements ITickable {
                     this.setError(ERROR_NO_MEDIA);
                     break;
                 }
-                int x = cpu.readRegister(UCPU16.REG_X);
-                int y = cpu.readRegister(UCPU16.REG_Y);
+                int x = cpu.readRegister(Register.X);
+                int y = cpu.readRegister(Register.Y);
                 if (x >= SECTOR_COUNT) {
                     this.setError(ERROR_BAD_SECTOR);
                     break;
                 }
                 seektotrack = x / SECTORS_PER_TRACK;
                 diskaddr = x * WORDS_PER_SECTOR;
-                memaddr = cpu.readRegister(UCPU16.REG_Y);
-                cpu.writeRegister(UCPU16.REG_B, 1);
+                memaddr = cpu.readRegister(Register.Y);
+                cpu.writeRegister(Register.B, 1);
                 this.operationIsWrite = false;
                 this.wordsLeft = WORDS_PER_SECTOR;
                 this.nextTick = System.nanoTime();
@@ -106,7 +119,7 @@ public class M35FD extends Hardware implements ITickable {
             case 3: 
             {
                 opdiskid = diskid;
-                cpu.writeRegister(UCPU16.REG_B, 0);
+                cpu.writeRegister(Register.B, 0);
                 if (this.operationRunning) { // busy
                     this.setError(ERROR_BUSY);
                     break;
@@ -117,16 +130,16 @@ public class M35FD extends Hardware implements ITickable {
                     this.setError(ERROR_NO_MEDIA);
                     break;
                 } 
-                int x = cpu.readRegister(UCPU16.REG_X);
-                int y = cpu.readRegister(UCPU16.REG_Y);
+                int x = cpu.readRegister(Register.X);
+                int y = cpu.readRegister(Register.Y);
                 if (x >= SECTOR_COUNT) {
                     this.setError(ERROR_BAD_SECTOR);
                     break;
                 }
                 seektotrack = x / SECTORS_PER_TRACK;
                 diskaddr = x * WORDS_PER_SECTOR;
-                memaddr = cpu.readRegister(UCPU16.REG_Y);
-                cpu.writeRegister(UCPU16.REG_B, 1);
+                memaddr = cpu.readRegister(Register.Y);
+                cpu.writeRegister(Register.B, 1);
                 this.operationIsWrite = true;
                 this.wordsLeft = WORDS_PER_SECTOR;
                 this.nextTick = System.nanoTime();
@@ -137,6 +150,11 @@ public class M35FD extends Hardware implements ITickable {
         }
     }
 
+    /**
+     * Inserts a disk into the drive.
+     * 
+     * @param data The disk image to be inserted.
+     */
     public void insert(int[] data) {
         if (data.length != DISK_SIZE) {
             throw new IllegalArgumentException("disk must be exactly 720 KW");
@@ -147,6 +165,9 @@ public class M35FD extends Hardware implements ITickable {
         this.setState(getValidDiskState());
     }
 
+    /**
+     * Ejects the disk from the drive.
+     */
     public void eject() {
         this.writeBack();
         this.inserted = false;
@@ -160,10 +181,21 @@ public class M35FD extends Hardware implements ITickable {
         }
     }
 
+    /**
+     * Sets the EmulatorMain instance for this drive. This is used to call
+     * {@link EmulatorMain#writeBack} when a disk is ejected.
+     * 
+     * @param main The new EmulatorMain instance.
+     */
     public void setWriteBackTarget(EmulatorMain main) {
         this.main = main;
     }
     
+    /**
+     * Update whether the disk is write-protected.
+     * 
+     * @param wp Whether the disk is write-protected.
+     */
     public void setWriteProtected(boolean wp) {
         this.writeProtected = wp;
         if (this.inserted) {
@@ -191,6 +223,11 @@ public class M35FD extends Hardware implements ITickable {
     public void resume() {
     }
     
+    /**
+     * Updates the drive state.
+     * 
+     * @param state The new drive state.
+     */
     public void setState(int state) {
         this.state = state;
         if (this.intmsg != 0) {
@@ -198,6 +235,11 @@ public class M35FD extends Hardware implements ITickable {
         }
     }
     
+    /**
+     * Updates the drive error.
+     * 
+     * @param error The new drive error.
+     */
     public void setError(int error) {
         this.error = error;
         if (this.intmsg != 0) {
@@ -205,6 +247,12 @@ public class M35FD extends Hardware implements ITickable {
         }
     }
     
+    /**
+     * Updates the drive state and error.
+     * 
+     * @param state The new drive state.
+     * @param error The new drive error.
+     */
     public void setStateAndError(int state, int error) {
         this.state = state;
         this.error = error;
@@ -312,10 +360,20 @@ public class M35FD extends Hardware implements ITickable {
         }
     }
 
+    /**
+     * Returns the drive number, usually 0 or 1.
+     * 
+     * @return The drive number.
+     */
     public int getDriveId() {
         return this.driveid;
     }
 
+    /**
+     * Tests whether a floppy disk is inserted inside the drive.
+     * 
+     * @return Whether a floppy disk is inside the drive.
+     */
     public boolean hasMedia() {
         return this.inserted;
     }

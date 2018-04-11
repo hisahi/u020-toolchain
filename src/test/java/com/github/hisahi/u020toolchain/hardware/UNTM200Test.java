@@ -1,12 +1,18 @@
 
 package com.github.hisahi.u020toolchain.hardware;
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the implementation of the UNTM200 peripheral.
+ * 
+ * @author hisahi
+ */
 public class UNTM200Test {
     UCPU16 cpu;
     UNTM200 timer;
@@ -20,22 +26,22 @@ public class UNTM200Test {
     }
     
     public void setInterval(int cycles) {
-        cpu.writeRegister(UCPU16.REG_A, 0);
-        cpu.writeRegister(UCPU16.REG_B, cycles & 0xFFFF);
-        cpu.writeRegister(UCPU16.REG_C, (cycles >> 16) & 0xFFFF);
+        cpu.writeRegister(Register.A, 0);
+        cpu.writeRegister(Register.B, cycles & 0xFFFF);
+        cpu.writeRegister(Register.C, (cycles >> 16) & 0xFFFF);
         timer.hwi(cpu);
     }
     
     public int getInterval() {
-        cpu.writeRegister(UCPU16.REG_A, 3);
+        cpu.writeRegister(Register.A, 3);
         timer.hwi(cpu);
-        return (cpu.readRegister(UCPU16.REG_C) << 16) | cpu.readRegister(UCPU16.REG_B);
+        return (cpu.readRegister(Register.C) << 16) | cpu.readRegister(Register.B);
     }
     
     public int getCounter() {
-        cpu.writeRegister(UCPU16.REG_A, 1);
+        cpu.writeRegister(Register.A, 1);
         timer.hwi(cpu);
-        return cpu.readRegister(UCPU16.REG_C);
+        return cpu.readRegister(Register.C);
     }
 
     @Test

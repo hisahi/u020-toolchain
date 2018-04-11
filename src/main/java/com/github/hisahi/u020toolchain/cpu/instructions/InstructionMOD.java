@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 MOD instruction that computes the remainder
+ * of the division of two unsigned numbers.
+ * 
+ * @author hisahi
+ */
 public class InstructionMOD implements IInstruction {
-
-    public InstructionMOD() {
-    }
 
     @Override
     public int getCycles() {

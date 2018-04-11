@@ -1,12 +1,28 @@
 
 package com.github.hisahi.u020toolchain.cpu.addressing; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 
+/**
+ * Implements the UCPU-16 indirect register plus word addressing mode, in
+ * which the accesses are targeted at a memory location chosen by the value
+ * in one of the main eight UCPU-16 registers (A, B, C, X, Y, Z, I or J)
+ * with the parameter word added to the value of the register to decide
+ * the final address.
+ * 
+ * @author hisahi
+ */
 public class AddressingModeRegisterIndirectPlusWord implements IAddressingMode {
-    private int reg;
-    public AddressingModeRegisterIndirectPlusWord(int i) {
-        this.reg = i;
+    private Register reg;
+    
+    /**
+     * Initializes a new AddressingModeRegisterIndirectPlusWord instance.
+     * 
+     * @param reg The register this literal addressing mode represents.
+     */
+    public AddressingModeRegisterIndirectPlusWord(Register reg) {
+        this.reg = reg;
     }
 
     @Override
@@ -32,9 +48,9 @@ public class AddressingModeRegisterIndirectPlusWord implements IAddressingMode {
     @Override
     public String format(boolean isB, int val, String label) {
         if (label != null) {
-            return "[" + String.valueOf("ABCXYZIJ".charAt(reg)) + "+" + label + "]";
+            return "[" + String.valueOf("ABCXYZIJ".charAt(reg.ordinal())) + "+" + label + "]";
         } else {
-            return "[" + String.valueOf("ABCXYZIJ".charAt(reg)) + "+" + String.format("0x%04x", val) + "]";
+            return "[" + String.valueOf("ABCXYZIJ".charAt(reg.ordinal())) + "+" + String.format("0x%04x", val) + "]";
         }
     }
 }

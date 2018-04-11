@@ -1,12 +1,18 @@
 
 package com.github.hisahi.u020toolchain.hardware;
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the implementation of the Generic Clock peripheral.
+ * 
+ * @author hisahi
+ */
 public class ClockTest {
     UCPU16 cpu;
     Clock clock;
@@ -21,15 +27,15 @@ public class ClockTest {
     
     // ticks every 60/d seconds (d/60 Hz), if d = 0 turn off
     public void setClockInterval(int d) {
-        cpu.writeRegister(UCPU16.REG_A, 0);
-        cpu.writeRegister(UCPU16.REG_B, d);
+        cpu.writeRegister(Register.A, 0);
+        cpu.writeRegister(Register.B, d);
         clock.hwi(cpu);
     }
     
     public int getCounter() {
-        cpu.writeRegister(UCPU16.REG_A, 1);
+        cpu.writeRegister(Register.A, 1);
         clock.hwi(cpu);
-        return cpu.readRegister(UCPU16.REG_C);
+        return cpu.readRegister(Register.C);
     }
     
     @Test

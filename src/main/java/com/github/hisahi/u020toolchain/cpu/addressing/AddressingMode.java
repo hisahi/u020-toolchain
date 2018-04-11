@@ -1,31 +1,40 @@
 
 package com.github.hisahi.u020toolchain.cpu.addressing; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
+
+/**
+ * This is a helper class for UCPU-16 instruction addressing modes.
+ * It contains the decoding logic as well as the instances of the
+ * addressing modes.
+ * 
+ * @author hisahi
+ */
 public class AddressingMode {
-    public static final IAddressingMode REG_A = new AddressingModeRegister(0);
-    public static final IAddressingMode REG_B = new AddressingModeRegister(1);
-    public static final IAddressingMode REG_C = new AddressingModeRegister(2);
-    public static final IAddressingMode REG_X = new AddressingModeRegister(3);
-    public static final IAddressingMode REG_Y = new AddressingModeRegister(4);
-    public static final IAddressingMode REG_Z = new AddressingModeRegister(5);
-    public static final IAddressingMode REG_I = new AddressingModeRegister(6);
-    public static final IAddressingMode REG_J = new AddressingModeRegister(7);
-    public static final IAddressingMode REG_A_IND = new AddressingModeRegisterIndirect(0);
-    public static final IAddressingMode REG_B_IND = new AddressingModeRegisterIndirect(1);
-    public static final IAddressingMode REG_C_IND = new AddressingModeRegisterIndirect(2);
-    public static final IAddressingMode REG_X_IND = new AddressingModeRegisterIndirect(3);
-    public static final IAddressingMode REG_Y_IND = new AddressingModeRegisterIndirect(4);
-    public static final IAddressingMode REG_Z_IND = new AddressingModeRegisterIndirect(5);
-    public static final IAddressingMode REG_I_IND = new AddressingModeRegisterIndirect(6);
-    public static final IAddressingMode REG_J_IND = new AddressingModeRegisterIndirect(7);
-    public static final IAddressingMode REG_A_IND_NW = new AddressingModeRegisterIndirectPlusWord(0);
-    public static final IAddressingMode REG_B_IND_NW = new AddressingModeRegisterIndirectPlusWord(1);
-    public static final IAddressingMode REG_C_IND_NW = new AddressingModeRegisterIndirectPlusWord(2);
-    public static final IAddressingMode REG_X_IND_NW = new AddressingModeRegisterIndirectPlusWord(3);
-    public static final IAddressingMode REG_Y_IND_NW = new AddressingModeRegisterIndirectPlusWord(4);
-    public static final IAddressingMode REG_Z_IND_NW = new AddressingModeRegisterIndirectPlusWord(5);
-    public static final IAddressingMode REG_I_IND_NW = new AddressingModeRegisterIndirectPlusWord(6);
-    public static final IAddressingMode REG_J_IND_NW = new AddressingModeRegisterIndirectPlusWord(7);
+    public static final IAddressingMode REG_A = new AddressingModeRegister(Register.A);
+    public static final IAddressingMode REG_B = new AddressingModeRegister(Register.B);
+    public static final IAddressingMode REG_C = new AddressingModeRegister(Register.C);
+    public static final IAddressingMode REG_X = new AddressingModeRegister(Register.X);
+    public static final IAddressingMode REG_Y = new AddressingModeRegister(Register.Y);
+    public static final IAddressingMode REG_Z = new AddressingModeRegister(Register.Z);
+    public static final IAddressingMode REG_I = new AddressingModeRegister(Register.I);
+    public static final IAddressingMode REG_J = new AddressingModeRegister(Register.J);
+    public static final IAddressingMode REG_A_IND = new AddressingModeRegisterIndirect(Register.A);
+    public static final IAddressingMode REG_B_IND = new AddressingModeRegisterIndirect(Register.B);
+    public static final IAddressingMode REG_C_IND = new AddressingModeRegisterIndirect(Register.C);
+    public static final IAddressingMode REG_X_IND = new AddressingModeRegisterIndirect(Register.X);
+    public static final IAddressingMode REG_Y_IND = new AddressingModeRegisterIndirect(Register.Y);
+    public static final IAddressingMode REG_Z_IND = new AddressingModeRegisterIndirect(Register.Z);
+    public static final IAddressingMode REG_I_IND = new AddressingModeRegisterIndirect(Register.I);
+    public static final IAddressingMode REG_J_IND = new AddressingModeRegisterIndirect(Register.J);
+    public static final IAddressingMode REG_A_IND_NW = new AddressingModeRegisterIndirectPlusWord(Register.A);
+    public static final IAddressingMode REG_B_IND_NW = new AddressingModeRegisterIndirectPlusWord(Register.B);
+    public static final IAddressingMode REG_C_IND_NW = new AddressingModeRegisterIndirectPlusWord(Register.C);
+    public static final IAddressingMode REG_X_IND_NW = new AddressingModeRegisterIndirectPlusWord(Register.X);
+    public static final IAddressingMode REG_Y_IND_NW = new AddressingModeRegisterIndirectPlusWord(Register.Y);
+    public static final IAddressingMode REG_Z_IND_NW = new AddressingModeRegisterIndirectPlusWord(Register.Z);
+    public static final IAddressingMode REG_I_IND_NW = new AddressingModeRegisterIndirectPlusWord(Register.I);
+    public static final IAddressingMode REG_J_IND_NW = new AddressingModeRegisterIndirectPlusWord(Register.J);
     public static final IAddressingMode STACK = new AddressingModeStackPushPop();
     public static final IAddressingMode STACK_PEEK = new AddressingModeStackPeek();
     public static final IAddressingMode STACK_PICK = new AddressingModeStackPick();
@@ -42,6 +51,15 @@ public class AddressingMode {
         }
     }
     
+    /**
+     * Decodes an addressing mode from its internal representation
+     * in the instruction.
+     * 
+     * @param a       The internal number of the instruction that represents
+     *                the addressing mode of a parameter.
+     * @return        The instance of the matching addressing mode, 
+     *                or null if no addressing mode matches the given number.
+     */
     public static IAddressingMode decode(int a) {
         switch (a) {
             case 0x00: return REG_A;

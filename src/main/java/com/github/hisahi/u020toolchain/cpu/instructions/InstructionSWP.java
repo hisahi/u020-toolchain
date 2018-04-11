@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 SWP instruction that swaps the low and
+ * high bytes of the parameter word.
+ * 
+ * @author hisahi
+ */
 public class InstructionSWP implements IInstruction {
-
-    public InstructionSWP() {
-    }
 
     @Override
     public int getCycles() {

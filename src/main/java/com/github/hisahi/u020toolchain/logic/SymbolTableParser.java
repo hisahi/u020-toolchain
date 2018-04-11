@@ -6,8 +6,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Parses symbol tables for disassembling code with a symbol table provided.
+ * The symbol table may contain labels as well as data and text sections.
+ * 
+ * @author hisahi
+ */
 public class SymbolTableParser {
 
+    /**
+     * Parses a symbol table and writes the labels and data areas into the given map and array respectively.
+     * 
+     * @param text          The symbol table as a String.
+     * @param labels        The map of existing labels or symbols, used as an output.
+     * @param dataAreas     An array describing the role of every memory position, used as an output.
+     */
     public static void parse(String text, Map<Integer, List<String>> labels, int[] dataAreas) {
         int lno = 0;
         for (String lineraw: text.split("\n")) {

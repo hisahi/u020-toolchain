@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.hardware;
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import java.io.ByteArrayInputStream;
@@ -13,6 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the implementation of the M35FD peripheral.
+ * 
+ * @author hisahi
+ */
 public class M35FDTest {
     M35FD fd;
     private static final int[] diskimg = new int[M35FD.DISK_SIZE];
@@ -26,18 +32,18 @@ public class M35FDTest {
     }
     
     public void initReadStateAndError(M35FD fd) {
-        fd.cpu.writeRegister(UCPU16.REG_A, 0);
+        fd.cpu.writeRegister(Register.A, 0);
         fd.hwi(fd.cpu);
     }
     
     public int getState(M35FD fd) {
         initReadStateAndError(fd);
-        return fd.cpu.readRegister(UCPU16.REG_B);
+        return fd.cpu.readRegister(Register.B);
     }
     
     public int getError(M35FD fd) {
         initReadStateAndError(fd);
-        return fd.cpu.readRegister(UCPU16.REG_C);
+        return fd.cpu.readRegister(Register.C);
     }
 
     @Test
@@ -47,7 +53,7 @@ public class M35FDTest {
 
     @Test
     public void errorNoMediaTest() {
-        fd.cpu.writeRegister(UCPU16.REG_A, 2);
+        fd.cpu.writeRegister(Register.A, 2);
         fd.hwi(fd.cpu);
         assertEquals(M35FD.ERROR_NO_MEDIA, getError(fd));
     }
@@ -61,7 +67,7 @@ public class M35FDTest {
     @Test
     public void stateBusyTest() {
         fd.insert(diskimg);
-        fd.cpu.writeRegister(UCPU16.REG_A, 2);
+        fd.cpu.writeRegister(Register.A, 2);
         fd.hwi(fd.cpu);
         assertEquals(M35FD.STATE_BUSY, getState(fd));
     }
@@ -69,7 +75,7 @@ public class M35FDTest {
     @Test
     public void errorBusyTest() {
         fd.insert(diskimg);
-        fd.cpu.writeRegister(UCPU16.REG_A, 2);
+        fd.cpu.writeRegister(Register.A, 2);
         fd.hwi(fd.cpu);
         fd.hwi(fd.cpu);
         assertEquals(M35FD.ERROR_BUSY, getError(fd));
@@ -82,9 +88,9 @@ public class M35FDTest {
             cpumem[i] = 0xDEAD;
         }
         fd.insert(diskimg);
-        fd.cpu.writeRegister(UCPU16.REG_A, 2);
-        fd.cpu.writeRegister(UCPU16.REG_X, 1);
-        fd.cpu.writeRegister(UCPU16.REG_Y, 0x2000);
+        fd.cpu.writeRegister(Register.A, 2);
+        fd.cpu.writeRegister(Register.X, 1);
+        fd.cpu.writeRegister(Register.Y, 0x2000);
         fd.hwi(fd.cpu);
         while (getState(fd) == M35FD.STATE_BUSY) {
             Thread.sleep(50);
@@ -100,9 +106,9 @@ public class M35FDTest {
             cpumem[i] = 0x55AA ^ ((i << 7) & 0xFFFF);
         }
         fd.insert(diskimg);
-        fd.cpu.writeRegister(UCPU16.REG_A, 3);
-        fd.cpu.writeRegister(UCPU16.REG_X, 2);
-        fd.cpu.writeRegister(UCPU16.REG_Y, 0x4001);
+        fd.cpu.writeRegister(Register.A, 3);
+        fd.cpu.writeRegister(Register.X, 2);
+        fd.cpu.writeRegister(Register.Y, 0x4001);
         fd.hwi(fd.cpu);
         while (getState(fd) == M35FD.STATE_BUSY) {
             Thread.sleep(50);
@@ -128,7 +134,7 @@ public class M35FDTest {
     public void ejectMidOperationTest() {
         fd.insert(diskimg);
         getState(fd);
-        fd.cpu.writeRegister(UCPU16.REG_A, 2);
+        fd.cpu.writeRegister(Register.A, 2);
         fd.hwi(fd.cpu);
         fd.eject();
         fd.tick();
@@ -150,9 +156,9 @@ public class M35FDTest {
         }
         fd.insert(diskimg);
         fd.setWriteProtected(true);
-        fd.cpu.writeRegister(UCPU16.REG_A, 2);
-        fd.cpu.writeRegister(UCPU16.REG_X, 1);
-        fd.cpu.writeRegister(UCPU16.REG_Y, 0x2000);
+        fd.cpu.writeRegister(Register.A, 2);
+        fd.cpu.writeRegister(Register.X, 1);
+        fd.cpu.writeRegister(Register.Y, 0x2000);
         fd.hwi(fd.cpu);
         while (getState(fd) == M35FD.STATE_BUSY) {
             Thread.sleep(50);
@@ -165,7 +171,7 @@ public class M35FDTest {
     public void errorWriteProtectedTest() {
         fd.insert(diskimg);
         fd.setWriteProtected(true);
-        fd.cpu.writeRegister(UCPU16.REG_A, 3);
+        fd.cpu.writeRegister(Register.A, 3);
         fd.hwi(fd.cpu);
         assertEquals(M35FD.ERROR_PROTECTED, getError(fd));
     }

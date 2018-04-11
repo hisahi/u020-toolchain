@@ -5,7 +5,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Assembles individual instructions into a machine code form.
+ * 
+ * @author hisahi
+ */
 public class InstructionAssembler {
+    
+    /**
+     * Assembles a single instruction.
+     * 
+     * @param lno           The line number of the instruction in the symbolic assembly code.
+     * @param code          The symbolic representation of the instruction to be assembled.
+     * @param pos           The address of the instruction to be assembled.
+     * @param data          The memory in which to assemble, used as an output.
+     * @param dataAreas     An array describing the role of every memory position, used as an output.
+     * @param labels        The map of existing labels or symbols, used as an output.
+     * @param requestSymbol A map that can be used by the assembled instruction to request a specific label, used as an output.
+     * @return              The length of the assembled instruction in words.
+     */
     public static int assemble(int lno, String code, int pos, int[] data, int[] dataAreas, Map<String, Integer> labels, Map<Integer, String> requestSymbol) {
         code = code.trim();
         if (code.isEmpty()) {
@@ -125,6 +143,7 @@ public class InstructionAssembler {
         Assembler.asmError(lno, "error.asm.syntaxerror");
         return 0;
     }
+    
     private static String[] splitOutsideQuotes(String string, String sep) {
         List<String> s = new ArrayList<>();
         int begin = 0;

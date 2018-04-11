@@ -7,6 +7,11 @@ import java.util.Map;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the UCPU-16 disassembler.
+ * 
+ * @author hisahi
+ */
 public class DisassemblerTest {
     
     public DisassemblerTest() {

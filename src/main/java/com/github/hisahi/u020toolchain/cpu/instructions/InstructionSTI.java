@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 STI instruction that behaves like SET,
+ * but increments the I and J registers after the operation.
+ * 
+ * @author hisahi
+ */
 public class InstructionSTI implements IInstruction {
-
-    public InstructionSTI() {
-    }
 
     @Override
     public int getCycles() {

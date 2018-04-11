@@ -13,7 +13,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
 
+/**
+ * Handles and parses language files. The result is a String to String
+ * map that is used by the I18n class.
+ * 
+ * @author hisahi
+ */
 public class LangJsonFileLoader {
+    /**
+     * Loads a language map from a JSON string.
+     * 
+     * @param s The language JSON data.
+     * @return  The key-value map for this language.
+     */
     public Map<String, String> loadFromString(String s) {
         Map<String, String> keys = new HashMap<>();
         JSONObject langKeys = new JSONObject(s);
@@ -22,6 +34,14 @@ public class LangJsonFileLoader {
         }
         return keys;
     }
+    
+    /**
+     * Loads a language map from a stream. The stream is expected to
+     * contain a string formatted in JSON.
+     * 
+     * @param f The stream to read from.
+     * @return  The key-value map for this language.
+     */
     public Map<String, String> loadFromStream(InputStream f) {
         if (f != null) {
             BufferedReader reader = null;

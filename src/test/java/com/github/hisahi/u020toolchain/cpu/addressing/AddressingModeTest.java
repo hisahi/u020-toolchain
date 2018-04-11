@@ -1,12 +1,18 @@
 
 package com.github.hisahi.u020toolchain.cpu.addressing;
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the UCPU-16 addressing modes.
+ * 
+ * @author hisahi
+ */
 public class AddressingModeTest {
     
     private static UCPU16 cpu;
@@ -33,7 +39,7 @@ public class AddressingModeTest {
             IAddressingMode am = AddressingMode.decode(i);
             int r1 = randomWord();
             int r2 = randomWord();
-            cpu.writeRegister(i, r1);
+            cpu.writeRegister(Register.values()[i], r1);
             assertEquals("direct read not working correctly (expected " + hex(r1) + ", but got " + hex(am.read(cpu, 0)) + ")", r1, am.read(cpu, 0));
         }
     }
@@ -45,7 +51,7 @@ public class AddressingModeTest {
             int r1 = randomWord();
             int r2 = randomWord();
             am.write(cpu, 0, r2);
-            assertEquals("direct write not working correctly (expected " + hex(r2) + ", but got " + hex(cpu.readRegister(i)) + ")", r2, cpu.readRegister(i));
+            assertEquals("direct write not working correctly (expected " + hex(r2) + ", but got " + hex(cpu.readRegister(Register.values()[i])) + ")", r2, cpu.readRegister(Register.values()[i]));
         }
     }
 
@@ -55,7 +61,7 @@ public class AddressingModeTest {
             IAddressingMode am = AddressingMode.decode(8+i);
             int r1 = randomWord();
             int r3 = randomWord();
-            cpu.writeRegister(i, r1);
+            cpu.writeRegister(Register.values()[i], r1);
             cpu.getMemory().write(r1, r3);
             assertEquals("indirect read not working correctly (expected " + hex(r1) + ":" + hex(r3) + ", but got " + hex(am.read(cpu, 0)) + ")", r3, am.read(cpu, 0));
         }
@@ -67,7 +73,7 @@ public class AddressingModeTest {
             IAddressingMode am = AddressingMode.decode(8+i);
             int r2 = randomWord();
             int r4 = randomWord();
-            cpu.writeRegister(i, r2);
+            cpu.writeRegister(Register.values()[i], r2);
             am.write(cpu, 0, r4);
             assertEquals("indirect write not working correctly (expected " + hex(r4) + ", but got " + hex(r2) + ":" + cpu.getMemory().read(r2) + ")", r4, cpu.getMemory().read(r2));
         }
@@ -80,7 +86,7 @@ public class AddressingModeTest {
             IAddressingMode am = AddressingMode.decode(16+i);
             int r1 = randomWord();
             int r3 = randomWord();
-            cpu.writeRegister(i, r1);
+            cpu.writeRegister(Register.values()[i], r1);
             cpu.getMemory().write((r1+nw)&0xFFFF, r3);
             assertEquals("indirect read + NW not working correctly (expected " + hex(r1) + ":" + hex(r3) + ", but got " + hex(am.read(cpu, nw)) + ")", r3, am.read(cpu, nw));
         }
@@ -93,7 +99,7 @@ public class AddressingModeTest {
             IAddressingMode am = AddressingMode.decode(16+i);
             int r2 = randomWord();
             int r4 = randomWord();
-            cpu.writeRegister(i, r2);
+            cpu.writeRegister(Register.values()[i], r2);
             am.write(cpu, nw, r4);
             assertEquals("indirect write + NW not working correctly (expected " + hex(r4) + ", but got " + hex(r2) + ":" + hex(cpu.getMemory().read((r2+nw)&0xFFFF)) + ")", r4, cpu.getMemory().read((r2+nw)&0xFFFF));
         }

@@ -36,6 +36,11 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+/**
+ * The main assembler window for the emulator. 
+ * 
+ * @author hisahi
+ */
 public class EmulatorAssembler {
     private EmulatorMain main;
     private Stage mainStage;
@@ -47,6 +52,11 @@ public class EmulatorAssembler {
     private ListView<String> listing;
     private AssemblerResult asmres;
     
+    /**
+     * Initializes a new EmulatorAssembler instance.
+     * 
+     * @param main The main window.
+     */
     public EmulatorAssembler(EmulatorMain main) {
         this.main = main;
         initStage();
@@ -68,7 +78,7 @@ public class EmulatorAssembler {
         mainStage.sizeToScene();
     }
     
-    public Tab createCodeTab() {
+    private Tab createCodeTab() {
         Tab tab = new Tab();
         tab.setText(I18n.format("assembler.code"));
         VBox vbox = new VBox(5);
@@ -112,7 +122,7 @@ public class EmulatorAssembler {
         return tab;
     }
     
-    public Tab createSymbolTab() {
+    private Tab createSymbolTab() {
         Tab tab = new Tab();
         tab.setText(I18n.format("assembler.symbol"));
         VBox vbox = new VBox(5);
@@ -152,7 +162,7 @@ public class EmulatorAssembler {
         return tab;
     }
     
-    public Tab createHexTab() {
+    private Tab createHexTab() {
         Tab tab = new Tab();
         tab.setText(I18n.format("assembler.hex"));
         VBox vbox = new VBox(5);
@@ -277,6 +287,9 @@ public class EmulatorAssembler {
         return tab;
     }
     
+    /**
+     * Shows the assembler window.
+     */
     public void show() {
         if (mainStage.isShowing()) {
             mainStage.toFront();

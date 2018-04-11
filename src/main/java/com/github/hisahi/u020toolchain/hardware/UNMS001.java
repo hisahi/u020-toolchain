@@ -1,17 +1,30 @@
 
 package com.github.hisahi.u020toolchain.hardware; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * Implements the UNMS001 peripheral that serves as a mouse for
+ * the computer. The mouse has two buttons and can be moved
+ * around the screen.
+ * 
+ * @author hisahi
+ */
 public class UNMS001 extends Hardware {
     private int curX;
     private int curY;
     private int buttons;
     private int intmsg;
 
+    /**
+     * Initializes a new UNMS001 instance.
+     * 
+     * @param cpu The UCPU16 instance.
+     */
     public UNMS001(UCPU16 cpu) {
         super(cpu);
     }
@@ -33,16 +46,16 @@ public class UNMS001 extends Hardware {
 
     @Override
     public void hwi(UCPU16 cpu) {
-        switch (cpu.readRegister(UCPU16.REG_A)) {
+        switch (cpu.readRegister(Register.A)) {
             case 0:
-                cpu.writeRegister(UCPU16.REG_X, curX);
-                cpu.writeRegister(UCPU16.REG_Y, curY);
+                cpu.writeRegister(Register.X, curX);
+                cpu.writeRegister(Register.Y, curY);
                 return;
             case 1:
-                cpu.writeRegister(UCPU16.REG_C, buttons);
+                cpu.writeRegister(Register.C, buttons);
                 break;
             case 2:
-                this.intmsg = cpu.readRegister(UCPU16.REG_B);
+                this.intmsg = cpu.readRegister(Register.B);
                 break;
         }
     }
@@ -76,6 +89,12 @@ public class UNMS001 extends Hardware {
         intmsg = stream.readInt();
     }
     
+    /**
+     * Sets the new mouse cursor position.
+     * 
+     * @param x The X coordinate of the new cursor position.
+     * @param y The Y coordinate of the new cursor position.
+     */
     public void setPos(int x, int y) {
         if (x < 0 || x >= 256 || y < 0 || y >= 192) {
             return;
@@ -89,6 +108,9 @@ public class UNMS001 extends Hardware {
         }
     }
     
+    /**
+     * Presses and holds the primary mouse button.
+     */
     public void leftDown() {
         int ob = buttons;
         buttons |= 1;
@@ -97,6 +119,9 @@ public class UNMS001 extends Hardware {
         }
     }
     
+    /**
+     * Presses and holds the secondary mouse button.
+     */
     public void rightDown() {
         int ob = buttons;
         buttons |= 2;
@@ -105,6 +130,9 @@ public class UNMS001 extends Hardware {
         }
     }
     
+    /**
+     * Releases the primary mouse button.
+     */
     public void leftUp() {
         int ob = buttons;
         buttons &= ~1;
@@ -113,6 +141,9 @@ public class UNMS001 extends Hardware {
         }
     }
     
+    /**
+     * Releases the secondary mouse button.
+     */
     public void rightUp() {
         int ob = buttons;
         buttons &= ~2;
@@ -121,6 +152,11 @@ public class UNMS001 extends Hardware {
         }
     }
 
+    /**
+     * Updates whether the primary mouse button is down.
+     * 
+     * @param down                Whether the primary mouse button is down.
+     */
     public void setLeft(boolean down) {
         if (down) {
             leftDown();
@@ -129,6 +165,11 @@ public class UNMS001 extends Hardware {
         }
     }
 
+    /**
+     * Updates whether the secondary mouse button is down.
+     * 
+     * @param down                Whether the secondary mouse button is down.
+     */
     public void setRight(boolean down) {
         if (down) {
             rightDown();
@@ -137,6 +178,14 @@ public class UNMS001 extends Hardware {
         }
     }
 
+    /**
+     * Updates the mouse state from the given data.
+     * 
+     * @param px                  The X coordinate of the new cursor position.
+     * @param py                  The Y coordinate of the new cursor position.
+     * @param primaryButtonDown   Whether the primary mouse button is down.
+     * @param secondaryButtonDown Whether the secondary mouse button is down.
+     */
     public void updateFromData(int px, int py, boolean primaryButtonDown, boolean secondaryButtonDown) {
         setPos(px, py);
         setLeft(primaryButtonDown);

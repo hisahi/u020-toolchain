@@ -3,8 +3,18 @@ package com.github.hisahi.u020toolchain.cpu.addressing;
 
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 
+/**
+ * Implements the UCPU-16 indirect word addressing mode, in which the
+ * accesses are targeted at a location in memory chosen by the parameter
+ * word.
+ * 
+ * @author hisahi
+ */
 public class AddressingModeIndirectWord implements IAddressingMode {
 
+    /**
+     * Initializes a new AddressingModeIndirectWord instance.
+     */
     public AddressingModeIndirectWord() {
     }
 

@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 IAQ instruction that either enables
+ * or disables interrupt queueing based on the parameter.
+ * 
+ * @author hisahi
+ */
 public class InstructionIAQ implements IInstruction {
-
-    public InstructionIAQ() {
-    }
 
     @Override
     public int getCycles() {

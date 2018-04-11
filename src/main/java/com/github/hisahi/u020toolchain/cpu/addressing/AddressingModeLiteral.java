@@ -3,10 +3,23 @@ package com.github.hisahi.u020toolchain.cpu.addressing;
 
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 
+/**
+ * Implements the UCPU-16 literal addressing mode, in which the accesses
+ * are targeted at a small literal in the range -1..30. 
+ * 
+ * Writes will silently fail.
+ * 
+ * @author hisahi
+ */
 public class AddressingModeLiteral implements IAddressingMode {
 
     private int val;
     
+    /**
+     * Initializes a new AddressingModeLiteral instance.
+     * 
+     * @param i The value this literal addressing mode represents.
+     */
     public AddressingModeLiteral(int i) {
         this.val = i;
     }

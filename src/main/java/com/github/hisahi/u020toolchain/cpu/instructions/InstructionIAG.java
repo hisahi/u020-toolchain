@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 IAG instruction that reads the interrupt
+ * handler address (IA) register.
+ * 
+ * @author hisahi
+ */
 public class InstructionIAG implements IInstruction {
-
-    public InstructionIAG() {
-    }
 
     @Override
     public int getCycles() {

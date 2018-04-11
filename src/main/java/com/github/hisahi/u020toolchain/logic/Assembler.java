@@ -13,7 +13,22 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Assembles UCPU-16 assembly into machine code, returning the
+ * machine code as well as a generated symbol table.
+ * 
+ * @author hisahi
+ */
 public class Assembler {
+    /**
+     * Assembles a String containing symbolic assembly into
+     * machine code. The assembler will also create a symbol table
+     * that can be used later to disassemble the code.
+     * 
+     * @param code The code in a symbolic form.
+     * @return     An AssemblerResult that contains the binary
+     *             machine code and the symbol table.
+     */
     public static AssemblerResult assemble(String code) {
         code = Preprocessor.preprocess(code);
         Set<String> labels = findLabels(code);

@@ -21,6 +21,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.stage.FileChooser;
 
+/**
+ * The File menu for the emulator UI.
+ * 
+ * @author hisahi
+ */
 public class EmuMenuFile extends EmuMenu {
 
     MenuItem loadAndRun;
@@ -34,6 +39,11 @@ public class EmuMenuFile extends EmuMenu {
     MenuItem debugger;
     MenuItem exit;
             
+    /**
+     * Initializes a new EmuMenuFile instance.
+     * 
+     * @param main The main window.
+     */
     public EmuMenuFile(EmulatorMain main) {
         super(main);
         this.loadAndRun = new MenuItem(I18n.format("menu.file.loadandrun"));
@@ -156,6 +166,11 @@ public class EmuMenuFile extends EmuMenu {
         });
     }
     
+    /**
+     * Tries to load a file, dump its contents into the memory and execute it.
+     * 
+     * @param file The file to load and execute.
+     */
     public void attemptLoadAndRunFrom(File file) {
         long len = file.length();
         if (len > 2 * M35FD.DISK_SIZE) {
@@ -197,6 +212,11 @@ public class EmuMenuFile extends EmuMenu {
         main.cpu.resume();
     }
     
+    /**
+     * Displays a dialog to insert a file into the specified M35FD drive.
+     * 
+     * @param drive The M35FD to insert a file into.
+     */
     public void insertFileToDrive(M35FD drive) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(I18n.format("dialog.openfloppy"));

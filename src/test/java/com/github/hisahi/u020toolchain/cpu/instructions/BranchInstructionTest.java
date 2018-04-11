@@ -8,6 +8,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the UCPU-16 conditional IF* instructions, i.e.
+ * conditional branches. They are technically binary instructions,
+ * but are tested separately.
+ * 
+ * @author hisahi
+ */
 public class BranchInstructionTest {
     public static UCPU16 cpu;
     public BranchInstructionTest() {

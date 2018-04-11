@@ -10,8 +10,10 @@ import com.github.hisahi.u020toolchain.cpu.instructions.InstructionBranch;
 import com.github.hisahi.u020toolchain.hardware.Clock;
 import com.github.hisahi.u020toolchain.hardware.Keyboard;
 import com.github.hisahi.u020toolchain.hardware.M35FD;
+import com.github.hisahi.u020toolchain.hardware.UNAC810;
 import com.github.hisahi.u020toolchain.hardware.UNCD321;
 import com.github.hisahi.u020toolchain.hardware.UNEM192;
+import com.github.hisahi.u020toolchain.hardware.UNMS001;
 import com.github.hisahi.u020toolchain.hardware.UNTM200;
 import com.github.hisahi.u020toolchain.logic.HighResolutionTimer;
 import com.github.hisahi.u020toolchain.logic.ITickable;
@@ -30,16 +32,18 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Represents the CPU and main module of the Univtek 020 computer. 
+ * The CPU is named UCPU-16 after the DCPU-16, a CPU architecture
+ * that it is heavily influenced by and based on. The CPU module
+ * does most of the work in running the computer: running the
+ * instructions, handling interrupts and passing signals to
+ * connected hardware.
+ * 
+ * @author hisahi
+ */
 public class UCPU16 implements ITickable {
 
-    public static final int REG_A = 0;
-    public static final int REG_B = 1;
-    public static final int REG_C = 2;
-    public static final int REG_X = 3;
-    public static final int REG_Y = 4;
-    public static final int REG_Z = 5;
-    public static final int REG_I = 6;
-    public static final int REG_J = 7;
     private boolean paused;
     private boolean interruptHandled;
     private boolean breakpointsEnabled;
@@ -68,6 +72,12 @@ public class UCPU16 implements ITickable {
     int sp;
     int ex;
     int ia;
+    
+    /**
+     * Initializes a new UCPU16 instance.
+     * 
+     * @param mem A StandardMemory instance that represents the central memory.
+     */
     public UCPU16(StandardMemory mem) {
         this.mem = mem;
         this.devices = new ArrayList<>();
@@ -77,19 +87,41 @@ public class UCPU16 implements ITickable {
         this.breakpoints = new HashSet<>();
         this.reset(true);
     }
+    
+    /**
+     * Initializes a new UCPU16 instance with an EmulatorMain.
+     * 
+     * @param mem A StandardMemory instance that represents the central memory.
+     * @param main An EmulatorMain instance.
+     */
     public UCPU16(StandardMemory mem, EmulatorMain main) {
         this(mem);
         this.main = main;
     }
 
+    /**
+     * Resets the CPU. The contents of the ROM are not written into the RAM,
+     * but all devices will be reinitialized.
+     */
     public void reset() {
         reset(false, true);
     }
-    
+
+    /**
+     * Resets the CPU. All devices will be reinitialized.
+     * 
+     * @param rewriteROM   Whether to rewrite the contents of the ROM into RAM.
+     */
     public void reset(boolean rewriteROM) {
         reset(rewriteROM, true);
     }
     
+    /**
+     * Resets the CPU.
+     * 
+     * @param rewriteROM   Whether to rewrite the contents of the ROM into RAM.
+     * @param resetDevices Whether to reinitialize all devices.
+     */
     public void reset(boolean rewriteROM, boolean resetDevices) {
         boolean running = false;
         if (this.clock != null) {
@@ -116,6 +148,11 @@ public class UCPU16 implements ITickable {
         }
     }
     
+    /**
+     * Adds a peripheral into the CPU.
+     * 
+     * @param hw The hardware peripheral to add.
+     */
     public void addDevice(Hardware hw) {
         assert hw != null;
         for (Hardware h: devices) {
@@ -129,6 +166,11 @@ public class UCPU16 implements ITickable {
         this.devices.add(hw);
     }
     
+    /**
+     * Returns the list of inserted hardware peripherals.
+     * 
+     * @return The list of devices that are currently plugged in to the CPU.
+     */
     public List<Hardware> getDevices() {
         return this.devices;
     }
@@ -143,6 +185,7 @@ public class UCPU16 implements ITickable {
     private IAddressingMode tia;
     private IAddressingMode tib;
     private IInstruction tinstr;
+    
     @Override
     public void tick() {
         if (halt || paused) {
@@ -160,6 +203,7 @@ public class UCPU16 implements ITickable {
                 }
             }
             ibin = readMemoryAtPC();
+            // extract a, b, o fields from the instruction
             ta = (ibin >> 10) & 0b111111;
             tb = (ibin >> 5) & 0b11111;
             to = (ibin) & 0b11111;
@@ -214,10 +258,20 @@ public class UCPU16 implements ITickable {
         rA = i.getInterruptMessage();
     }
     
+    /**
+     * Adds a number of cycles to the CPU, effectively delaying it.
+     * 
+     * @param c The number of cycles to add.
+     */
     public void addCycles(int c) {
         this.cyclesLeft += c;
     }
     
+    /**
+     * Queues an interrupt into the interrupt queue of this CPU.
+     * 
+     * @param msg The interrupt message of the interrupt to queue.
+     */
     public void queueInterrupt(int msg) {
         if (interruptQueue.size() >= 256) {
             this.halt = true;
@@ -233,114 +287,219 @@ public class UCPU16 implements ITickable {
         return v;
     }
 
+    /**
+     * Pushes a value into the CPU stack.
+     * 
+     * @param val The value to push.
+     */
     public void stackPush(int val) {
         sp = (sp - 1) & 0xFFFF;
         mem.write(sp, val);
     }
     
+    /**
+     * Pops a value from the CPU stack.
+     * 
+     * @return The value that was popped from the stack.
+     */
     public int stackPop() {
         int val = mem.read(sp);
         sp = (sp + 1) & 0xffff;
         return val;
     }
 
-    public int readRegister(int reg) {
+    /**
+     * Reads the value of a general-purpose CPU register.
+     * 
+     * @param reg The register to read from.
+     * @return    The value in the register.
+     */
+    public int readRegister(Register reg) {
         switch (reg) {
-            case 0: return rA;
-            case 1: return rB;
-            case 2: return rC;
-            case 3: return rX;
-            case 4: return rY;
-            case 5: return rZ;
-            case 6: return rI;
-            case 7: return rJ;
+            case A: return rA;
+            case B: return rB;
+            case C: return rC;
+            case X: return rX;
+            case Y: return rY;
+            case Z: return rZ;
+            case I: return rI;
+            case J: return rJ;
         }
         return 0;
     }
 
-    public void writeRegister(int reg, int val) {
+    /**
+     * Writes a value into a general-purpose CPU register.
+     * 
+     * @param reg The register to write to.
+     * @param val The value to write.
+     */
+    public void writeRegister(Register reg, int val) {
         switch (reg) {
-            case 0: 
+            case A: 
                 rA = (val & 0xFFFF); 
                 break;
-            case 1: 
+            case B: 
                 rB = (val & 0xFFFF); 
                 break;
-            case 2: 
+            case C: 
                 rC = (val & 0xFFFF); 
                 break;
-            case 3: 
+            case X: 
                 rX = (val & 0xFFFF); 
                 break;
-            case 4: 
+            case Y: 
                 rY = (val & 0xFFFF); 
                 break;
-            case 5: 
+            case Z: 
                 rZ = (val & 0xFFFF); 
                 break;
-            case 6: 
+            case I: 
                 rI = (val & 0xFFFF); 
                 break;
-            case 7: 
+            case J: 
                 rJ = (val & 0xFFFF); 
                 break;
         }
     }
 
+    /**
+     * Returns the current memory the CPU is using.
+     * 
+     * @return The StandardMemory instance.
+     */
     public StandardMemory getMemory() {
         return this.mem;
     }
     
+    /**
+     * Returns the current value of the SP (stack pointer) register.
+     * 
+     * @return The value currently in the SP register.
+     */
     public int getSP() {
         return this.sp;
     }
+    
+    /**
+     * Sets the new value of the SP (stack pointer) register.
+     * 
+     * @param val The new value to assign.
+     */
     public void setSP(int val) {
         this.sp = val & 0xFFFF;
     }
+    
+    /**
+     * Returns the current value of the PC (program counter) register.
+     * 
+     * @return The value currently in the PC register.
+     */
     public int getPC() {
         return this.pc;
     }
+    
+    /**
+     * Sets the new value of the PC (program counter) register.
+     * 
+     * @param val The new value to assign.
+     */
     public void setPC(int val) {
         this.pc = val & 0xFFFF;
     }
+    
+    /**
+     * Returns the current value of the EX (extra bits, overflow) register.
+     * 
+     * @return The value currently in the EX register.
+     */
     public int getEX() {
         return this.ex;
     }
+    
+    /**
+     * Sets the new value of the EX (extra bits, overflow) register.
+     * 
+     * @param val The new value to assign.
+     */
     public void setEX(int val) {
         this.ex = val & 0xFFFF;
     }
+    
+    /**
+     * Returns the current value of the IA (interrupt handler address) register.
+     * 
+     * @return The value currently in the IA register.
+     */
     public int getIA() {
         return this.ia;
     }
+    
+    /**
+     * Sets the new value of the IA (interrupt handler address) register.
+     * 
+     * @param val The new value to assign.
+     */
     public void setIA(int val) {
         this.ia = val & 0xFFFF;
     }
 
+    /**
+     * Sets the next instruction to be skipped.
+     */
     public void skipConditional() {
         this.skipBranches = true;
     }
+    
+    /**
+     * Returns whether the next instruction is to be skipped.
+     * 
+     * @return true if the next instruction will be skipped, false if not.
+     */
     public boolean willSkip() {
         return this.skipBranches;
     }
 
+    /**
+     * Increments the I and J registers.
+     */
     public void increaseIJ() {
         rI = (rI + 1) & 0xFFFF;
         rJ = (rJ + 1) & 0xFFFF;
     }
 
+    /**
+     * Decrements the I and J registers.
+     */
     public void decreaseIJ() {
         rI = (rI - 1) & 0xFFFF;
         rJ = (rJ - 1) & 0xFFFF;
     }
 
+    /**
+     * Triggers the debugger.
+     * 
+     * @param reason The cause for the debugger to be triggered, such as the
+     *               type of invalid state entered by the CPU
+     */
     public void debugger(String reason) {
         main.showDebugger(reason);
     }
 
+    /**
+     * Enables or disables interrupt queueing.
+     * 
+     * @param b true to enable interrupt queueing, false to disable it.
+     */
     public void setInterruptQueueingEnabled(boolean b) {
         this.queueInterrupts = b;
     }
 
+    /**
+     * Tests whether interrupt queueing is enabled. 
+     * 
+     * @return true if interrupts are being queued, false otherwise.
+     */
     public boolean areInterruptsBeingQueued() {
         return this.queueInterrupts;
     }
@@ -357,6 +516,11 @@ public class UCPU16 implements ITickable {
         }
     }
 
+    /**
+     * Dumps the values of all registers into a textual format for debugging.
+     * 
+     * @return A text describing the contents of all registers.
+     */
     public String dumpRegisters() {
         StringBuilder sb = new StringBuilder();
         sb.append(".");
@@ -375,8 +539,18 @@ public class UCPU16 implements ITickable {
         return sb.toString().trim().substring(1);
     }
     
+    /**
+     * Saves the CPU state into a stream.
+     * 
+     * @param stream       The stream to write to.
+     * @throws IOException if the stream cannot be written to due to an I/O error
+     */
     public void saveState(DataOutputStream stream) throws IOException {
         boolean restart = this.clock.isRunning();
+        // save number of cycles left, CPU halt state, 
+        // whether instruction will be skipped, interrupt queueing,
+        // all registers, full memory state, interrupt queue,
+        // hardware
         this.clock.stop();
         stream.writeLong(cyclesLeft);
         stream.writeInt(halt ? 1 : 0);
@@ -411,6 +585,12 @@ public class UCPU16 implements ITickable {
         }
     }
     
+    /**
+     * Converts a hardware ID into an instance of that hardware implementation.
+     * 
+     * @param d The hardware ID.
+     * @return  An instance of the implementation of that hardware.
+     */
     public Hardware identifyDeviceFromId(long d) {
         switch ((int) d) {
             case 0x30cf7406:
@@ -423,6 +603,10 @@ public class UCPU16 implements ITickable {
                 return new Clock(this);
             case 0x8f1705a6:
                 return new UNTM200(this);
+            case 0xab212484:
+                return new UNMS001(this);
+            case 0x2feaccd6:
+                return new UNAC810(this);
             case 0x4fd524c5:
                 return new M35FD(this, 0);
             case 0x4fd524c6:
@@ -431,11 +615,22 @@ public class UCPU16 implements ITickable {
         return null;
     }
 
+    /**
+     * Restores the CPU state from a stream.
+     * 
+     * @param stream       The stream to read from.
+     * @throws IOException if the data is corrupted, invalid or truncated
+     *                     or if the stream cannot be read due to an I/O error
+     */
     public void restoreState(DataInputStream stream) throws IOException {
         boolean restart = this.clock.isRunning();
         this.clock.stop();
         this.interruptQueue.clear();
         this.devices.clear();
+        // restore number of cycles left, CPU halt state, 
+        // whether instruction will be skipped, interrupt queueing,
+        // all registers, full memory state, interrupt queue,
+        // hardware
         cyclesLeft = stream.readLong();
         halt = stream.readInt() != 0;
         skipBranches = stream.readInt() != 0;
@@ -503,43 +698,88 @@ public class UCPU16 implements ITickable {
         }
     }
 
+    /**
+     * Returns the currently used CPU clock.
+     * 
+     * @return The current CPU clock.
+     */
     public HighResolutionTimer getClock() {
         return this.clock;
     }
 
+    /**
+     * Changes the CPU clock. This is used to pause and resume the timer
+     * when the CPU is paused or resumed.
+     * 
+     * @param cpuclock The new CPU clock.
+     */
     public void setClock(HighResolutionTimer cpuclock) {
         this.clock = cpuclock;
     }
 
+    /**
+     * Tests whether the CPU execution is halted due to an invalid state.
+     * 
+     * @return true if the CPU is halted, false if not.
+     */
     public boolean isHalted() {
         return halt;
     }
 
+    /**
+     * Returns the number of CPU cycles left until the next instruction is executed.
+     * 
+     * @return The number of CPU cycles before the next instruction is fetched.
+     */
     public int getCyclesLeft() {
         return (int) this.cyclesLeft;
     }
     
+    /**
+     * Tests whether the CPU is currently burning cycles to handle an interrupt.
+     * 
+     * @return Whether the CPU is handling the interrupt right now.
+     */
     public boolean wasInterruptHandled() {
         return this.interruptHandled;
     }
 
+    /**
+     * Enables the checking for breakpoints.
+     */
     public void enableBreakpoints() {
         this.breakpointsEnabled = true;
     }
 
+    /**
+     * Disables the checking for breakpoints.
+     */
     public void disableBreakpoints() {
         this.breakpointsEnabled = false;
     }
     
+    /**
+     * Returns whether the CPU is paused.
+     * 
+     * @return true if the CPU is paused, false if not.
+     */
     public boolean isPaused() {
         return this.paused;
     }
+    
+    /**
+     * Pauses the execution of the CPU.
+     */
     public void pause() {
         this.paused = true;
         for (Hardware hw: this.devices) {
             hw.pause();
         }
     }
+    
+    /**
+     * Resumes the execution of the CPU.
+     */
     public void resume() {
         for (Hardware hw: this.devices) {
             hw.resume();

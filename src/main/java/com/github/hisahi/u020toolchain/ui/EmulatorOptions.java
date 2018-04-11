@@ -29,6 +29,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
+/**
+ * The main options window for the emulator. It is also responsible
+ * for saving the configuration when the user closes it.
+ * 
+ * @author hisahi
+ */
 public class EmulatorOptions {
     private EmulatorMain main;
     private Stage mainStage;
@@ -42,6 +48,11 @@ public class EmulatorOptions {
     private CheckBox unms001;
     private CheckBox unac810;
     
+    /**
+     * Initializes a new EmulatorOptions instance.
+     * 
+     * @param main The main window.
+     */
     public EmulatorOptions(EmulatorMain main) {
         this.main = main;
         initOptionsStage();
@@ -348,6 +359,9 @@ public class EmulatorOptions {
         return buttonhbox;
     }
     
+    /**
+     * Shows the options window.
+     */
     public void show() {
         if (mainStage.isShowing()) {
             mainStage.toFront();

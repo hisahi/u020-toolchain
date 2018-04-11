@@ -1,12 +1,20 @@
 
 package com.github.hisahi.u020toolchain.hardware; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.logic.ITickable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * Implements the UNTM200 peripheral that behaves as a
+ * high resolution timer for the machine, ticking at a specified
+ * rate given in CPU cycles.
+ * 
+ * @author hisahi
+ */
 public class UNTM200 extends Hardware implements ITickable {
     private boolean on;
     private long interval;
@@ -14,6 +22,11 @@ public class UNTM200 extends Hardware implements ITickable {
     private int counter;
     private int intmsg;
 
+    /**
+     * Initializes a new UNTM200 instance.
+     * 
+     * @param cpu The UCPU16 instance.
+     */
     public UNTM200(UCPU16 cpu) {
         super(cpu);
         this.reset();
@@ -36,11 +49,11 @@ public class UNTM200 extends Hardware implements ITickable {
 
     @Override
     public void hwi(UCPU16 cpu) {
-        switch (cpu.readRegister(UCPU16.REG_A)) {
+        switch (cpu.readRegister(Register.A)) {
             case 0: 
             {
-                int b = cpu.readRegister(UCPU16.REG_B);
-                int c = cpu.readRegister(UCPU16.REG_C);
+                int b = cpu.readRegister(Register.B);
+                int c = cpu.readRegister(Register.C);
                 if (b == 0 && c == 0) {
                     this.on = false;
                 } else {
@@ -52,15 +65,15 @@ public class UNTM200 extends Hardware implements ITickable {
                 break;
             }
             case 1:
-                cpu.writeRegister(UCPU16.REG_C, this.counter);
+                cpu.writeRegister(Register.C, this.counter);
                 this.counter = 0;
                 break;
             case 2: 
-                this.intmsg = cpu.readRegister(UCPU16.REG_B);
+                this.intmsg = cpu.readRegister(Register.B);
                 break;
             case 3:
-                cpu.writeRegister(UCPU16.REG_B, (int) (this.interval & 0xFFFF));
-                cpu.writeRegister(UCPU16.REG_C, (int) ((this.interval >> 16) & 0xFFFF));
+                cpu.writeRegister(Register.B, (int) (this.interval & 0xFFFF));
+                cpu.writeRegister(Register.C, (int) ((this.interval >> 16) & 0xFFFF));
                 break;
         }
     }

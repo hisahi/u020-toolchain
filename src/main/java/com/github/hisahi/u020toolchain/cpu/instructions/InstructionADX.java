@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 ADX instruction that adds two numbers and the
+ * value of EX. The bits that won't fit in the result are stored in EX.
+ * 
+ * @author hisahi
+ */
 public class InstructionADX implements IInstruction {
-
-    public InstructionADX() {
-    }
 
     @Override
     public int getCycles() {

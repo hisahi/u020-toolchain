@@ -18,4 +18,5 @@ _pyöristettynä lähimpään tasatuntimäärään_
 | 6.4.  | 2          | testit kääntäjille, lisätestejä laitteistolle, korjauksia |
 | 7.4.  | 1          | testit M35FD-levykeasemalle |
 | 8.4.  | 2          | testit UNCD321-näytölle |
+| 11.4. | 4          | javadocs, pieniä muutoksia |
 | _yht_ | TBD        |  |

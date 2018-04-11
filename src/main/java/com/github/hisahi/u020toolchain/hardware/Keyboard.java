@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.hardware; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,11 +10,26 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import javafx.scene.input.KeyCode;
 
+/**
+ * Implements the Generic Keyboard peripheral. Includes the logic
+ * used to decode keys from the JavaFX KeyCode format to the key codes
+ * used by the Univtek 020.
+ * 
+ * The keyboard is only optimized for the US keyboard layout.
+ * 
+ * @author hisahi
+ */
 public class Keyboard extends Hardware {
     private static final int KEY_QUEUE_SIZE = 32;
     private Queue<Integer> queue;
     private boolean[] keydown;
     private int intmsg;
+    
+    /**
+     * Initializes a new Keyboard instance.
+     * 
+     * @param cpu The UCPU16 instance. 
+     */
     public Keyboard(UCPU16 cpu) {
         super(cpu);
         this.reset();
@@ -36,25 +52,25 @@ public class Keyboard extends Hardware {
 
     @Override
     public void hwi(UCPU16 cpu) {
-        switch (cpu.readRegister(UCPU16.REG_A)) {
+        switch (cpu.readRegister(Register.A)) {
             case 0:
                 this.queue.clear();
                 break;
             case 1:
                 if (this.queue.isEmpty()) {
-                    cpu.writeRegister(UCPU16.REG_C, 0);
+                    cpu.writeRegister(Register.C, 0);
                 } else {
-                    cpu.writeRegister(UCPU16.REG_C, this.queue.poll());
+                    cpu.writeRegister(Register.C, this.queue.poll());
                 }
                 break;
             case 2: 
             {
-                int b = cpu.readRegister(UCPU16.REG_B);
-                cpu.writeRegister(UCPU16.REG_C, isKeyDown(b) ? 1 : 0);
+                int b = cpu.readRegister(Register.B);
+                cpu.writeRegister(Register.C, isKeyDown(b) ? 1 : 0);
                 break;
             }
             case 3: 
-                intmsg = cpu.readRegister(UCPU16.REG_B);
+                intmsg = cpu.readRegister(Register.B);
                 break;
             case 0x2739:
                 coldReset();
@@ -70,6 +86,12 @@ public class Keyboard extends Hardware {
     public void resume() {
     }
     
+    /**
+     * Tests whether a virtual keyboard key is down.
+     * 
+     * @param b     The internal key code to test.
+     * @return      Whether the requested key is down.
+     */
     public boolean isKeyDown(int b) {
         if (b >= 0x200) {
             return false;
@@ -77,7 +99,14 @@ public class Keyboard extends Hardware {
         return keydown[b];
     }
 
+    /**
+     * Presses a virtual keyboard key.
+     * 
+     * @param code  The internal key code of the key that is to be pressed down.
+     */
     public void keyDown(int code) {
+        // 0x2739 is a hardcoded keycode that triggers a cold reset
+        // (Ctrl + Univtek)
         if (code == 0x2739) {
             coldReset();
             return;
@@ -93,7 +122,14 @@ public class Keyboard extends Hardware {
         }
     }
 
+    /**
+     * Releases a virtual keyboard key.
+     * 
+     * @param code  The internal key code of the key that is to be released.
+     */
     public void keyUp(int code) {
+        // 0x2739 is a hardcoded keycode that triggers a cold reset
+        // (Ctrl + Univtek)
         if (code == 0x2739) {
             return;
         }
@@ -105,16 +141,36 @@ public class Keyboard extends Hardware {
         }
     }
     
+    /**
+     * Adds a keypress into the keyboard queue. This is used to feed
+     * input from pasted text.
+     * 
+     * @param code The key code to be added.
+     */
     public void addToKeyQueueFromPaste(int code) {
         if (this.queue.size() < 16384) {
             this.queue.add(code);
         }
     }
 
+    /**
+     * This function is to be called when a keyboard key is pressed.
+     * 
+     * @param code  The JavaFX KeyCode of the key that is to be pressed down.
+     * @param shift Whether the Shift modifier key is down.
+     * @param ctrl  Whether the Ctrl modifier key is down.
+     */
     public void keyDown(KeyCode code, boolean shift, boolean ctrl) {
         keyDown(convertKey(code, shift, ctrl));
     }
 
+    /**
+     * This function is to be called when a keyboard key is released.
+     * 
+     * @param code  The JavaFX KeyCode of the key that is to be released.
+     * @param shift Whether the Shift modifier key is down.
+     * @param ctrl  Whether the Ctrl modifier key is down.
+     */
     public void keyUp(KeyCode code, boolean shift, boolean ctrl) {
         keyUp(convertKey(code, shift, ctrl));
     }
@@ -197,6 +253,7 @@ public class Keyboard extends Hardware {
 
     @Override
     public void saveState(DataOutputStream stream) throws IOException {
+        // write the keyboard queue
         stream.writeInt(queue.size());
         for (int i: queue) {
             stream.writeInt(i);
@@ -205,6 +262,7 @@ public class Keyboard extends Hardware {
 
     @Override
     public void restoreState(DataInputStream stream) throws IOException {
+        // read the keyboard queue
         int count = stream.readInt();
         for (int i = 0; i < count; ++i) {
             queue.add(stream.readInt());

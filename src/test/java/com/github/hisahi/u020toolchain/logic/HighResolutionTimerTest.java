@@ -5,6 +5,12 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the HighResolutionTimer class used as the CPU clock
+ * for UCPU-16.
+ * 
+ * @author hisahi
+ */
 public class HighResolutionTimerTest {
     
     public HighResolutionTimerTest() {

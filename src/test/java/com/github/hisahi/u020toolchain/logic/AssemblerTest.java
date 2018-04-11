@@ -4,6 +4,11 @@ package com.github.hisahi.u020toolchain.logic;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the UCPU-16 assembler.
+ * 
+ * @author hisahi
+ */
 public class AssemblerTest {
     
     public AssemblerTest() {

@@ -36,6 +36,11 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+/**
+ * The main disassembler window for the emulator. 
+ * 
+ * @author hisahi
+ */
 public class EmulatorDisassembler {
     private EmulatorMain main;
     private Stage mainStage;
@@ -48,6 +53,11 @@ public class EmulatorDisassembler {
     private Tab resultTab;
     private List<AssemblyListing> listing;
     
+    /**
+     * Initializes a new EmulatorDisassembler instance.
+     * 
+     * @param main The main window.
+     */
     public EmulatorDisassembler(EmulatorMain main) {
         this.main = main;
         this.listing = null;
@@ -70,7 +80,7 @@ public class EmulatorDisassembler {
         mainStage.sizeToScene();
     }
     
-    public Tab createHexTab() {
+    private Tab createHexTab() {
         Tab tab = new Tab();
         tab.setText(I18n.format("disassembler.hex"));
         VBox vbox = new VBox(5);
@@ -170,7 +180,7 @@ public class EmulatorDisassembler {
         return tab;
     }
     
-    public Tab createSymbolTab() {
+    private Tab createSymbolTab() {
         Tab tab = new Tab();
         tab.setText(I18n.format("disassembler.symbol"));
         VBox vbox = new VBox(5);
@@ -207,7 +217,7 @@ public class EmulatorDisassembler {
         return tab;
     }
     
-    public Tab createCodeTab() {
+    private Tab createCodeTab() {
         Tab tab = new Tab();
         tab.setText(I18n.format("disassembler.code"));
         VBox vbox = new VBox(5);
@@ -250,13 +260,16 @@ public class EmulatorDisassembler {
         return tab;
     }
     
-    public String stripHex(String str) {
+    private String stripHex(String str) {
         if (str.startsWith("0x")) {
             return str.substring(2);
         }
         return str;
     }
     
+    /**
+     * Shows the disassembler window.
+     */
     public void show() {
         if (mainStage.isShowing()) {
             mainStage.toFront();

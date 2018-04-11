@@ -4,10 +4,12 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 DBG instruction that requests a debugger.
+ * 
+ * @author hisahi
+ */
 public class InstructionDBG implements IInstruction {
-
-    public InstructionDBG() {
-    }
 
     @Override
     public int getCycles() {

@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 XOR instruction that performs bitwise XOR
+ * on two numbers.
+ * 
+ * @author hisahi
+ */
 public class InstructionXOR implements IInstruction {
-
-    public InstructionXOR() {
-    }
 
     @Override
     public int getCycles() {

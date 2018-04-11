@@ -14,12 +14,34 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Disassembles machine code back into a symbolic assembly form.
+ * 
+ * @author hisahi
+ */
 public class Disassembler {
+    
+    /**
+     * Disassembles a single instruction.
+     * 
+     * @param memory The memory from which to fetch instruction data.
+     * @param pos    The address of the instruction to disassemble.
+     * @return       A list of instruction listings.
+     */
     public static List<AssemblyListing> disassembleOneInstruction(int[] memory, int pos) {
         List<AssemblyListing> l = new ArrayList<>();
         l.addAll(disassembleInstruction(memory, pos, null, null));
         return l;
     }
+    
+    /**
+     * Disassembles all instructions within a certain range.
+     * 
+     * @param memory The memory from which to fetch instruction data.
+     * @param start  The start of the range of addresses of the instructions to disassemble.
+     * @param end    The end of the range of addresses of the instructions to disassemble. Note that end is the first address to not be included in the range.
+     * @return       A list of instruction listings.
+     */
     public static List<AssemblyListing> disassembleInRange(int[] memory, int start, int end) {
         List<AssemblyListing> l = new ArrayList<>();
         while (start < end) {
@@ -28,6 +50,18 @@ public class Disassembler {
         }
         return l;
     }
+    
+    
+    /**
+     * Disassembles all instructions within a certain range with the given labels and data areas.
+     * 
+     * @param memory      The memory from which to fetch instruction data.
+     * @param start       The start of the range of addresses of the instructions to disassemble.
+     * @param end         The end of the range of addresses of the instructions to disassemble. Note that end is the first address to not be included in the range.
+     * @param labels      A map of labels as given by {@link SymbolTableParser#parse}.
+     * @param dataAreas   The data areas as given by {@link SymbolTableParser#parse}.
+     * @return            A list of instruction listings.
+     */
     public static List<AssemblyListing> disassemble(int[] memory, int start, int end, Map<Integer, List<String>> labels, int[] dataAreas) {
         List<AssemblyListing> l = new ArrayList<>();
         int pos = start;
@@ -63,9 +97,23 @@ public class Disassembler {
         }
         return l;
     }
+    
+    /**
+     * Formats an instruction listing.
+     * 
+     * @param listing A single instruction as an AssemblyListing.
+     * @return        The formatted listing.
+     */
     public static String listingToString(AssemblyListing listing) {
         return listing.formatted();
     }
+    
+    /**
+     * Formats instruction listings.
+     * 
+     * @param listing A list of instructions as AssemblyListing instances.
+     * @return        The formatted listing.
+     */
     public static String listingToString(List<AssemblyListing> listing) {
         StringBuilder sb = new StringBuilder(".");
         for (AssemblyListing l: listing) {
@@ -74,6 +122,7 @@ public class Disassembler {
         }
         return sb.toString().trim().substring(1);
     }
+    
     private static List<AssemblyListing> disassembleInstruction(int[] memory, int pos, Map<Integer, List<String>> labels, int[] dataAreas) {
         ArrayList<AssemblyListing> ls = new ArrayList<>();
         int opos = pos;
@@ -186,6 +235,7 @@ public class Disassembler {
         }
         return ls;
     }
+    
     private static int[] copyOfRangeWithWraparound(int[] memory, int a, int b) {
         int l = (b - a);
         int[] res = new int[l];

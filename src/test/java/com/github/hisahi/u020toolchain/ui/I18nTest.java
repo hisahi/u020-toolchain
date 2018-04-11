@@ -4,6 +4,11 @@ package com.github.hisahi.u020toolchain.ui;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the I18n class handling language files and localization.
+ * 
+ * @author hisahi
+ */
 public class I18nTest {
     
     public I18nTest() {

@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 MDI instruction that computes the remainder
+ * of the division of two signed numbers.
+ * 
+ * @author hisahi
+ */
 public class InstructionMDI implements IInstruction {
-
-    public InstructionMDI() {
-    }
 
     @Override
     public int getCycles() {

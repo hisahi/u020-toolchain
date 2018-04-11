@@ -3,6 +3,12 @@ package com.github.hisahi.u020toolchain.hardware;
 
 import com.github.hisahi.u020toolchain.hardware.UNCD321;
 
+/**
+ * A helper class for handling sprites on the UNCD321. This is primarily
+ * used by testing code.
+ * 
+ * @author hisahi
+ */
 public class UNCD321Sprites {
     static void enableSprite(UNCD321 disp, int sprite) {
         disp.cpu.getMemory().array()[disp.memsprite + sprite * 16] = 0xFFFF;

@@ -37,10 +37,21 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+/**
+ * The main window for the emulator. 
+ * 
+ * @author hisahi
+ */
 public class EmulatorMain extends Application {
 
     public static final String VERSION = "v0.4";
     public static final int CPU_HZ = 2000000;
+    
+    /**
+     * The main function.
+     * 
+     * @param args Command-line arguments.
+     */
     public static void main(String[] args) {
         launch(args);
     }
@@ -130,6 +141,11 @@ public class EmulatorMain extends Application {
         stage.show();
     }
     
+    /**
+     * Displays the debugger window.
+     * 
+     * @param reason The cause to trigger the debugger (invalid instruction?)
+     */
     public void showDebugger(String reason) {
         Platform.runLater(new Runnable() {
             @Override
@@ -152,6 +168,11 @@ public class EmulatorMain extends Application {
         return menuBar;
     }
 
+    /**
+     * Updates the state of whether the text can be copied from the screen.
+     * 
+     * @param b Whether text can be copied.
+     */
     public void setCanCopy(boolean b) {
         menuEdit.copy.setDisable(!b);
     }
@@ -162,6 +183,9 @@ public class EmulatorMain extends Application {
         mainStage.sizeToScene();
     }
 
+    /**
+     * Clears the display.
+     */
     public void clearScreen() {
         ctx.setFill(Color.BLACK);
         ctx.fillRect(0, 0, 256, 192);
@@ -172,6 +196,15 @@ public class EmulatorMain extends Application {
         System.exit(0);
     }
     
+    /**
+     * Reloads the devices when a CPU save state is restored.
+     * 
+     * @param monitor  The loaded UNCD321 instance.
+     * @param keyboard The loaded Keyboard instance.
+     * @param memory   The loaded UNEM192 instance.
+     * @param clock    The loaded Clock instance.
+     * @param untm200  The loaded UNTM200 instance.
+     */
     public void loadDevicesFromState(UNCD321 monitor, Keyboard keyboard, UNEM192 memory, Clock clock, UNTM200 untm200) {
         this.uncd321 = monitor;
         this.keyboard = keyboard;
@@ -266,6 +299,9 @@ public class EmulatorMain extends Application {
         this.cpu.setClock(cpuclock);
     }
 
+    /**
+     * Plug the fundamental devices into the current UCPU16 instance.
+     */
     public void initDevices() {
         cpu.addDevice(this.uncd321 = new UNCD321(cpu, this));
         cpu.addDevice(this.keyboard = new Keyboard(cpu));
@@ -274,6 +310,12 @@ public class EmulatorMain extends Application {
         cpu.addDevice(this.untm200 = new UNTM200(cpu));
     }
 
+    /**
+     * Plug the fundamental devices into the given UCPU16 instance when an
+     * EmulatorMain instance isn't available.
+     * 
+     * @param cpu The UCPU16 instance.
+     */
     public static void initDevicesForTesting(UCPU16 cpu) {
         cpu.addDevice(new UNCD321(cpu, null));
         cpu.addDevice(new Keyboard(cpu));
@@ -319,8 +361,14 @@ public class EmulatorMain extends Application {
         quicksave = j;
     }
 
+    /**
+     * Writes the contents of the floppy drive back into the file inserted into it.
+     * 
+     * @param drive   The drive to load the data from.
+     * @param driveno The drive number.
+     */
     public void writeBack(M35FD drive, int driveno) {
-        
+        /// TODO
     }
 
     void showOptions() {
@@ -370,6 +418,9 @@ public class EmulatorMain extends Application {
         return Font.font("Monospaced");
     }
 
+    /**
+     * Reloads the configuration.
+     */
     public void reloadConfig() {
         options.reloadConfig();
     }

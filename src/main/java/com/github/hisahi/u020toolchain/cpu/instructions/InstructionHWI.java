@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 HWI instruction that sends an interrupt
+ * to connected hardware.
+ * 
+ * @author hisahi
+ */
 public class InstructionHWI implements IInstruction {
-
-    public InstructionHWI() {
-    }
 
     @Override
     public int getCycles() {

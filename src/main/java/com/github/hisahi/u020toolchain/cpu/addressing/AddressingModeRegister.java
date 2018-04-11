@@ -1,12 +1,26 @@
 
 package com.github.hisahi.u020toolchain.cpu.addressing; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 
+/**
+ * Implements the UCPU-16 register addressing mode, in which the accesses
+ * are targeted at one of the main eight UCPU-16 registers (A, B, C, X, 
+ * Y, Z, I or J).
+ * 
+ * @author hisahi
+ */
 public class AddressingModeRegister implements IAddressingMode {
-    private int reg;
-    public AddressingModeRegister(int i) {
-        this.reg = i;
+    private Register reg;
+    
+    /**
+     * Initializes a new AddressingModeRegister instance.
+     * 
+     * @param reg The register this literal addressing mode represents.
+     */
+    public AddressingModeRegister(Register reg) {
+        this.reg = reg;
     }
 
     @Override
@@ -31,6 +45,6 @@ public class AddressingModeRegister implements IAddressingMode {
 
     @Override
     public String format(boolean isB, int val, String label) {
-        return String.valueOf("ABCXYZIJ".charAt(reg));
+        return String.valueOf("ABCXYZIJ".charAt(reg.ordinal()));
     }
 }

@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.hardware; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.logic.ITickable;
 import java.io.DataInputStream;
@@ -14,6 +15,13 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
+/**
+ * Implements the UNAC810 peripheral that allows playing audio
+ * in PCM format through a speaker. The audio is 8-bit mono with
+ * a 10000 Hz sample rate.
+ * 
+ * @author hisahi
+ */
 public class UNAC810 extends Hardware implements ITickable { 
     private SourceDataLine sdl;
     private double volume;
@@ -25,6 +33,11 @@ public class UNAC810 extends Hardware implements ITickable {
     private byte[] buffer;
     private int bufptr;
 
+    /**
+     * Initializes a new UNAC810 instance.
+     * 
+     * @param cpu The UCPU16 instance.
+     */
     public UNAC810(UCPU16 cpu) {
         super(cpu);
         this.buffer = new byte[200];
@@ -32,6 +45,11 @@ public class UNAC810 extends Hardware implements ITickable {
         this.reset();
     }
     
+    /**
+     * Sets the playback volume.
+     * 
+     * @param vol The new volume as a number between 0.0 and 1.0 (inclusive).
+     */
     public void setVolume(double vol) {
         this.volume = vol;
         if (sdl.isControlSupported(FloatControl.Type.VOLUME)) {
@@ -67,15 +85,15 @@ public class UNAC810 extends Hardware implements ITickable {
         if (this.sdl == null) {
             return;
         }
-        switch (cpu.readRegister(UCPU16.REG_A)) {
+        switch (cpu.readRegister(Register.A)) {
             case 0:
-                on = cpu.readRegister(UCPU16.REG_B) != 0;
+                on = cpu.readRegister(Register.B) != 0;
                 if (!on && sdl.isRunning()) {
                     sdl.stop();
                 }
                 break;
             case 1: {
-                int b = cpu.readRegister(UCPU16.REG_B) & 0xFF;
+                int b = cpu.readRegister(Register.B) & 0xFF;
                 sample = (b | (b << 8)) ^ 0x8000;
                 break;
             }

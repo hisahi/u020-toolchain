@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.hardware;
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import java.util.Arrays;
@@ -9,6 +10,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the implementation of the UNCD321 peripheral.
+ * 
+ * @author hisahi
+ */
 public class UNCD321Test {
     UNCD321 disp;
     DummyPixelWriter ipw;
@@ -36,10 +42,10 @@ public class UNCD321Test {
     }
     
     private int hwi(int a, int b) {
-        disp.cpu.writeRegister(UCPU16.REG_A, a);
-        disp.cpu.writeRegister(UCPU16.REG_B, b);
+        disp.cpu.writeRegister(Register.A, a);
+        disp.cpu.writeRegister(Register.B, b);
         disp.hwi(disp.cpu);
-        return disp.cpu.readRegister(UCPU16.REG_C);
+        return disp.cpu.readRegister(Register.C);
     }
     
     @Test

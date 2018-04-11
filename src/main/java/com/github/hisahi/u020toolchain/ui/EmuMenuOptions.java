@@ -6,10 +6,20 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 
+/**
+ * The Options menu for the emulator UI.
+ * 
+ * @author hisahi
+ */
 public class EmuMenuOptions extends EmuMenu {
 
     MenuItem options;
             
+    /**
+     * Initializes a new EmuMenuOptions instance.
+     * 
+     * @param main The main window.
+     */
     public EmuMenuOptions(EmulatorMain main) {
         super(main);
         this.options = new MenuItem(I18n.format("menu.options.options"));

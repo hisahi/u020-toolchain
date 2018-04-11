@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 AND instruction that performs bitwise AND
+ * on two numbers.
+ * 
+ * @author hisahi
+ */
 public class InstructionAND implements IInstruction {
-
-    public InstructionAND() {
-    }
 
     @Override
     public int getCycles() {

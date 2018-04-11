@@ -12,6 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the UCPU-16 CPU.
+ * 
+ * @author hisahi
+ */
 public class UCPU16Test {
     
     private UCPU16 cpu;
@@ -27,7 +32,7 @@ public class UCPU16Test {
     public void initialStateTest() {
         cpu.reset();
         for (int i = 0; i < 8; ++i) {
-            assertEquals(0, cpu.readRegister(i));
+            assertEquals(0, cpu.readRegister(Register.values()[i]));
         }
         assertEquals(0, cpu.getPC());
         assertEquals(0, cpu.getSP());
@@ -56,7 +61,7 @@ public class UCPU16Test {
     
     @Test
     public void interruptQueueTestIaNonzero() {
-        cpu.writeRegister(UCPU16.REG_A, 0);
+        cpu.writeRegister(Register.A, 0);
         int r = (int) (Math.random() * 65536);
         cpu.setIA(1);
         cpu.queueInterrupts = false;
@@ -66,7 +71,7 @@ public class UCPU16Test {
     
     @Test
     public void interruptQueueTestIaZero() {
-        cpu.writeRegister(UCPU16.REG_A, 0);
+        cpu.writeRegister(Register.A, 0);
         int r = (int) (Math.random() * 65536);
         cpu.setIA(0);
         cpu.queueInterrupts = false;
@@ -77,7 +82,7 @@ public class UCPU16Test {
     @Test
     public void interruptHandleIaNonzeroTest() {
         int r = (int) (Math.random() * 65536);
-        cpu.writeRegister(UCPU16.REG_A, 0);
+        cpu.writeRegister(Register.A, 0);
         cpu.setIA(1);
         cpu.queueInterrupts = false;
         cpu.queueInterrupt(r);
@@ -85,14 +90,14 @@ public class UCPU16Test {
             cpu.tick();
         }
         cpu.tick();
-        assertEquals("interrupt message not written to A", r, cpu.readRegister(UCPU16.REG_A));
+        assertEquals("interrupt message not written to A", r, cpu.readRegister(Register.A));
         assertTrue("interrupt queueing was not enabled", cpu.queueInterrupts);
     }
     
     @Test
     public void interruptHandleIaZeroTest() {
         int r = (int) (Math.random() * 65536);
-        cpu.writeRegister(UCPU16.REG_A, 0);
+        cpu.writeRegister(Register.A, 0);
         cpu.reset();
         cpu.setIA(0);
         cpu.queueInterrupts = false;
@@ -101,7 +106,7 @@ public class UCPU16Test {
             cpu.tick();
         }
         cpu.tick();
-        assertEquals("interrupt should not be handled as IA = 0", 0, cpu.readRegister(UCPU16.REG_A));
+        assertEquals("interrupt should not be handled as IA = 0", 0, cpu.readRegister(Register.A));
     }
     
     @Test

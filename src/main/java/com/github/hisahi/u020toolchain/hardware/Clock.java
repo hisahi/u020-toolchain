@@ -1,12 +1,19 @@
 
 package com.github.hisahi.u020toolchain.hardware; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.logic.ITickable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * Implements the Generic Clock peripheral that ticks and possibly
+ * triggers interrupts on the CPU on a specified interval.
+ * 
+ * @author hisahi
+ */
 public class Clock extends Hardware implements ITickable {
     
     private boolean on;
@@ -16,6 +23,11 @@ public class Clock extends Hardware implements ITickable {
     private int intmsg;
     private boolean offset;
 
+    /**
+     * Initializes a new Clock instance.
+     * 
+     * @param cpu The UCPU16 instance.
+     */
     public Clock(UCPU16 cpu) {
         super(cpu);
         this.reset();
@@ -38,10 +50,10 @@ public class Clock extends Hardware implements ITickable {
 
     @Override
     public void hwi(UCPU16 cpu) {
-        switch (cpu.readRegister(UCPU16.REG_A)) {
+        switch (cpu.readRegister(Register.A)) {
             case 0: 
             {
-                int b = cpu.readRegister(UCPU16.REG_B);
+                int b = cpu.readRegister(Register.B);
                 if (b == 0) {
                     this.on = false;
                 } else {
@@ -53,11 +65,11 @@ public class Clock extends Hardware implements ITickable {
                 break;
             }
             case 1:
-                cpu.writeRegister(UCPU16.REG_C, this.counter);
+                cpu.writeRegister(Register.C, this.counter);
                 this.counter = 0;
                 break;
             case 2: 
-                this.intmsg = cpu.readRegister(UCPU16.REG_B);
+                this.intmsg = cpu.readRegister(Register.B);
                 break;
         }
     }

@@ -16,11 +16,21 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
+/**
+ * The Help menu for the emulator UI.
+ * 
+ * @author hisahi
+ */
 public class EmuMenuHelp extends EmuMenu {
 
     MenuItem onlineHelp;
     MenuItem about;
-            
+           
+    /**
+     * Initializes a new EmuMenuHelp instance.
+     * 
+     * @param main The main window.
+     */ 
     public EmuMenuHelp(EmulatorMain main) {
         super(main);
         this.onlineHelp = new MenuItem(I18n.format("menu.help.online"));

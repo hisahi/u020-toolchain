@@ -25,6 +25,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.stage.FileChooser;
 
+/**
+ * The Run menu for the emulator UI.
+ * 
+ * @author hisahi
+ */
 public class EmuMenuRun extends EmuMenu {
 
     private static final String QUICK_SAVE_FILE = "state.us";
@@ -36,6 +41,11 @@ public class EmuMenuRun extends EmuMenu {
     MenuItem saveStateQuick;
     MenuItem loadStateQuick;
             
+    /**
+     * Initializes a new EmuMenuRun instance.
+     * 
+     * @param main The main window.
+     */
     public EmuMenuRun(EmulatorMain main) {
         super(main);
         this.pause = new MenuItem(I18n.format("menu.run.pause"));
@@ -70,6 +80,12 @@ public class EmuMenuRun extends EmuMenu {
         return menu;
     }
     
+    /**
+     * Updates the current selected quick save state. This changes the
+     * state of check boxes under the menu.
+     * 
+     * @param state The new selected quick state.
+     */
     public void updateQuickSavestate(int state) {
         for (int i = 0; i < 10; ++i) {
             ((CheckMenuItem) this.stateQuick.getItems().get(i)).setSelected(i == state);

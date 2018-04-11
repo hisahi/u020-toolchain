@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 MLI instruction that multiplies two signed
+ * numbers. The bits that won't fit in the result are stored in EX.
+ * 
+ * @author hisahi
+ */
 public class InstructionMLI implements IInstruction {
-
-    public InstructionMLI() {
-    }
 
     @Override
     public int getCycles() {

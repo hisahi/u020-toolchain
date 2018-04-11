@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 BOR instruction that performs bitwise OR
+ * on two numbers.
+ * 
+ * @author hisahi
+ */
 public class InstructionBOR implements IInstruction {
-
-    public InstructionBOR() {
-    }
 
     @Override
     public int getCycles() {

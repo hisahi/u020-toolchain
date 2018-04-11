@@ -1,7 +1,12 @@
 
 package com.github.hisahi.u020toolchain.logic; 
 
-class AddressingModeParser {
+/**
+ * Parses the parameters for instructions to be assembled.
+ * 
+ * @author hisahi
+ */
+public class AddressingModeParser {
     static InstructionAddressingMode parseA(int lineno, String string) {
         return parse(lineno, string, true);
     }

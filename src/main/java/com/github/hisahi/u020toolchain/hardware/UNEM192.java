@@ -1,13 +1,20 @@
 
 package com.github.hisahi.u020toolchain.hardware; 
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * 192 KB extra memory module
+ * Implements the UNEM192 peripheral that adds additional
+ * 192 kilowords of memory into the computer. This brings the
+ * total amount of memory up to 256 kilowords, of which 64
+ * are accessible at any given time. The rest can be accessed
+ * through a bank switching scheme.
+ * 
+ * @author hisahi
  */
 public class UNEM192 extends Hardware {
     private final static int MEMORY_SIZE = 65536;
@@ -17,6 +24,11 @@ public class UNEM192 extends Hardware {
     int[] mem3;
     int[] banks;
 
+    /**
+     * Initializes a new UNEM192 instance.
+     * 
+     * @param cpu The UCPU16 instance.
+     */
     public UNEM192(UCPU16 cpu) {
         super(cpu);
         this.reset();
@@ -39,20 +51,20 @@ public class UNEM192 extends Hardware {
 
     @Override
     public void hwi(UCPU16 cpu) {
-        switch (cpu.readRegister(UCPU16.REG_A)) {
+        switch (cpu.readRegister(Register.A)) {
             case 0: 
             {
                 int res = 0;
                 for (int i = 0; i < 16; ++i) {
                     res |= (banks[i] & 1) << i;
                 }
-                cpu.writeRegister(UCPU16.REG_B, res);
+                cpu.writeRegister(Register.B, res);
                 break;
             }
             case 1: 
             {   
                 writeBack();
-                int b = cpu.readRegister(UCPU16.REG_B);
+                int b = cpu.readRegister(Register.B);
                 for (int i = 0; i < 16; ++i) {
                     if (((b >> i) & 1) != 0) {
                         banks[i] |= 1; 
@@ -69,13 +81,13 @@ public class UNEM192 extends Hardware {
                 for (int i = 0; i < 16; ++i) {
                     res |= ((banks[i] >> 1) & 1) << i;
                 }
-                cpu.writeRegister(UCPU16.REG_B, res);
+                cpu.writeRegister(Register.B, res);
                 break;
             }
             case 3: 
             {
                 writeBack();
-                int b = cpu.readRegister(UCPU16.REG_B);
+                int b = cpu.readRegister(Register.B);
                 for (int i = 0; i < 16; ++i) {
                     if (((b >> i) & 1) != 0) {
                         banks[i] |= 2;
@@ -88,23 +100,23 @@ public class UNEM192 extends Hardware {
             }
             case 4: 
             {
-                int b = cpu.readRegister(UCPU16.REG_B) & 3;
-                int i = cpu.readRegister(UCPU16.REG_I);
+                int b = cpu.readRegister(Register.B) & 3;
+                int i = cpu.readRegister(Register.I);
                 if (b == banks[(i >> 12)]) {
-                    cpu.writeRegister(UCPU16.REG_X, cpu.getMemory().read(i));
+                    cpu.writeRegister(Register.X, cpu.getMemory().read(i));
                 } else {
                     switch (b) {
                         case 0:
-                            cpu.writeRegister(UCPU16.REG_X, mem0[i]);
+                            cpu.writeRegister(Register.X, mem0[i]);
                             break;
                         case 1:
-                            cpu.writeRegister(UCPU16.REG_X, mem1[i]);
+                            cpu.writeRegister(Register.X, mem1[i]);
                             break;
                         case 2:
-                            cpu.writeRegister(UCPU16.REG_X, mem2[i]);
+                            cpu.writeRegister(Register.X, mem2[i]);
                             break;
                         case 3:
-                            cpu.writeRegister(UCPU16.REG_X, mem3[i]);
+                            cpu.writeRegister(Register.X, mem3[i]);
                             break;
                     }
                 }
@@ -112,23 +124,23 @@ public class UNEM192 extends Hardware {
             }
             case 5: 
             {
-                int b = cpu.readRegister(UCPU16.REG_B) & 3;
-                int i = cpu.readRegister(UCPU16.REG_I);
+                int b = cpu.readRegister(Register.B) & 3;
+                int i = cpu.readRegister(Register.I);
                 if (b == banks[(i >> 12)]) {
-                    cpu.getMemory().write(i, cpu.readRegister(UCPU16.REG_X));
+                    cpu.getMemory().write(i, cpu.readRegister(Register.X));
                 } else {
                     switch (b) {
                         case 0:
-                            mem0[i] = cpu.readRegister(UCPU16.REG_X);
+                            mem0[i] = cpu.readRegister(Register.X);
                             break;
                         case 1:
-                            mem1[i] = cpu.readRegister(UCPU16.REG_X);
+                            mem1[i] = cpu.readRegister(Register.X);
                             break;
                         case 2:
-                            mem2[i] = cpu.readRegister(UCPU16.REG_X);
+                            mem2[i] = cpu.readRegister(Register.X);
                             break;
                         case 3:
-                            mem3[i] = cpu.readRegister(UCPU16.REG_X);
+                            mem3[i] = cpu.readRegister(Register.X);
                             break;
                     }
                 }

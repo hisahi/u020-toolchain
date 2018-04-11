@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 DIV instruction that divides two unsigned
+ * numbers. Fractional bits are stored in EX.
+ * 
+ * @author hisahi
+ */
 public class InstructionDIV implements IInstruction {
-
-    public InstructionDIV() {
-    }
 
     @Override
     public int getCycles() {

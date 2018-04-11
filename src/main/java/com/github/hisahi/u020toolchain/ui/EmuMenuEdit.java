@@ -14,13 +14,23 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
+/**
+ * The Edit menu for the emulator UI.
+ * 
+ * @author hisahi
+ */
 public class EmuMenuEdit extends EmuMenu {
 
     MenuItem copy;
     MenuItem paste;
     MenuItem assembler;
     MenuItem disassembler;
-            
+        
+    /**
+     * Initializes a new EmuMenuEdit instance.
+     * 
+     * @param main The main window.
+     */    
     public EmuMenuEdit(EmulatorMain main) {
         super(main);
         this.copy = new MenuItem(I18n.format("menu.edit.copy"));

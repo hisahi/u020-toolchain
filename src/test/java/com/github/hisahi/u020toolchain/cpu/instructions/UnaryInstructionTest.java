@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.cpu.instructions;
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.hardware.Hardware;
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
@@ -11,6 +12,12 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Unit tests for the UCPU-16 unary instructions (instructions that
+ * take one parameter).
+ * 
+ * @author hisahi
+ */
 public class UnaryInstructionTest {
     
     public static UCPU16 cpu;
@@ -23,9 +30,9 @@ public class UnaryInstructionTest {
     }
 
     public static int executeWithA(IInstruction instr, int a) {
-        cpu.writeRegister(0, a);
+        cpu.writeRegister(Register.A, a);
         instr.execute(cpu, AddressingMode.REG_A, AddressingMode.NW, 0, 0);
-        return cpu.readRegister(0);
+        return cpu.readRegister(Register.A);
     }
     
     public static int randomWord() {
@@ -92,7 +99,7 @@ public class UnaryInstructionTest {
     public void testIASDoesNotModifyTarget() {
         int r1 = randomWord();
         executeWithA(Instruction.IAS, r1);
-        assertEquals("IAS modifies the register which it shouldn't", cpu.readRegister(0), r1);
+        assertEquals("IAS modifies the register which it shouldn't", cpu.readRegister(Register.A), r1);
     }
 
     @Test
@@ -122,7 +129,7 @@ public class UnaryInstructionTest {
         cpu.stackPush(oldpc);
         cpu.stackPush(olda);
         executeWithA(Instruction.RFI, 0);
-        assertEquals("RFI does not pop A correctly", olda, cpu.readRegister(0));
+        assertEquals("RFI does not pop A correctly", olda, cpu.readRegister(Register.A));
     }
 
     @Test
@@ -159,11 +166,11 @@ public class UnaryInstructionTest {
         DummyHardware hw = new DummyHardware(cpu);
         cpu.addDevice(hw);
         executeWithA(Instruction.HWQ, 0);
-        assertEquals("HWQ fails to set register A", 0x0000, cpu.readRegister(0));
-        assertEquals("HWQ fails to set register B", 0x1111, cpu.readRegister(1));
-        assertEquals("HWQ fails to set register C", 0x2222, cpu.readRegister(2));
-        assertEquals("HWQ fails to set register X", 0x3333, cpu.readRegister(3));
-        assertEquals("HWQ fails to set register Y", 0x4444, cpu.readRegister(4));
+        assertEquals("HWQ fails to set register A", 0x0000, cpu.readRegister(Register.A));
+        assertEquals("HWQ fails to set register B", 0x1111, cpu.readRegister(Register.B));
+        assertEquals("HWQ fails to set register C", 0x2222, cpu.readRegister(Register.C));
+        assertEquals("HWQ fails to set register X", 0x3333, cpu.readRegister(Register.X));
+        assertEquals("HWQ fails to set register Y", 0x4444, cpu.readRegister(Register.Y));
     }
 
     @Test

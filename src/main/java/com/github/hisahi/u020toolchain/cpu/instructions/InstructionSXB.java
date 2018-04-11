@@ -4,10 +4,13 @@ package com.github.hisahi.u020toolchain.cpu.instructions;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import com.github.hisahi.u020toolchain.cpu.addressing.IAddressingMode;
 
+/**
+ * Implements the UCPU-16 SXB instruction that sign-extends the low
+ * byte of a word to the word.
+ * 
+ * @author hisahi
+ */
 public class InstructionSXB implements IInstruction {
-
-    public InstructionSXB() {
-    }
 
     @Override
     public int getCycles() {

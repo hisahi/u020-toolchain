@@ -1,6 +1,7 @@
 
 package com.github.hisahi.u020toolchain.hardware;
 
+import com.github.hisahi.u020toolchain.cpu.Register;
 import com.github.hisahi.u020toolchain.cpu.StandardMemory;
 import com.github.hisahi.u020toolchain.cpu.UCPU16;
 import java.io.ByteArrayInputStream;
@@ -23,6 +24,25 @@ public class KeyboardTest {
     Keyboard kb;
     
     public KeyboardTest() {
+    }
+    
+    public boolean matchesKeyCode(int expected, KeyCode code, boolean shift, boolean ctrl) {
+        kb.keyDown(code, shift, ctrl);
+        boolean ok = kb.isKeyDown(expected);
+        kb.keyUp(code, shift, ctrl);
+        return ok;
+    }
+    
+    public int hwiABtoC(int a, int b) {
+        kb.cpu.writeRegister(Register.A, a);
+        kb.cpu.writeRegister(Register.B, b);
+        kb.hwi(kb.cpu);
+        return kb.cpu.readRegister(Register.C);
+    }
+    
+    public void keyPress(KeyCode code, boolean shift, boolean ctrl) {
+        kb.keyDown(code, shift, ctrl);
+        kb.keyUp(code, shift, ctrl);
     }
     
     @Before
@@ -82,13 +102,6 @@ public class KeyboardTest {
         assertEquals("keyboard queue should be limited to 32 keys", 32, c);
         bais.close();
     }
-    
-    public boolean matchesKeyCode(int expected, KeyCode code, boolean shift, boolean ctrl) {
-        kb.keyDown(code, shift, ctrl);
-        boolean ok = kb.isKeyDown(expected);
-        kb.keyUp(code, shift, ctrl);
-        return ok;
-    }
 
     @Test
     public void shiftResultsInLowercaseTest() throws IOException {
@@ -112,5 +125,48 @@ public class KeyboardTest {
         assertTrue(matchesKeyCode(0x190, SHIFT, false, false));
         assertTrue(matchesKeyCode(0x191, CONTROL, false, false));
         assertTrue(matchesKeyCode(0x192, HOME, false, false));
+    }
+    
+    @Test
+    public void ctrlUnivtekResetsCPU() {
+        kb.cpu.writeRegister(Register.A, 3);
+        kb.keyDown(HOME, false, true);
+        kb.keyUp(HOME, false, true);
+        assertEquals(0, kb.cpu.readRegister(Register.A));
+    }
+    
+    @Test
+    public void hwi1ChecksQueueEmptyTest() {
+        assertEquals(0, hwiABtoC(1, 0));
+    }
+    
+    @Test
+    public void hwi1ChecksQueueNotEmptyTest() {
+        keyPress(A, false, false);
+        assertEquals(0x41, hwiABtoC(1, 0));
+    }
+    
+    @Test
+    public void hwi0ClearsTestTest() {
+        keyPress(A, false, false);
+        keyPress(A, false, false);
+        keyPress(A, false, false);
+        assertEquals(0x41, hwiABtoC(1, 0));
+        hwiABtoC(0, 0);
+        assertEquals(0, hwiABtoC(1, 0));
+    }
+    
+    @Test
+    public void hwi2KeyDownTest() {
+        kb.keyDown(A, false, false);
+        assertEquals(1, hwiABtoC(2, 0x41));
+        kb.keyUp(A, false, false);
+    }
+    
+    @Test
+    public void hwi2KeyUpTest() {
+        kb.keyDown(A, false, false);
+        kb.keyUp(A, false, false);
+        assertEquals(0, hwiABtoC(2, 0x41));
     }
 }

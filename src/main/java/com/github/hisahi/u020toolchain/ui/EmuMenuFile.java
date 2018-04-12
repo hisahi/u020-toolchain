@@ -244,6 +244,12 @@ public class EmuMenuFile extends EmuMenu {
                 for (int i = 0; i < data.length; ++i) {
                     data[i] = (unsign(img[i << 1]) << 8) | unsign(img[(i << 1) + 1]);
                 }
+                drive.eject();
+                if (drive.getDriveId() == 0) {
+                    main.floppy0 = file;
+                } else if (drive.getDriveId() == 1) {
+                    main.floppy1 = file;
+                }
                 drive.insert(data);
             } catch (IOException ex) {
                 Logger.getLogger(EmuMenuFile.class.getName()).log(Level.SEVERE, null, ex);

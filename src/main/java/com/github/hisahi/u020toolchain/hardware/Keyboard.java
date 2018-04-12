@@ -130,6 +130,7 @@ public class Keyboard extends Hardware {
     public void keyUp(int code) {
         // 0x2739 is a hardcoded keycode that triggers a cold reset
         // (Ctrl + Univtek)
+        // we already reset on keyDown so just return here
         if (code == 0x2739) {
             return;
         }

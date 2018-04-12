@@ -15,6 +15,11 @@ import com.github.hisahi.u020toolchain.hardware.UNEM192;
 import com.github.hisahi.u020toolchain.hardware.UNMS001;
 import com.github.hisahi.u020toolchain.hardware.UNTM200;
 import com.github.hisahi.u020toolchain.logic.HighResolutionTimer;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
@@ -27,6 +32,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.input.KeyEvent;
@@ -44,7 +51,7 @@ import javafx.stage.WindowEvent;
  */
 public class EmulatorMain extends Application {
 
-    public static final String VERSION = "v0.4";
+    public static final String VERSION = "v0.5";
     public static final int CPU_HZ = 2000000;
     
     /**
@@ -80,6 +87,8 @@ public class EmulatorMain extends Application {
     EmuMenuRun menuRun;
     EmuMenuOptions menuOptions;
     EmuMenuHelp menuHelp;
+    File floppy0;
+    File floppy1;
     int quickState;
     long animationTimer;
     boolean shouldHideCursor;
@@ -365,10 +374,26 @@ public class EmulatorMain extends Application {
      * Writes the contents of the floppy drive back into the file inserted into it.
      * 
      * @param drive   The drive to load the data from.
-     * @param driveno The drive number.
      */
-    public void writeBack(M35FD drive, int driveno) {
-        /// TODO
+    public void writeBack(M35FD drive) {
+        File file = null;
+        if (drive.getDriveId() == 0) {
+            file = floppy0;
+        } else if (drive.getDriveId() == 1) {
+            file = floppy1;
+        }
+        if (file != null) {
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                int[] binary = drive.getRawMedia();
+                for (int i = 0; i < binary.length; ++i) {
+                    fos.write((binary[i] >> 8) & 0xFF);
+                    fos.write(binary[i] & 0xFF);
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(EmuMenuFile.class.getName()).log(Level.SEVERE, null, ex);
+                new Alert(Alert.AlertType.ERROR, I18n.format("error.fileio"), ButtonType.OK).showAndWait();
+            }
+        }
     }
 
     void showOptions() {

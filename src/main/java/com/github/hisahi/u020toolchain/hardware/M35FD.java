@@ -177,7 +177,7 @@ public class M35FD extends Hardware implements ITickable {
 
     private void writeBack() {
         if (this.main != null) {
-            this.main.writeBack(this, this.diskid);
+            this.main.writeBack(this);
         }
     }
 
@@ -378,7 +378,17 @@ public class M35FD extends Hardware implements ITickable {
         return this.inserted;
     }
     
-    int[] getRawMedia() {
+    /**
+     * Returns the contents of the media currently inserted into the drive 
+     * as an array.
+     * 
+     * @return The raw disk data as an integer array, or null if
+     *         {@link #hasMedia} would return false.
+     */
+    public int[] getRawMedia() {
+        if (!this.hasMedia()) {
+            return null;
+        }
         return this.disk;
     }
 

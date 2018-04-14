@@ -18,9 +18,9 @@ Emulaattoriohjelma käynnistyy itse emulaattorinäkymään, jossa on emuloitavan
 ## Huomioita
 
 * Näppäimistö on suunniteltu yksinomaan yhdysvaltalaista näppäinasettelua varten. Kyseiseen näppäinasetteluun siirtymisen vaiheet riippuvat käyttöjärjestelmästä. Ohessa on ohjeet seuraaville käyttöjärjestelmille:
-  * [https://support.microsoft.com/en-us/help/17424/windows-change-keyboard-layout](Windows 7, Windows 8, Windows 8.1). Lisättävä näppäinasettelu on "English (US)" tai "Englanti (Yhdysvallat)". Lisäämisen jälkeen voit käyttää kielivalikkoa.
-  * [https://support.microsoft.com/en-us/help/4027670/windows-add-and-switch-input-and-display-language-preferences-in-windo](Windows 10). Lisättävä näppäinasettelu on "English (US)" tai "Englanti (Yhdysvallat)". Lisäämisen jälkeen voit käyttää kielivalikkoa.
-  * [https://support.apple.com/kb/PH25311](macOS)
+  * [Windows 7, Windows 8, Windows 8.1](https://support.microsoft.com/en-us/help/17424/windows-change-keyboard-layout). Lisättävä näppäinasettelu on "English (US)" tai "Englanti (Yhdysvallat)". Lisäämisen jälkeen voit käyttää kielivalikkoa.
+  * [Windows 10](https://support.microsoft.com/en-us/help/4027670/windows-add-and-switch-input-and-display-language-preferences-in-windo). Lisättävä näppäinasettelu on "English (US)" tai "Englanti (Yhdysvallat)". Lisäämisen jälkeen voit käyttää kielivalikkoa.
+  * [macOS](https://support.apple.com/kb/PH25311)
   * Linuxilla vaiheet riippuvat käytetystä työpöytäympäristöstä sekä ikkunointijärjestelmästä.
 
 ## BASIC-tulkki

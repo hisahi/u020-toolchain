@@ -18,10 +18,10 @@ The emulator starts into the main view, which contains the emulated screen and m
 ## Notes
 
 * The virtual keyboard is designed specifically for the US keyboard layout. The exact steps to change to that layout depend on the operating system. Included below are instructions for some of them:
-  * [https://support.microsoft.com/en-us/help/17424/windows-change-keyboard-layout](Windows 7, Windows 8, Windows 8.1). 
+  * [Windows 7, Windows 8, Windows 8.1](https://support.microsoft.com/en-us/help/17424/windows-change-keyboard-layout). 
   The keyboard layout to add is "English (US)". You can use the keyboard layout menu to change to the layout after adding it.
-  * [https://support.microsoft.com/en-us/help/4027670/windows-add-and-switch-input-and-display-language-preferences-in-windo](Windows 10). The keyboard layout to add is "English (US)". You can use the keyboard layout menu to change to the layout after adding it.
-  * [https://support.apple.com/kb/PH25311](macOS)
+  * [Windows 10](https://support.microsoft.com/en-us/help/4027670/windows-add-and-switch-input-and-display-language-preferences-in-windo). The keyboard layout to add is "English (US)". You can use the keyboard layout menu to change to the layout after adding it.
+  * [macOS](https://support.apple.com/kb/PH25311)
   * Linux: The steps depend on your desktop environment and window manager.
 
 ## BASIC interpreter

@@ -20,4 +20,5 @@ _pyöristettynä lähimpään tasatuntimäärään_
 | 8.4.  | 2          | testit UNCD321-näytölle |
 | 11.4. | 4          | javadocs, pieniä muutoksia |
 | 12.4. | 3          | levykekuvien kirjoitus, arkkitehtuuri- ja testausdokumentit |
+| 13.4. | 2          | käyttöohje (suomeksi ja englanniksi) |
 | _yht_ | TBD        |  |

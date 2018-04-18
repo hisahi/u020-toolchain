@@ -21,6 +21,7 @@ Tämä repositorio ja sen alla oleva ohjelma on tehty kevätlukukauden 2018 (201
 
 ## Julkaisut
 
+* [v0.6](https://github.com/hisahi/u020-toolchain/releases/tag/v0.6)
 * [v0.5](https://github.com/hisahi/u020-toolchain/releases/tag/v0.5)
 
 ## Komentorivitoiminnot

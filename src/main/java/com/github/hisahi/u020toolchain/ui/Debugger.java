@@ -273,7 +273,7 @@ public class Debugger {
         logPrintln("total " + main.cpu.getDevices().size() + " devices");
     }
 
-    private void runInstruction(String[] args) {
+    private void runInstruction(String[] args, boolean showRegs) {
         if (main.cpu.isHalted()) {
             logPrintln(I18n.format("debugger.halted"));
             return;
@@ -282,38 +282,30 @@ public class Debugger {
             pauseCPU(args);
         }
         int oldPC = cpu.getPC();
-        cpu.pause();
+        boolean oldPaused = cpu.isPaused();
+        cpu.resume();
         while (cpu.getCyclesLeft() > 0) {
             cpu.tick();
         }
         cpu.tick();
+        if (showRegs) {
+            logPrintln(cpu.dumpRegisters().replace("\n", ""));
+        }
         if (cpu.wasInterruptHandled()) {
             logPrintln(I18n.format("debugger.interrupt", String.format("%04x", cpu.readRegister(Register.A))));
         }
         disassembleInstruction();
-        cpu.resume();
+        if (oldPaused) {
+            cpu.pause();
+        }
+    }
+
+    private void runInstruction(String[] args) {
+        runInstruction(args, false);
     }
 
     private void runInstructionWithRegs(String[] args) {
-        if (main.cpu.isHalted()) {
-            logPrintln(I18n.format("debugger.halted"));
-            return;
-        }
-        if (!main.cpu.isPaused()) {
-            pauseCPU(args);
-        }
-        int oldPC = cpu.getPC();
-        cpu.resume();
-        while (cpu.getCyclesLeft() > 0) {
-            cpu.tick();
-        }
-        cpu.tick();
-        logPrintln(cpu.dumpRegisters().replace("\n", ""));
-        if (cpu.wasInterruptHandled()) {
-            logPrintln(I18n.format("debugger.interrupt", String.format("%04x", cpu.readRegister(Register.A))));
-        }
-        disassembleInstruction();
-        cpu.pause();
+        runInstruction(args, true);
     }
 
     private void disassembleInstruction() {
@@ -389,8 +381,21 @@ public class Debugger {
     }
     
     private void showStack(String[] args) {
+        int limit = 65536;
+        if (args.length > 1) {
+            try {
+                limit = Integer.parseInt(args[1]);
+            } catch (NumberFormatException nfe) {
+                logPrintln(I18n.format("debugger.invalidnumber"));
+                return;
+            }
+        }
+        int j = 0;
         for (int i = cpu.getSP(); i < 65536; ++i) {
             logPrintln(I18n.format("%s    %s", String.format("%04x", i), String.format("%04x", cpu.getMemory().read(i))));
+            if (++j >= limit) {
+                break;
+            }
         }
     }
 

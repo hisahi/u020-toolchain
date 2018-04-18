@@ -51,7 +51,7 @@ import javafx.stage.WindowEvent;
  */
 public class EmulatorMain extends Application {
 
-    public static final String VERSION = "v0.5";
+    public static final String VERSION = "v0.6";
     public static final int CPU_HZ = 2000000;
     
     /**
@@ -189,6 +189,7 @@ public class EmulatorMain extends Application {
     void setScale(int i) {
         this.screen.setScaleX(i);
         this.screen.setScaleY(i);
+        
         mainStage.sizeToScene();
     }
 

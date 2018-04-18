@@ -21,4 +21,5 @@ _pyöristettynä lähimpään tasatuntimäärään_
 | 11.4. | 4          | javadocs, pieniä muutoksia |
 | 12.4. | 3          | levykekuvien kirjoitus, arkkitehtuuri- ja testausdokumentit |
 | 14.4. | 2          | käyttöohje (suomeksi ja englanniksi) |
-| _yht_ | TBD        |  |
+| 18.4. | 2          | englanninkielistä manuaalia, dokumentaatio, yksi lisätoiminto debug-konsoliin |
+| _yht_ | 55         |  |

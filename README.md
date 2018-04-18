@@ -19,4 +19,24 @@ Tämä repositorio ja sen alla oleva ohjelma on tehty kevätlukukauden 2018 (201
 * [Testausdokumentti](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/testaus.md)
 * [Lyhyt käyttöohje](https://github.com/hisahi/u020-toolchain/blob/master/dokumentaatio/kayttoohje.md) (täysi käyttöohje on englanniksi doc-kansiossa)
 
+## Julkaisut
 
+* [v0.5](https://github.com/hisahi/u020-toolchain/releases/tag/v0.5)
+
+## Komentorivitoiminnot
+
+### Testaus
+
+Testaus suoritetaan komennolla `mvn test` ja testikattavuusraportin luonti komennolla `mvn test jacoco:report`. Raportti tulee tiedostoon `target/site/jacoco/index.html`.
+
+### .JAR-tiedoston luominen
+
+JAR-tiedosto luodaan komennolla `mvn package` ja tulee `target`-kansion alle.
+
+### Javadoc
+
+Javadoc luodaan komennolla `mvn javadoc:javadoc` ja löytyy tiedostona `target/site/apidocs/index.html`.
+
+### Checkstyle
+
+Checkstyle suoritetaan komennolla `mvn jxr:jxr checkstyle:checkstyle`. Se löytyy tiedostona `target/site/checkstyle.html`.

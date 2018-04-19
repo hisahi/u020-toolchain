@@ -260,7 +260,6 @@ public class EmulatorAssembler {
                 if (asmres == null) {
                     return;
                 }
-                boolean oldPaused = main.cpu.isPaused();
                 main.cpuclock.stop();
                 main.cpu.reset(true);
                 int[] memarr = main.cpu.getMemory().array();
@@ -271,9 +270,6 @@ public class EmulatorAssembler {
                     } else {
                         memarr[i] = 0;
                     }
-                }
-                if (oldPaused) {
-                    main.cpu.pause();
                 }
                 main.cpuclock.start();
             }

@@ -19,6 +19,7 @@ public class InstructionDBG implements IInstruction {
     @Override
     public void execute(UCPU16 cpu, IAddressingMode a, IAddressingMode b, int am, int bm) {
         cpu.debugger("DBG instruction");
+        cpu.pause();
     }
 
     @Override

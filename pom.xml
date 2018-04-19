@@ -6,7 +6,7 @@
   <groupId>com.github.hisahi.u020toolchain</groupId>
   <artifactId>u020-toolchain</artifactId>
   <packaging>jar</packaging>
-  <version>0.6</version>
+  <version>0.7</version>
   <name>Univtek 020 Toolchain</name>
   <url>https://github.com/hisahi/u020-toolchain/</url>
   <dependencies>

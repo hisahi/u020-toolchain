@@ -22,4 +22,5 @@ _pyöristettynä lähimpään tasatuntimäärään_
 | 12.4. | 3          | levykekuvien kirjoitus, arkkitehtuuri- ja testausdokumentit |
 | 14.4. | 2          | käyttöohje (suomeksi ja englanniksi) |
 | 18.4. | 2          | englanninkielistä manuaalia, dokumentaatio, yksi lisätoiminto debug-konsoliin |
-| _yht_ | 55         |  |
+| 19.4. | 1          | pieniä korjauksia, englanninkielistä manuaalia |
+| _yht_ | 56         |  |

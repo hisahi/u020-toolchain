@@ -775,6 +775,9 @@ public class UCPU16 implements ITickable {
         for (Hardware hw: this.devices) {
             hw.pause();
         }
+        if (main != null) {
+            main.updatePause();
+        }
     }
     
     /**
@@ -785,5 +788,8 @@ public class UCPU16 implements ITickable {
             hw.resume();
         }
         this.paused = false;
+        if (main != null) {
+            main.updatePause();
+        }
     }
 }

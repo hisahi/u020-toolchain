@@ -51,7 +51,7 @@ import javafx.stage.WindowEvent;
  */
 public class EmulatorMain extends Application {
 
-    public static final String VERSION = "v0.6";
+    public static final String VERSION = "v0.7";
     public static final int CPU_HZ = 2000000;
     
     /**
@@ -156,9 +156,21 @@ public class EmulatorMain extends Application {
      * @param reason The cause to trigger the debugger (invalid instruction?)
      */
     public void showDebugger(String reason) {
+        final EmulatorMain self = this;
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+                boolean oldPaused = cpu.isPaused();
+                boolean oldClock = cpu.getClock().isRunning();
+                cpu.getClock().stop();
+                cpu.resume();
+                uncd321.displayFrame(ipw, self);
+                if (oldPaused) {
+                    cpu.pause();
+                }
+                if (oldClock) {
+                    cpu.getClock().start();
+                }
                 debugger.showDebugger(reason);
             }
         });
@@ -449,5 +461,16 @@ public class EmulatorMain extends Application {
      */
     public void reloadConfig() {
         options.reloadConfig();
+    }
+
+    /**
+     * Updates the CPU paused state.
+     */
+    public void updatePause() {
+        if (cpu.isPaused()) {
+            menuRun.pause.setText(I18n.format("menu.run.resume"));
+        } else {
+            menuRun.pause.setText(I18n.format("menu.run.pause"));
+        }
     }
 }

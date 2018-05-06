@@ -38,6 +38,8 @@ Kokeile esimerkiksi seuraavaa ohjelmaa, joka kysyy kahta lukua ja lisäävät ne
 60 PRINT "THE SUM IS",A+B
 ```
 
+Kun yllä oleva ohjelma on syötetty laitteeseen, voit luetella sen komennolla `LIST`, suorittaa sen komennolla `RUN` ja tyhjentää sen komennolla `NEW`.
+
 ## Muiden ohjelmien suoritus
 
 Jos sinulla on ohjelmakuva, voit suorittaa sen Tiedosto-valikon kautta klikkaamalla vaihtoehtoa "Avaa ja suorita". Kun tiedosto on valittu, se ladataan suorittimen muistiin automaattisesti ja suoritetaan.

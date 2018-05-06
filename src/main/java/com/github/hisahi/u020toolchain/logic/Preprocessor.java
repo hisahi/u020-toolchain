@@ -15,7 +15,8 @@ public class Preprocessor {
      * @return     The preprocessed code.
      */
     public static String preprocess(String code) {
-        /// TODO actually add stuff
+        // This section does nothing yet.
+        // It's a good next thing to develop though
         return code;
     }
     

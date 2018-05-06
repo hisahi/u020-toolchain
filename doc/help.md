@@ -39,6 +39,8 @@ Try the following program that asks for two numbers and calculates their sum:
 60 PRINT "THE SUM IS",A+B
 ```
 
+After typing in the program above, you can list the contents of the program with `LIST`, run it with `RUN` and clear everything with `NEW`.
+
 * [Complete BASIC manual](basic.md)
 
 ## Executing other programs

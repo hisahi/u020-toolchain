@@ -23,4 +23,5 @@ _pyöristettynä lähimpään tasatuntimäärään_
 | 14.4. | 2          | käyttöohje (suomeksi ja englanniksi) |
 | 18.4. | 2          | englanninkielistä manuaalia, dokumentaatio, yksi lisätoiminto debug-konsoliin |
 | 19.4. | 1          | pieniä korjauksia, englanninkielistä manuaalia |
-| _yht_ | 56         |  |
+| 6.5.  | 1          | loppuversion valmistelua, lisätestit, pieniä korjauksia |
+| _yht_ | 57         |  |

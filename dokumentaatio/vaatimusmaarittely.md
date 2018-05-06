@@ -51,6 +51,7 @@ Tähän ei ole kuvaa, mutta pääasiallinen käyttöliittymä tulee olemaan yksi
 * Lisätä valinnaiselle [UNHD210-kovalevyasemalle](https://github.com/hisahi/u020-toolchain/blob/master/doc/specs/UNHD210.txt)
 * Lisätä tuki mahdollisille muille lisälaitteille
 * Optimoida emulaattoria itseään nopeammaksi
+* Patistaa BASIC-tulkin kirjoittajia jatkamaan töitä ja kirjoittamaan dokumentaatio sille
 
 
 

@@ -152,7 +152,7 @@ public class AddressingModeTest {
     @Test
     public void readStackPickAddressingMode() {
         int offset = ((int)(Math.random() * 256) + 8);
-        int nw = ((int)(Math.random() * offset) + 1);
+        int nw = ((int)(Math.random() * (offset - 1)) + 1);
         IAddressingMode am = AddressingMode.STACK_PICK;
         int r1 = randomWord();
         int r2 = randomWord();
